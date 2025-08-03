@@ -1,0 +1,10 @@
+---
+Language: Cpp
+BasedOnStyle: Microsoft
+AccessModifierOffset: -4
+AllowShortFunctionsOnASingleLine: InlineOnly
+BreakBeforeBraces: Attach
+InsertBraces: true
+MaxEmptyLinesToKeep: 1
+SeparateDefinitionBlocks: Leave
+SpacesInContainerLiterals: true
