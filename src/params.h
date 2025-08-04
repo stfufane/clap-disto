@@ -1,5 +1,7 @@
 #pragma once
+
 #include <clap/id.h>
+#include <clap/ext/params.h>
 #include <cstdint>
 #include <unordered_map>
 

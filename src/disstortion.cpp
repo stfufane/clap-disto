@@ -21,9 +21,35 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,           "dev.s
 Disstortion::Disstortion(const clap_host *host) : ClapPluginBase(&descriptor, host) {
 }
 
-clap_process_status Disstortion::process(const clap_process *process) noexcept {
-    return Plugin<clap::helpers::MisbehaviourHandler::Terminate, clap::helpers::CheckingLevel::Maximal>::process(
-        process);
+clap_process_status Disstortion::process(const clap_process* process) noexcept {
+    // process parameters
+    const auto* in_events = process->in_events;
+    const auto event_count = in_events->size(in_events);
+    for (uint32_t i = 0; i < event_count; ++i) {
+        const auto* event = in_events->get(in_events, i);
+        if (event->space_id == CLAP_CORE_EVENT_SPACE_ID && event->type == CLAP_EVENT_PARAM_VALUE) {
+            auto* param_event = reinterpret_cast<const clap_event_param_value*>(event);
+            if (mParameters.isValidParamId(param_event->param_id)) {
+                *mParameters.getParamToValue(param_event->param_id) = param_event->value;
+            }
+        }
+    }
+
+    mDriveProcessor.setDrive(*mParameters.getParamToValue(params::eDrive));
+
+    // process audio
+    if (process->audio_outputs_count <= 0) {
+        return CLAP_PROCESS_CONTINUE;
+    }
+
+    auto in = choc::buffer::createChannelArrayView(process->audio_inputs->data32,
+                                         process->audio_inputs->channel_count, process->frames_count);
+    auto out = choc::buffer::createChannelArrayView(process->audio_outputs->data32,
+                                         process->audio_outputs->channel_count, process->frames_count);
+    choc::buffer::copy(out, in);
+    mDriveProcessor.process(out);
+
+    return CLAP_PROCESS_CONTINUE;
 }
 
 bool Disstortion::isValidParamId(clap_id paramId) const noexcept {

@@ -13,13 +13,15 @@ include(cmake/CPM.cmake)
 
 CPMAddPackage("gh:free-audio/clap#main")
 CPMAddPackage("gh:free-audio/clap-helpers#main")
+CPMAddPackage("gh:Tracktion/choc#main")
 CPMAddPackage("gh:cameron314/readerwriterqueue#master")
 CPMAddPackage("gh:VitalAudio/visage#main")
 CPMAddPackage("gh:nlohmann/json@3.11.3")
 
 set(SOURCE_FILES
     src/disstortion.cpp
-    src/disstortion-pluginentry.cpp)
+    src/disstortion-pluginentry.cpp
+    src/dsp/CubicDrive.cpp)
 
 add_library(${PROJECT_NAME} MODULE
         ${SOURCE_FILES})
@@ -30,5 +32,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     clap
     clap-helpers
     visage
+    choc
     readerwriterqueue
     nlohmann_json)
