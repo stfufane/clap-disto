@@ -24,6 +24,7 @@ set(SOURCE_FILES
 add_library(${PROJECT_NAME} MODULE
         ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".clap" PREFIX "")
+target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     clap

@@ -1,8 +1,10 @@
 #include "disstortion.h"
 
+#include <iostream>
 #include <clap/helpers/host-proxy.hh>
 #include <clap/helpers/plugin.hh>
 #include <clap/helpers/plugin.hxx>
+#include <nlohmann/json.hpp>
 
 using namespace visage::dimension;
 
@@ -19,12 +21,113 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,           "dev.s
 Disstortion::Disstortion(const clap_host *host) : ClapPluginBase(&descriptor, host) {
 }
 
-Disstortion::~Disstortion() = default;
+clap_process_status Disstortion::process(const clap_process *process) noexcept {
+    return Plugin<clap::helpers::MisbehaviourHandler::Terminate, clap::helpers::CheckingLevel::Maximal>::process(
+        process);
+}
+
+bool Disstortion::isValidParamId(clap_id paramId) const noexcept {
+    return mParameters.isValidParamId(paramId);
+}
+
+bool Disstortion::paramsValue(clap_id paramId, double *value) noexcept {
+    *value = *mParameters.getParamToValue(paramId);
+    return true;
+}
+
+bool Disstortion::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept {
+    if (index != 0) return false;
+
+    if (isInput) {
+        // Input port configuration
+        info->id = 0;
+        strcpy_s(info->name, "Audio Input");
+        info->flags = CLAP_AUDIO_PORT_IS_MAIN;
+        info->channel_count = 2;
+        info->port_type = CLAP_PORT_STEREO;
+        info->in_place_pair = 0; // Paired with output port 0 for in-place processing
+    } else {
+        // Output port configuration
+        info->id = 0;
+        strcpy_s(info->name, "Audio Output");
+        info->flags = CLAP_AUDIO_PORT_IS_MAIN;
+        info->channel_count = 2;
+        info->port_type = CLAP_PORT_STEREO;
+        info->in_place_pair = 0; // Paired with input port 0 for in-place processing
+    }
+
+    return true;
+}
+
+bool Disstortion::stateSave(const clap_ostream *stream) noexcept {
+    if (!stream || !stream->write) {
+        return false;
+    }
+
+    nlohmann::json j;
+
+    // Store all parameters in the JSON object
+    j["state_version"] = PROJECT_VERSION;
+
+    const auto jsonStr = j.dump();
+
+    // CLAP streams may have size limitations, so we need to write in chunks
+    const auto *buffer = jsonStr.data();
+
+    auto remaining = jsonStr.size();
+    while (remaining > 0) {
+        // Try to write remaining bytes
+        const auto written = stream->write(stream, buffer + (jsonStr.size() - remaining), remaining);
+
+        if (written < 0) {
+            return false; // Write error occurred
+        }
+
+        remaining -= written;
+    }
+
+    return true;
+}
+
+bool Disstortion::stateLoad(const clap_istream *stream) noexcept {
+    if (!stream || !stream->read) {
+        return false;
+    }
+
+    // Read the JSON string from the stream in chunks
+    constexpr auto chunkSize = 4096;
+    std::vector<char> buffer;
+    char chunk[chunkSize];
+
+    while (true) {
+        int64_t bytesRead = stream->read(stream, chunk, chunkSize);
+        if (bytesRead < 0) {
+            return false; // Read error
+        }
+        if (bytesRead == 0) {
+            break; // End of stream
+        }
+        buffer.insert(buffer.end(), chunk, chunk + bytesRead);
+    }
+
+    buffer.push_back('\0'); // Ensure buffer is null-terminated
+
+    try {
+        nlohmann::json j = nlohmann::json::parse(buffer.data());
+
+        auto state_version = j["state_version"].get<std::string>();
+
+        return state_version == PROJECT_VERSION;
+    } catch (std::exception &e) {
+        std::cerr << "Disstortion: Failed to load state: " << e.what() << std::endl;
+        return false;
+    }
+}
 
 #ifdef __linux__
 void ClapPlugin::onPosixFd(int fd, clap_posix_fd_flags_t flags) noexcept {
-    if (app_ && app_->window()) {
-        app_->window()->processPluginFdEvents();
+    if (mVisageApp && mVisageApp->window()) {
+        mVisageApp->window()->processPluginFdEvents();
     }
 }
 #endif
@@ -73,8 +176,8 @@ bool Disstortion::guiCreate(const char *api, bool is_floating) noexcept {
 
 void Disstortion::guiDestroy() noexcept {
 #if __linux__
-    if (app_ && app_->window() && _host.canUsePosixFdSupport()) {
-        _host.posixFdSupportUnregister(app_->window()->posixFd());
+    if (mVisageApp && mVisageApp->window() && _host.canUsePosixFdSupport()) {
+        _host.posixFdSupportUnregister(mVisageApp->window()->posixFd());
     }
 #endif
     mVisageApp->close();
@@ -86,9 +189,9 @@ bool Disstortion::guiSetParent(const clap_window *window) noexcept {
     }
     mVisageApp->show(window->ptr);
 #if __linux__
-    if (_host.canUsePosixFdSupport() && app_->window()) {
+    if (_host.canUsePosixFdSupport() && mVisageApp->window()) {
         int fd_flags = CLAP_POSIX_FD_READ | CLAP_POSIX_FD_WRITE | CLAP_POSIX_FD_ERROR;
-        return _host.posixFdSupportRegister(app_->window()->posixFd(), fd_flags);
+        return _host.posixFdSupportRegister(mVisageApp->window()->posixFd(), fd_flags);
     }
 #endif
     return true;
@@ -139,7 +242,7 @@ int Disstortion::pluginWidth() const {
         return 0;
     }
 #if __APPLE__
-    return app_->width();
+    return mVisageApp->width();
 #else
     return mVisageApp->nativeWidth();
 #endif
@@ -150,7 +253,7 @@ int Disstortion::pluginHeight() const {
         return 0;
     }
 #if __APPLE__
-    return app_->height();
+    return mVisageApp->height();
 #else
     return mVisageApp->nativeHeight();
 #endif
@@ -161,9 +264,10 @@ void Disstortion::setPluginDimensions(int width, int height) const {
         return;
     }
 #if __APPLE__
-    app_->setWindowDimensions(width, height);
+    mVisageApp->setWindowDimensions(width, height);
 #else
     mVisageApp->setNativeWindowDimensions(width, height);
 #endif
 }
+
 } // namespace stfefane
