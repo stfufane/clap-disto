@@ -21,7 +21,8 @@ CPMAddPackage("gh:nlohmann/json@3.11.3")
 set(SOURCE_FILES
     src/disstortion.cpp
     src/disstortion-pluginentry.cpp
-    src/dsp/CubicDrive.cpp)
+    src/dsp/CubicDrive.cpp
+    src/gui/DisstortionEditor.cpp)
 
 add_library(${PROJECT_NAME} MODULE
         ${SOURCE_FILES})

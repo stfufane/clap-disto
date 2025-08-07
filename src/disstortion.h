@@ -1,10 +1,11 @@
 #pragma once
 
 #include "dsp/CubicDrive.h"
+#include "gui/DisstortionEditor.h"
 #include "params.h"
 
 #include <clap/helpers/plugin.hh>
-#include <visage/app.h>
+
 
 namespace stfefane {
 
@@ -82,7 +83,7 @@ private:
     [[nodiscard]] int pluginHeight() const;
     void setPluginDimensions(int width, int height) const;
 
-    std::unique_ptr<visage::ApplicationWindow> mVisageApp;
+    std::unique_ptr<gui::DisstortionEditor> mEditor;
     params::Parameters mParameters;
 
     dsp::CubicDrive mDriveProcessor;

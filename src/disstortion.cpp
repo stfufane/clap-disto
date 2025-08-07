@@ -6,8 +6,6 @@
 #include <clap/helpers/plugin.hxx>
 #include <nlohmann/json.hpp>
 
-using namespace visage::dimension;
-
 namespace stfefane {
 
 static const char *kClapFeatures[] = {CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, nullptr};
@@ -152,8 +150,8 @@ bool Disstortion::stateLoad(const clap_istream *stream) noexcept {
 
 #ifdef __linux__
 void ClapPlugin::onPosixFd(int fd, clap_posix_fd_flags_t flags) noexcept {
-    if (mVisageApp && mVisageApp->window()) {
-        mVisageApp->window()->processPluginFdEvents();
+    if (mEditor && mEditor->window()) {
+        mEditor->window()->processPluginFdEvents();
     }
 }
 #endif
@@ -182,72 +180,62 @@ bool Disstortion::guiCreate(const char *api, bool is_floating) noexcept {
     if (is_floating) {
         return false;
     }
-    if (mVisageApp) {
+    if (mEditor) {
         return true;
     }
-    mVisageApp = std::make_unique<visage::ApplicationWindow>();
-    mVisageApp->setWindowDimensions(80_vmin, 60_vmin);
-    mVisageApp->onDraw() = [this](visage::Canvas &canvas) {
-        canvas.setColor(0xff000066);
-        canvas.fill(0, 0, mVisageApp->width(), mVisageApp->height());
-        float circle_radius = mVisageApp->height() * 0.1f;
-        float x = mVisageApp->width() * 0.5f - circle_radius;
-        float y = mVisageApp->height() * 0.5f - circle_radius;
-        canvas.setColor(0xff00ffff);
-        canvas.circle(x, y, 2.0f * circle_radius);
-    };
-    mVisageApp->onWindowContentsResized() = [this] { _host.guiRequestResize(pluginWidth(), pluginHeight()); };
+    mEditor = std::make_unique<gui::DisstortionEditor>();
+    mEditor->onWindowContentsResized() = [this] { _host.guiRequestResize(pluginWidth(), pluginHeight()); };
     return true;
 }
 
 void Disstortion::guiDestroy() noexcept {
 #if __linux__
-    if (mVisageApp && mVisageApp->window() && _host.canUsePosixFdSupport()) {
-        _host.posixFdSupportUnregister(mVisageApp->window()->posixFd());
+    if (mEditor && mEditor->window() && _host.canUsePosixFdSupport()) {
+        _host.posixFdSupportUnregister(mEditor->window()->posixFd());
     }
 #endif
-    mVisageApp->close();
+    mEditor->close();
 }
 
 bool Disstortion::guiSetParent(const clap_window *window) noexcept {
-    if (mVisageApp == nullptr) {
+    if (mEditor == nullptr) {
         return false;
     }
-    mVisageApp->show(window->ptr);
+    mEditor->show(window->ptr);
 #if __linux__
-    if (_host.canUsePosixFdSupport() && mVisageApp->window()) {
+    if (_host.canUsePosixFdSupport() && mEditor->window()) {
         int fd_flags = CLAP_POSIX_FD_READ | CLAP_POSIX_FD_WRITE | CLAP_POSIX_FD_ERROR;
-        return _host.posixFdSupportRegister(mVisageApp->window()->posixFd(), fd_flags);
+        return _host.posixFdSupportRegister(mEditor->window()->posixFd(), fd_flags);
     }
 #endif
     return true;
 }
 
 bool Disstortion::guiGetResizeHints(clap_gui_resize_hints_t *hints) noexcept {
-    if (mVisageApp == nullptr) {
+    if (mEditor == nullptr) {
         return false;
     }
-    bool fixed_aspect_ratio = mVisageApp->isFixedAspectRatio();
+    bool fixed_aspect_ratio = mEditor->isFixedAspectRatio();
     hints->can_resize_horizontally = true;
     hints->can_resize_vertically = true;
     hints->preserve_aspect_ratio = fixed_aspect_ratio;
     if (fixed_aspect_ratio) {
-        hints->aspect_ratio_width = mVisageApp->height() * mVisageApp->aspectRatio();
-        hints->aspect_ratio_height = mVisageApp->width();
+        hints->aspect_ratio_width = mEditor->height() * mEditor->aspectRatio();
+        hints->aspect_ratio_height = mEditor->width();
     }
     return true;
 }
 
 bool Disstortion::guiAdjustSize(uint32_t *width, uint32_t *height) noexcept {
-    if (mVisageApp == nullptr) {
+    if (mEditor == nullptr) {
         return false;
     }
-    mVisageApp->adjustWindowDimensions(width, height, true, true);
+    mEditor->adjustWindowDimensions(width, height, true, true);
     return true;
 }
 
 bool Disstortion::guiSetSize(uint32_t width, uint32_t height) noexcept {
-    if (mVisageApp == nullptr) {
+    if (mEditor == nullptr) {
         return false;
     }
     setPluginDimensions(width, height);
@@ -255,7 +243,7 @@ bool Disstortion::guiSetSize(uint32_t width, uint32_t height) noexcept {
 }
 
 bool Disstortion::guiGetSize(uint32_t *width, uint32_t *height) noexcept {
-    if (mVisageApp == nullptr) {
+    if (mEditor == nullptr) {
         return false;
     }
     *width = pluginWidth();
@@ -264,35 +252,35 @@ bool Disstortion::guiGetSize(uint32_t *width, uint32_t *height) noexcept {
 }
 
 int Disstortion::pluginWidth() const {
-    if (mVisageApp == nullptr) {
+    if (mEditor == nullptr) {
         return 0;
     }
 #if __APPLE__
-    return mVisageApp->width();
+    return mEditor->width();
 #else
-    return mVisageApp->nativeWidth();
+    return mEditor->nativeWidth();
 #endif
 }
 
 int Disstortion::pluginHeight() const {
-    if (mVisageApp == nullptr) {
+    if (mEditor == nullptr) {
         return 0;
     }
 #if __APPLE__
-    return mVisageApp->height();
+    return mEditor->height();
 #else
-    return mVisageApp->nativeHeight();
+    return mEditor->nativeHeight();
 #endif
 }
 
 void Disstortion::setPluginDimensions(int width, int height) const {
-    if (mVisageApp == nullptr) {
+    if (mEditor == nullptr) {
         return;
     }
 #if __APPLE__
-    mVisageApp->setWindowDimensions(width, height);
+    mEditor->setWindowDimensions(width, height);
 #else
-    mVisageApp->setNativeWindowDimensions(width, height);
+    mEditor->setNativeWindowDimensions(width, height);
 #endif
 }
 

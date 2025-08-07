@@ -3,6 +3,7 @@
 #include <cstring>
 
 namespace stfefane::plugin_entry {
+
 uint32_t getPluginCount(const clap_plugin_factory *f) {
     return 1;
 }
@@ -33,8 +34,7 @@ static const void *get_factory(const char *factory_id) {
 bool clap_init(const char *p) {
     return true;
 }
-void clap_deinit() {
-}
+void clap_deinit() {}
 } // namespace stfefane::plugin_entry
 
 extern "C" {
