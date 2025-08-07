@@ -27,7 +27,8 @@ set(SOURCE_FILES
     src/dsp/CubicDrive.h
     src/dsp/CubicDrive.cpp
     src/gui/DisstortionEditor.h
-    src/gui/DisstortionEditor.cpp)
+    src/gui/DisstortionEditor.cpp
+    src/gui/RotaryKnob.cpp)
 
 add_library(${PROJECT_NAME} MODULE ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".clap" PREFIX "")
