@@ -8,3 +8,4 @@ InsertBraces: true
 MaxEmptyLinesToKeep: 1
 SeparateDefinitionBlocks: Leave
 SpacesInContainerLiterals: true
+PointerAlignment: Left
