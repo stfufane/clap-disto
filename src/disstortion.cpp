@@ -65,7 +65,7 @@ bool Disstortion::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_i
     if (isInput) {
         // Input port configuration
         info->id = 0;
-        strcpy_s(info->name, "Audio Input");
+        strcpy(info->name, "Audio Input");
         info->flags = CLAP_AUDIO_PORT_IS_MAIN;
         info->channel_count = 2;
         info->port_type = CLAP_PORT_STEREO;
@@ -73,7 +73,7 @@ bool Disstortion::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_i
     } else {
         // Output port configuration
         info->id = 0;
-        strcpy_s(info->name, "Audio Output");
+        strcpy(info->name, "Audio Output");
         info->flags = CLAP_AUDIO_PORT_IS_MAIN;
         info->channel_count = 2;
         info->port_type = CLAP_PORT_STEREO;
@@ -149,7 +149,7 @@ bool Disstortion::stateLoad(const clap_istream *stream) noexcept {
 }
 
 #ifdef __linux__
-void ClapPlugin::onPosixFd(int fd, clap_posix_fd_flags_t flags) noexcept {
+void Disstortion::onPosixFd(int fd, clap_posix_fd_flags_t flags) noexcept {
     if (mEditor && mEditor->window()) {
         mEditor->window()->processPluginFdEvents();
     }

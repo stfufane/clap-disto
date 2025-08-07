@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.27)
 
 project(Disstortion VERSION 0.1.0 LANGUAGES C CXX)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 20)
 
@@ -19,13 +21,15 @@ CPMAddPackage("gh:VitalAudio/visage#main")
 CPMAddPackage("gh:nlohmann/json@3.11.3")
 
 set(SOURCE_FILES
+    src/disstortion.h
     src/disstortion.cpp
     src/disstortion-pluginentry.cpp
+    src/dsp/CubicDrive.h
     src/dsp/CubicDrive.cpp
+    src/gui/DisstortionEditor.h
     src/gui/DisstortionEditor.cpp)
 
-add_library(${PROJECT_NAME} MODULE
-        ${SOURCE_FILES})
+add_library(${PROJECT_NAME} MODULE ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".clap" PREFIX "")
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
