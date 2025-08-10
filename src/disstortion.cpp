@@ -1,14 +1,14 @@
 #include "disstortion.h"
 
-#include <iostream>
 #include <clap/helpers/host-proxy.hh>
 #include <clap/helpers/plugin.hh>
 #include <clap/helpers/plugin.hxx>
+#include <iostream>
 #include <nlohmann/json.hpp>
 
 namespace stfefane {
 
-static const char *kClapFeatures[] = {CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, nullptr};
+static const char* kClapFeatures[] = {CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, nullptr};
 
 clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,           "dev.stephanealbanese.disstortion",
                                                   "Disstortion",          "Stfefane",
@@ -16,10 +16,29 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,           "dev.s
                                                   "stephanealbanese.dev", "0.0.1",
                                                   "Disstortion Plugin",   kClapFeatures};
 
-Disstortion::Disstortion(const clap_host *host) : ClapPluginBase(&descriptor, host) {
+Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
 }
 
 clap_process_status Disstortion::process(const clap_process* process) noexcept {
+    processEvents(process);
+    updateParameters();
+
+    // process audio
+    if (process->audio_outputs_count <= 0) {
+        return CLAP_PROCESS_CONTINUE;
+    }
+
+    auto in = choc::buffer::createChannelArrayView(process->audio_inputs->data32, process->audio_inputs->channel_count,
+                                                   process->frames_count);
+    auto out = choc::buffer::createChannelArrayView(process->audio_outputs->data32,
+                                                    process->audio_outputs->channel_count, process->frames_count);
+    choc::buffer::copy(out, in);
+    mDriveProcessor.process(out);
+
+    return CLAP_PROCESS_CONTINUE;
+}
+
+void Disstortion::processEvents(const clap_process* process) {
     // process parameters
     const auto* in_events = process->in_events;
     const auto event_count = in_events->size(in_events);
@@ -32,35 +51,25 @@ clap_process_status Disstortion::process(const clap_process* process) noexcept {
             }
         }
     }
+}
 
+void Disstortion::updateParameters() {
     mDriveProcessor.setDrive(*mParameters.getParamToValue(params::eDrive));
-
-    // process audio
-    if (process->audio_outputs_count <= 0) {
-        return CLAP_PROCESS_CONTINUE;
-    }
-
-    auto in = choc::buffer::createChannelArrayView(process->audio_inputs->data32,
-                                         process->audio_inputs->channel_count, process->frames_count);
-    auto out = choc::buffer::createChannelArrayView(process->audio_outputs->data32,
-                                         process->audio_outputs->channel_count, process->frames_count);
-    choc::buffer::copy(out, in);
-    mDriveProcessor.process(out);
-
-    return CLAP_PROCESS_CONTINUE;
 }
 
 bool Disstortion::isValidParamId(clap_id paramId) const noexcept {
     return mParameters.isValidParamId(paramId);
 }
 
-bool Disstortion::paramsValue(clap_id paramId, double *value) noexcept {
+bool Disstortion::paramsValue(clap_id paramId, double* value) noexcept {
     *value = *mParameters.getParamToValue(paramId);
     return true;
 }
 
-bool Disstortion::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept {
-    if (index != 0) return false;
+bool Disstortion::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info* info) const noexcept {
+    if (index != 0) {
+        return false;
+    }
 
     if (isInput) {
         // Input port configuration
@@ -83,7 +92,7 @@ bool Disstortion::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_i
     return true;
 }
 
-bool Disstortion::stateSave(const clap_ostream *stream) noexcept {
+bool Disstortion::stateSave(const clap_ostream* stream) noexcept {
     if (!stream || !stream->write) {
         return false;
     }
@@ -96,7 +105,7 @@ bool Disstortion::stateSave(const clap_ostream *stream) noexcept {
     const auto jsonStr = j.dump();
 
     // CLAP streams may have size limitations, so we need to write in chunks
-    const auto *buffer = jsonStr.data();
+    const auto* buffer = jsonStr.data();
 
     auto remaining = jsonStr.size();
     while (remaining > 0) {
@@ -113,7 +122,7 @@ bool Disstortion::stateSave(const clap_ostream *stream) noexcept {
     return true;
 }
 
-bool Disstortion::stateLoad(const clap_istream *stream) noexcept {
+bool Disstortion::stateLoad(const clap_istream* stream) noexcept {
     if (!stream || !stream->read) {
         return false;
     }
@@ -142,7 +151,7 @@ bool Disstortion::stateLoad(const clap_istream *stream) noexcept {
         auto state_version = j["state_version"].get<std::string>();
 
         return state_version == PROJECT_VERSION;
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         std::cerr << "Disstortion: Failed to load state: " << e.what() << std::endl;
         return false;
     }
@@ -156,7 +165,7 @@ void Disstortion::onPosixFd(int fd, clap_posix_fd_flags_t flags) noexcept {
 }
 #endif
 
-bool Disstortion::guiIsApiSupported(const char *api, bool is_floating) noexcept {
+bool Disstortion::guiIsApiSupported(const char* api, bool is_floating) noexcept {
     if (is_floating) {
         return false;
     }
@@ -176,7 +185,7 @@ bool Disstortion::guiIsApiSupported(const char *api, bool is_floating) noexcept 
     return false;
 }
 
-bool Disstortion::guiCreate(const char *api, bool is_floating) noexcept {
+bool Disstortion::guiCreate(const char* api, bool is_floating) noexcept {
     if (is_floating) {
         return false;
     }
@@ -184,7 +193,9 @@ bool Disstortion::guiCreate(const char *api, bool is_floating) noexcept {
         return true;
     }
     mEditor = std::make_unique<gui::DisstortionEditor>();
-    mEditor->onWindowContentsResized() = [this] { _host.guiRequestResize(pluginWidth(), pluginHeight()); };
+    mEditor->onWindowContentsResized() = [this] {
+        _host.guiRequestResize(mEditor->pluginWidth(), mEditor->pluginHeight());
+    };
     return true;
 }
 
@@ -197,7 +208,7 @@ void Disstortion::guiDestroy() noexcept {
     mEditor->close();
 }
 
-bool Disstortion::guiSetParent(const clap_window *window) noexcept {
+bool Disstortion::guiSetParent(const clap_window* window) noexcept {
     if (mEditor == nullptr) {
         return false;
     }
@@ -211,13 +222,13 @@ bool Disstortion::guiSetParent(const clap_window *window) noexcept {
     return true;
 }
 
-bool Disstortion::guiGetResizeHints(clap_gui_resize_hints_t *hints) noexcept {
+bool Disstortion::guiGetResizeHints(clap_gui_resize_hints_t* hints) noexcept {
     if (mEditor == nullptr) {
         return false;
     }
     bool fixed_aspect_ratio = mEditor->isFixedAspectRatio();
-    hints->can_resize_horizontally = true;
-    hints->can_resize_vertically = true;
+    hints->can_resize_horizontally = false;
+    hints->can_resize_vertically = false;
     hints->preserve_aspect_ratio = fixed_aspect_ratio;
     if (fixed_aspect_ratio) {
         hints->aspect_ratio_width = mEditor->height() * mEditor->aspectRatio();
@@ -226,11 +237,11 @@ bool Disstortion::guiGetResizeHints(clap_gui_resize_hints_t *hints) noexcept {
     return true;
 }
 
-bool Disstortion::guiAdjustSize(uint32_t *width, uint32_t *height) noexcept {
+bool Disstortion::guiAdjustSize(uint32_t* width, uint32_t* height) noexcept {
     if (mEditor == nullptr) {
         return false;
     }
-    mEditor->adjustWindowDimensions(width, height, true, true);
+    mEditor->adjustWindowDimensions(width, height, false, false);
     return true;
 }
 
@@ -238,50 +249,17 @@ bool Disstortion::guiSetSize(uint32_t width, uint32_t height) noexcept {
     if (mEditor == nullptr) {
         return false;
     }
-    setPluginDimensions(width, height);
+    mEditor->setPluginDimensions(width, height);
     return true;
 }
 
-bool Disstortion::guiGetSize(uint32_t *width, uint32_t *height) noexcept {
+bool Disstortion::guiGetSize(uint32_t* width, uint32_t* height) noexcept {
     if (mEditor == nullptr) {
         return false;
     }
-    *width = pluginWidth();
-    *height = pluginHeight();
+    *width = mEditor->pluginWidth();
+    *height = mEditor->pluginHeight();
     return true;
-}
-
-int Disstortion::pluginWidth() const {
-    if (mEditor == nullptr) {
-        return 0;
-    }
-#if __APPLE__
-    return mEditor->width();
-#else
-    return mEditor->nativeWidth();
-#endif
-}
-
-int Disstortion::pluginHeight() const {
-    if (mEditor == nullptr) {
-        return 0;
-    }
-#if __APPLE__
-    return mEditor->height();
-#else
-    return mEditor->nativeHeight();
-#endif
-}
-
-void Disstortion::setPluginDimensions(int width, int height) const {
-    if (mEditor == nullptr) {
-        return;
-    }
-#if __APPLE__
-    mEditor->setWindowDimensions(width, height);
-#else
-    mEditor->setNativeWindowDimensions(width, height);
-#endif
 }
 
 } // namespace stfefane

@@ -6,12 +6,12 @@ namespace stfefane::gui {
 
 RotaryKnob::RotaryKnob(clap_id param_id) : IParamControl(param_id) {}
 
-void RotaryKnob::draw(visage::Canvas& canvas)
-{
+void RotaryKnob::draw(visage::Canvas& canvas) {
     const auto smaller_size = std::min(width(), height());
     const auto w = smaller_size * 0.8f;
-    const auto margin_x = width() * .1f;
-    const auto margin_y = height() * .1f;
+    // Center the knob
+    const auto margin_x = (width() - w) * .5f;
+    const auto margin_y = (height() - w) * .5f;
 
     // Draw the knob circle
     canvas.setColor(0xffaaff88);
@@ -31,23 +31,20 @@ void RotaryKnob::draw(visage::Canvas& canvas)
 }
 
 void RotaryKnob::mouseDown(const visage::MouseEvent& e) {
-    if (e.isLeftButton())
-    {
+    if (e.isLeftButton()) {
         mIsDragging = true;
         mDragStartY = e.position.y;
     }
 }
 
 void RotaryKnob::mouseUp(const visage::MouseEvent& e) {
-    if (e.isLeftButton())
-    {
+    if (e.isLeftButton()) {
         mIsDragging = false;
     }
 }
 
 void RotaryKnob::mouseDrag(const visage::MouseEvent& e) {
-    if (mIsDragging)
-    {
+    if (mIsDragging) {
         float dy = mDragStartY - e.position.y;
         auto range = mMaxValue - mMinValue;
         mCurrentValue += dy * range / 200.;
@@ -57,4 +54,4 @@ void RotaryKnob::mouseDrag(const visage::MouseEvent& e) {
     }
 }
 
-}
+} // namespace stfefane::gui

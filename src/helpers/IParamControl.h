@@ -7,8 +7,8 @@ namespace stfefane::helpers {
 
 class IParamControl {
 public:
-    explicit IParamControl(clap_id param_id) {
-        clap_param_info param_info;
+    explicit IParamControl(clap_id param_id): mParamId(param_id) {
+        clap_param_info_t param_info;
         params::Parameters::getParamInfo(mParamId, &param_info);
         mCurrentValue = param_info.default_value;
         mMinValue = param_info.min_value;

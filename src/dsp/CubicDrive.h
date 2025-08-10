@@ -12,7 +12,7 @@ public:
     void setDrive(float drive);
 
 private:
-    float drive = .5f;
+    float mDrive = .5f;
 };
 
 }

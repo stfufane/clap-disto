@@ -13,6 +13,10 @@ public:
     void draw(visage::Canvas& canvas) override;
     void resized() override;
 
+    [[nodiscard]] int pluginWidth() const;
+    [[nodiscard]] int pluginHeight() const;
+    void setPluginDimensions(int width, int height);
+
 private:
     RotaryKnob mGainKnob;
 };
