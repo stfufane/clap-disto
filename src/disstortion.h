@@ -34,6 +34,7 @@ protected:
     [[nodiscard]] bool implementsParams() const noexcept override { return true; }
     [[nodiscard]] bool isValidParamId(clap_id paramId) const noexcept override;
     [[nodiscard]] uint32_t paramsCount() const noexcept override { return params::nb_params; }
+    void paramsFlush(const clap_input_events* in, const clap_output_events* out) noexcept override;
     bool paramsInfo(uint32_t paramIndex, clap_param_info* info) const noexcept override {
         return params::Parameters::getParamInfo(paramIndex, info);
     }
@@ -79,7 +80,7 @@ protected:
     /** @} */
 
 private:
-    void processEvents(const clap_process* process);
+    void processEvents(const clap_input_events* in_events) const;
     void updateParameters();
 
     std::unique_ptr<gui::DisstortionEditor> mEditor;

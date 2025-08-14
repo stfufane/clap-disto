@@ -4,6 +4,8 @@
 #include <clap/id.h>
 #include <cstdint>
 #include <unordered_map>
+#include <array>
+#include <string_view>
 
 namespace stfefane::params {
 
@@ -14,6 +16,16 @@ enum param_ids : uint32_t {
     eNbParams
 };
 static constexpr uint32_t nb_params = eNbParams;
+
+static constexpr std::array<std::string_view, eNbParams> kParamNames {
+    "Drive",
+    "Gain",
+    "Cutoff"
+};
+
+constexpr std::string_view getParamName(clap_id param_id) {
+    return kParamNames[static_cast<size_t>(param_id)];
+}
 
 class Parameters {
 public:
@@ -36,21 +48,21 @@ public:
         switch (paramIndex) {
         case eDrive:
             info->id = eDrive;
-            strncpy(info->name, "Drive", CLAP_NAME_SIZE);
+            strncpy(info->name, getParamName(eDrive).data(), CLAP_NAME_SIZE);
             info->min_value = 0.;
             info->max_value = 1.;
             info->default_value = .5;
             break;
         case eGain:
             info->id = eGain;
-            strncpy(info->name, "Gain", CLAP_NAME_SIZE);
+            strncpy(info->name, getParamName(eGain).data(), CLAP_NAME_SIZE);
             info->min_value = 0.;
             info->max_value = 1.;
             info->default_value = .5;
             break;
         case eCutoff:
             info->id = eCutoff;
-            strncpy(info->name, "Cutoff", CLAP_NAME_SIZE);
+            strncpy(info->name, getParamName(eCutoff).data(), CLAP_NAME_SIZE);
             info->min_value = 20.;
             info->max_value = 20000.;
             info->default_value = 500.;

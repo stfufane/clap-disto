@@ -20,7 +20,7 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
 }
 
 clap_process_status Disstortion::process(const clap_process* process) noexcept {
-    processEvents(process);
+    processEvents(process->in_events);
     updateParameters();
 
     // process audio
@@ -38,9 +38,8 @@ clap_process_status Disstortion::process(const clap_process* process) noexcept {
     return CLAP_PROCESS_CONTINUE;
 }
 
-void Disstortion::processEvents(const clap_process* process) {
+void Disstortion::processEvents(const clap_input_events* in_events) const {
     // process parameters
-    const auto* in_events = process->in_events;
     const auto event_count = in_events->size(in_events);
     for (uint32_t i = 0; i < event_count; ++i) {
         const auto* event = in_events->get(in_events, i);
@@ -59,6 +58,11 @@ void Disstortion::updateParameters() {
 
 bool Disstortion::isValidParamId(clap_id paramId) const noexcept {
     return mParameters.isValidParamId(paramId);
+}
+
+void Disstortion::paramsFlush(const clap_input_events* in, const clap_output_events* out) noexcept {
+    processEvents(in);
+    // TODO: handle out for UI.
 }
 
 bool Disstortion::paramsValue(clap_id paramId, double* value) noexcept {
@@ -101,6 +105,9 @@ bool Disstortion::stateSave(const clap_ostream* stream) noexcept {
 
     // Store all parameters in the JSON object
     j["state_version"] = PROJECT_VERSION;
+    j[getParamName(params::param_ids::eDrive)] = *mParameters.getParamToValue(params::param_ids::eDrive);
+    j[getParamName(params::param_ids::eCutoff)] = *mParameters.getParamToValue(params::param_ids::eCutoff);
+    j[getParamName(params::param_ids::eGain)] = *mParameters.getParamToValue(params::param_ids::eGain);
 
     const auto jsonStr = j.dump();
 
@@ -143,14 +150,26 @@ bool Disstortion::stateLoad(const clap_istream* stream) noexcept {
         buffer.insert(buffer.end(), chunk, chunk + bytesRead);
     }
 
+    // No state to load but I guess that's ok
+    if (buffer.empty()) {
+        return true;
+    }
+
     buffer.push_back('\0'); // Ensure buffer is null-terminated
 
     try {
         nlohmann::json j = nlohmann::json::parse(buffer.data());
 
-        auto state_version = j["state_version"].get<std::string>();
+        const auto state_version = j["state_version"].get<std::string>();
+        if (state_version == PROJECT_VERSION) {
+            *mParameters.getParamToValue(params::param_ids::eDrive) = j[getParamName(params::param_ids::eDrive)].get<double>();
+            *mParameters.getParamToValue(params::param_ids::eCutoff) = j[getParamName(params::param_ids::eCutoff)].get<double>();
+            *mParameters.getParamToValue(params::param_ids::eGain) = j[getParamName(params::param_ids::eGain)].get<double>();
+        } else {
+            // TODO: handle changes between versions.
+        }
 
-        return state_version == PROJECT_VERSION;
+        return true;
     } catch (std::exception& e) {
         std::cerr << "Disstortion: Failed to load state: " << e.what() << std::endl;
         return false;

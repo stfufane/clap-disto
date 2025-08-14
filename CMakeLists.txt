@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 
-project(Disstortion VERSION 0.1.0 LANGUAGES C CXX)
+project(Disstortion VERSION 0.1.1 LANGUAGES C CXX)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
