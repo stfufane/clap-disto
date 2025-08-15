@@ -8,7 +8,7 @@ namespace stfefane::gui {
 class RotaryKnob final : public visage::Frame, public helpers::IParamControl
 {
 public:
-    explicit RotaryKnob(clap_id param_id);
+    explicit RotaryKnob(const clap_param_info& param_info);
 
     void draw(visage::Canvas& canvas) override;
     void mouseDown(const visage::MouseEvent& e) override;

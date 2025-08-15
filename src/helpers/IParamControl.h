@@ -1,29 +1,27 @@
 #pragma once
 
+#include "../params/Parameters.h"
 #include <clap/id.h>
-#include "../params.h"
 
 namespace stfefane::helpers {
 
 class IParamControl {
 public:
-    explicit IParamControl(clap_id param_id): mParamId(param_id) {
-        clap_param_info_t param_info;
-        params::Parameters::getParamInfo(mParamId, &param_info);
+    explicit IParamControl(const clap_param_info& param_info): mParamId(param_info.id), mParamInfo(param_info) {
         mCurrentValue = param_info.default_value;
-        mMinValue = param_info.min_value;
-        mMaxValue = param_info.max_value;
     };
     IParamControl() = delete;
 
     virtual ~IParamControl() = default;
 
 protected:
-    clap_id mParamId = UINT32_MAX;
+    double getMinValue() const noexcept { return mParamInfo.min_value; }
+    double getMaxValue() const noexcept { return mParamInfo.max_value; }
 
-    double mMinValue = 0.;
-    double mMaxValue = 0.;
-    double mCurrentValue = 0.;
+    clap_id mParamId = UINT32_MAX;
+    const clap_param_info& mParamInfo;
+
+    double mCurrentValue;
 };
 
 }

@@ -1,14 +1,18 @@
 #pragma once
 
 #include <visage/app.h>
-#include <vector>
 #include "RotaryKnob.h"
+
+namespace stfefane {
+class Disstortion;
+}
 
 namespace stfefane::gui {
 
 class DisstortionEditor : public visage::ApplicationWindow {
 public:
-    DisstortionEditor();
+    explicit DisstortionEditor(Disstortion& disstortion);
+    DisstortionEditor() = delete;
 
     void draw(visage::Canvas& canvas) override;
     void resized() override;
@@ -18,7 +22,12 @@ public:
     void setPluginDimensions(int width, int height);
 
 private:
+    // Reference to the plugin
+    Disstortion& mDisstortion;
+
+    RotaryKnob mDriveKnob;
     RotaryKnob mGainKnob;
+    RotaryKnob mCutoffKnob;
 };
 
 } // namespace gui::stfefane

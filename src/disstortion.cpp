@@ -17,6 +17,9 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,           "dev.s
                                                   "Disstortion Plugin",   kClapFeatures};
 
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
+    mParameters.addParameter(params::eDrive, "Drive", CLAP_PARAM_IS_AUTOMATABLE, { 0., 1., .1});
+    mParameters.addParameter(params::eGain, "Gain", CLAP_PARAM_IS_AUTOMATABLE, { 0., 1., .5});
+    mParameters.addParameter(params::eCutoff, "Cutoff", CLAP_PARAM_IS_AUTOMATABLE, { 20., 20000., 4000. });
 }
 
 clap_process_status Disstortion::process(const clap_process* process) noexcept {
@@ -46,14 +49,14 @@ void Disstortion::processEvents(const clap_input_events* in_events) const {
         if (event->space_id == CLAP_CORE_EVENT_SPACE_ID && event->type == CLAP_EVENT_PARAM_VALUE) {
             auto* param_event = reinterpret_cast<const clap_event_param_value*>(event);
             if (mParameters.isValidParamId(param_event->param_id)) {
-                *mParameters.getParamToValue(param_event->param_id) = param_event->value;
+                mParameters.getParamById(param_event->param_id)->setValue(param_event->value);
             }
         }
     }
 }
 
 void Disstortion::updateParameters() {
-    mDriveProcessor.setDrive(*mParameters.getParamToValue(params::eDrive));
+    mDriveProcessor.setDrive(mParameters.getParamValue(params::eDrive));
 }
 
 bool Disstortion::isValidParamId(clap_id paramId) const noexcept {
@@ -65,8 +68,17 @@ void Disstortion::paramsFlush(const clap_input_events* in, const clap_output_eve
     // TODO: handle out for UI.
 }
 
+bool Disstortion::paramsInfo(uint32_t paramIndex, clap_param_info* info) const noexcept {
+    const auto* param = mParameters.getParamByIndex(paramIndex);
+    if (param == nullptr) {
+        return false;
+    }
+    *info = param->getInfo();
+    return true;
+}
+
 bool Disstortion::paramsValue(clap_id paramId, double* value) noexcept {
-    *value = *mParameters.getParamToValue(paramId);
+    *value = mParameters.getParamValue(paramId);
     return true;
 }
 
@@ -78,7 +90,7 @@ bool Disstortion::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_i
     if (isInput) {
         // Input port configuration
         info->id = 0;
-        strcpy(info->name, "Audio Input");
+        snprintf(info->name, sizeof(info->name), "%s", "Audio Input");
         info->flags = CLAP_AUDIO_PORT_IS_MAIN;
         info->channel_count = 2;
         info->port_type = CLAP_PORT_STEREO;
@@ -86,7 +98,7 @@ bool Disstortion::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_i
     } else {
         // Output port configuration
         info->id = 0;
-        strcpy(info->name, "Audio Output");
+        snprintf(info->name, sizeof(info->name), "%s", "Audio Output");
         info->flags = CLAP_AUDIO_PORT_IS_MAIN;
         info->channel_count = 2;
         info->port_type = CLAP_PORT_STEREO;
@@ -105,9 +117,9 @@ bool Disstortion::stateSave(const clap_ostream* stream) noexcept {
 
     // Store all parameters in the JSON object
     j["state_version"] = PROJECT_VERSION;
-    j[getParamName(params::param_ids::eDrive)] = *mParameters.getParamToValue(params::param_ids::eDrive);
-    j[getParamName(params::param_ids::eCutoff)] = *mParameters.getParamToValue(params::param_ids::eCutoff);
-    j[getParamName(params::param_ids::eGain)] = *mParameters.getParamToValue(params::param_ids::eGain);
+    for (const auto& param: mParameters.getParams()) {
+        j[param->getInfo().name] = param->getValue();
+    }
 
     const auto jsonStr = j.dump();
 
@@ -152,7 +164,7 @@ bool Disstortion::stateLoad(const clap_istream* stream) noexcept {
 
     // No state to load but I guess that's ok
     if (buffer.empty()) {
-        return true;
+        return false;
     }
 
     buffer.push_back('\0'); // Ensure buffer is null-terminated
@@ -162,9 +174,9 @@ bool Disstortion::stateLoad(const clap_istream* stream) noexcept {
 
         const auto state_version = j["state_version"].get<std::string>();
         if (state_version == PROJECT_VERSION) {
-            *mParameters.getParamToValue(params::param_ids::eDrive) = j[getParamName(params::param_ids::eDrive)].get<double>();
-            *mParameters.getParamToValue(params::param_ids::eCutoff) = j[getParamName(params::param_ids::eCutoff)].get<double>();
-            *mParameters.getParamToValue(params::param_ids::eGain) = j[getParamName(params::param_ids::eGain)].get<double>();
+            for (const auto& param: mParameters.getParams()) {
+                param->setValue(j[param->getInfo().name].get<double>());
+            }
         } else {
             // TODO: handle changes between versions.
         }
@@ -211,7 +223,7 @@ bool Disstortion::guiCreate(const char* api, bool is_floating) noexcept {
     if (mEditor) {
         return true;
     }
-    mEditor = std::make_unique<gui::DisstortionEditor>();
+    mEditor = std::make_unique<gui::DisstortionEditor>(*this);
     mEditor->onWindowContentsResized() = [this] {
         _host.guiRequestResize(mEditor->pluginWidth(), mEditor->pluginHeight());
     };

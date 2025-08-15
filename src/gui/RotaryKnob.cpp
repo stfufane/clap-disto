@@ -4,7 +4,7 @@
 
 namespace stfefane::gui {
 
-RotaryKnob::RotaryKnob(clap_id param_id) : IParamControl(param_id) {}
+RotaryKnob::RotaryKnob(const clap_param_info& param_info) : IParamControl(param_info) {}
 
 void RotaryKnob::draw(visage::Canvas& canvas) {
     const auto smaller_size = std::min(width(), height());
@@ -20,7 +20,7 @@ void RotaryKnob::draw(visage::Canvas& canvas) {
     constexpr auto kPI = std::numbers::pi_v<float>;
     constexpr auto angle_start = .7f * kPI; // Start at the bottom center (PI/2) with a slight offset (0.2 PI)
     // Clamp the angle to 0.8 PI, it will be doubled from the center, covering 1.6 PI at the maximum value.
-    const auto angle = static_cast<float>((mCurrentValue - mMinValue) / (mMaxValue - mMinValue)) * kPI * .8f;
+    const auto angle = static_cast<float>((mCurrentValue - getMinValue()) / (getMaxValue() - getMinValue())) * kPI * .8f;
     // Shift the center of the radian
     const auto center_radians = angle + angle_start;
 
@@ -46,9 +46,9 @@ void RotaryKnob::mouseUp(const visage::MouseEvent& e) {
 void RotaryKnob::mouseDrag(const visage::MouseEvent& e) {
     if (mIsDragging) {
         float dy = mDragStartY - e.position.y;
-        auto range = mMaxValue - mMinValue;
+        const auto range = getMaxValue() - getMinValue();
         mCurrentValue += dy * range / 200.;
-        mCurrentValue = std::max(mMinValue, std::min(mMaxValue, mCurrentValue));
+        mCurrentValue = std::max(getMinValue(), std::min(getMaxValue(), mCurrentValue));
         mDragStartY = e.position.y;
         redraw();
     }

@@ -2,7 +2,7 @@
 
 #include "dsp/CubicDrive.h"
 #include "gui/DisstortionEditor.h"
-#include "params.h"
+#include "params/Parameters.h"
 
 #include <clap/helpers/plugin.hh>
 
@@ -33,11 +33,9 @@ protected:
      */
     [[nodiscard]] bool implementsParams() const noexcept override { return true; }
     [[nodiscard]] bool isValidParamId(clap_id paramId) const noexcept override;
-    [[nodiscard]] uint32_t paramsCount() const noexcept override { return params::nb_params; }
+    [[nodiscard]] uint32_t paramsCount() const noexcept override { return mParameters.count(); }
     void paramsFlush(const clap_input_events* in, const clap_output_events* out) noexcept override;
-    bool paramsInfo(uint32_t paramIndex, clap_param_info* info) const noexcept override {
-        return params::Parameters::getParamInfo(paramIndex, info);
-    }
+    bool paramsInfo(uint32_t paramIndex, clap_param_info* info) const noexcept override;
     bool paramsValue(clap_id paramId, double* value) noexcept override;
     // bool paramsValueToText(clap_id paramId, double value, char *display,
     //                        uint32_t size) noexcept override;
@@ -78,6 +76,12 @@ protected:
     bool guiSetSize(uint32_t width, uint32_t height) noexcept override;
     bool guiGetSize(uint32_t* width, uint32_t* height) noexcept override;
     /** @} */
+
+public:
+    const params::Parameters& getParameters() const noexcept { return mParameters; }
+    const clap_param_info& getParamInfo(clap_id param_id) const noexcept {
+        return mParameters.getParamById(params::eGain)->getInfo();
+    }
 
 private:
     void processEvents(const clap_input_events* in_events) const;
