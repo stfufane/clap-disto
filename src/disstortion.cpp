@@ -17,9 +17,9 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,           "dev.s
                                                   "Disstortion Plugin",   kClapFeatures};
 
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
-    mParameters.addParameter(params::eDrive, "Drive", CLAP_PARAM_IS_AUTOMATABLE, { 0., 1., .1});
-    mParameters.addParameter(params::eGain, "Gain", CLAP_PARAM_IS_AUTOMATABLE, { 0., 1., .5});
-    mParameters.addParameter(params::eCutoff, "Cutoff", CLAP_PARAM_IS_AUTOMATABLE, { 20., 20000., 4000. });
+    mParameters.addParameter(params::eDrive, "Drive", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .1));
+    mParameters.addParameter(params::eGain, "Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
+    mParameters.addParameter(params::eCutoff, "Cutoff", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 4000., " Hz"));
 }
 
 clap_process_status Disstortion::process(const clap_process* process) noexcept {
@@ -79,6 +79,18 @@ bool Disstortion::paramsInfo(uint32_t paramIndex, clap_param_info* info) const n
 
 bool Disstortion::paramsValue(clap_id paramId, double* value) noexcept {
     *value = mParameters.getParamValue(paramId);
+    return true;
+}
+
+bool Disstortion::paramsValueToText(clap_id paramId, double value, char* display, uint32_t size) noexcept {
+    const auto& value_type = mParameters.getParamValueType(paramId);
+    snprintf(display, size, "%s", value_type.toText(value).c_str());
+    return true;
+}
+
+bool Disstortion::paramsTextToValue(clap_id paramId, const char* display, double* value) noexcept {
+    const auto& value_type = mParameters.getParamValueType(paramId);
+    *value = value_type.toValue(display);
     return true;
 }
 

@@ -37,9 +37,9 @@ protected:
     void paramsFlush(const clap_input_events* in, const clap_output_events* out) noexcept override;
     bool paramsInfo(uint32_t paramIndex, clap_param_info* info) const noexcept override;
     bool paramsValue(clap_id paramId, double* value) noexcept override;
-    // bool paramsValueToText(clap_id paramId, double value, char *display,
-    //                        uint32_t size) noexcept override;
-    // bool paramsTextToValue(clap_id paramId, const char *display, double *value) noexcept override;
+    bool paramsValueToText(clap_id paramId, double value, char *display,
+                           uint32_t size) noexcept override;
+    bool paramsTextToValue(clap_id paramId, const char *display, double *value) noexcept override;
 
     /**
      * @name audio ports related methods
@@ -78,9 +78,9 @@ protected:
     /** @} */
 
 public:
-    const params::Parameters& getParameters() const noexcept { return mParameters; }
-    const clap_param_info& getParamInfo(clap_id param_id) const noexcept {
-        return mParameters.getParamById(params::eGain)->getInfo();
+    [[nodiscard]] const params::Parameters& getParameters() const noexcept { return mParameters; }
+    [[nodiscard]] const clap_param_info& getParamInfo(clap_id param_id) const noexcept {
+        return mParameters.getParamById(param_id)->getInfo();
     }
 
 private:

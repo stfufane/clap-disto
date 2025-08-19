@@ -15,8 +15,8 @@ public:
     virtual ~IParamControl() = default;
 
 protected:
-    double getMinValue() const noexcept { return mParamInfo.min_value; }
-    double getMaxValue() const noexcept { return mParamInfo.max_value; }
+    [[nodiscard]] double getMinValue() const noexcept { return mParamInfo.min_value; }
+    [[nodiscard]] double getMaxValue() const noexcept { return mParamInfo.max_value; }
 
     clap_id mParamId = UINT32_MAX;
     const clap_param_info& mParamInfo;
