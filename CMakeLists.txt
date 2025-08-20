@@ -24,6 +24,8 @@ set(SOURCE_FILES
     src/disstortion.h
     src/disstortion.cpp
     src/disstortion-pluginentry.cpp
+    src/params/Parameter.cpp
+    src/params/Parameters.cpp
     src/dsp/CubicDrive.h
     src/dsp/CubicDrive.cpp
     src/gui/DisstortionEditor.h

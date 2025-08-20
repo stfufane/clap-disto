@@ -79,8 +79,8 @@ protected:
 
 public:
     [[nodiscard]] const params::Parameters& getParameters() const noexcept { return mParameters; }
-    [[nodiscard]] const clap_param_info& getParamInfo(clap_id param_id) const noexcept {
-        return mParameters.getParamById(param_id)->getInfo();
+    [[nodiscard]] params::Parameter* getParameter(clap_id param_id) const noexcept {
+        return mParameters.getParamById(param_id);
     }
 
 private:

@@ -4,7 +4,7 @@
 
 namespace stfefane::gui {
 
-RotaryKnob::RotaryKnob(const clap_param_info& param_info) : IParamControl(param_info) {}
+RotaryKnob::RotaryKnob(params::Parameter* param) : IParamControl(param) {}
 
 void RotaryKnob::draw(visage::Canvas& canvas) {
     const auto smaller_size = std::min(width(), height());

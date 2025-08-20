@@ -2,6 +2,13 @@
 
 #include "clap/ext/params.h"
 
+#include <charconv>
+#include <iomanip>
+#include <ios>
+#include <sstream>
+#include <string>
+#include <vector>
+
 namespace stfefane::params {
 
 struct ParamValueType {
@@ -38,6 +45,8 @@ struct ParamPercentValueType final : ParamValueType {
     };
 };
 
+
+class IParameterUIListener;
 class Parameter {
 public:
     explicit Parameter(const clap_param_info& info, std::unique_ptr<ParamValueType> value_type, size_t index) :
@@ -47,11 +56,13 @@ public:
     Parameter(Parameter &&) = delete;
 
     [[nodiscard]] double getValue() const noexcept { return mValue; }
-    void setValue(const double value) { mValue = value; }
+    void setValue(double value);
 
     [[nodiscard]] const clap_param_info& getInfo() const noexcept { return mInfo; }
-    [[nodiscard]] const std::string& getUnit() const noexcept { return mValueType->mUnit; }
     [[nodiscard]] const ParamValueType& getValueType() const noexcept { return *mValueType; }
+
+    void addUIListener(IParameterUIListener* listener);
+    void removeUIListener(IParameterUIListener* listener);
 
 private:
     size_t mIndex = -1;
@@ -59,5 +70,27 @@ private:
 
     std::unique_ptr<ParamValueType> mValueType;
     double mValue = 0.;
+
+    std::vector<IParameterUIListener*> mUIListeners;
 };
+
+class IParameterUIListener {
+public:
+    explicit IParameterUIListener(Parameter* param) : mParam(param) {
+        if (mParam) {
+            mParam->addUIListener(this);
+        }
+    }
+
+    virtual ~IParameterUIListener() {
+        if (mParam) {
+            mParam->removeUIListener(this);
+        }
+    }
+
+    virtual void onParameterUpdated(double new_value) = 0;
+protected:
+    Parameter* mParam = nullptr;
+};
+
 }
