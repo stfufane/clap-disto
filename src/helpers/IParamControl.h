@@ -1,7 +1,10 @@
 #pragma once
 
 #include "../params/Parameters.h"
+
 #include <clap/id.h>
+#include <iostream>
+#include <thread>
 
 namespace stfefane::helpers {
 
