@@ -23,13 +23,14 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
 }
 
 clap_process_status Disstortion::process(const clap_process* process) noexcept {
-    processEvents(process->in_events);
-    updateParameters();
-
     // process audio
     if (process->audio_outputs_count <= 0) {
         return CLAP_PROCESS_CONTINUE;
     }
+
+    handleEventsFromUIQueue(process->out_events);
+    processEvents(process->in_events);
+    updateParameters();
 
     auto in = choc::buffer::createChannelArrayView(process->audio_inputs->data32, process->audio_inputs->channel_count,
                                                    process->frames_count);
@@ -59,13 +60,51 @@ void Disstortion::updateParameters() {
     mDriveProcessor.setDrive(mParameters.getParamValue(params::eDrive));
 }
 
+void Disstortion::handleEventsFromUIQueue(const clap_output_events_t* ov) {
+    // --- Handle incoming UI events
+    UIEvent f{};
+    while (mEventsQueue.try_dequeue(f))
+    {
+        switch (f.type)
+        {
+        case UIEvent::GESTURE_BEGIN:
+        case UIEvent::GESTURE_END:
+        {
+            auto [header, param_id] = clap_event_param_gesture();
+            header.space_id = CLAP_CORE_EVENT_SPACE_ID;
+            header.flags = 0;
+            header.time = 0;
+            header.type = (f.type == UIEvent::GESTURE_BEGIN ? CLAP_EVENT_PARAM_GESTURE_BEGIN : CLAP_EVENT_PARAM_GESTURE_END);
+            header.size = sizeof(clap_event_param_gesture);
+            param_id = f.id;
+            ov->try_push(ov, &header);
+            break;
+        }
+        case UIEvent::ADJUST_VALUE:
+        {
+            auto evt = clap_event_param_value();
+            evt.header.size = sizeof(clap_event_param_value);
+            evt.header.type = static_cast<uint16_t>(CLAP_EVENT_PARAM_VALUE);
+            evt.header.time = 0; // for now
+            evt.header.space_id = CLAP_CORE_EVENT_SPACE_ID;
+            evt.header.flags = 0;
+            evt.param_id = f.id;
+            evt.value = f.value;
+            mParameters.getParamById(evt.param_id)->setValue(evt.value);
+            ov->try_push(ov, &evt.header);
+            break;
+        }
+        }
+    }
+}
+
 bool Disstortion::isValidParamId(clap_id paramId) const noexcept {
     return mParameters.isValidParamId(paramId);
 }
 
 void Disstortion::paramsFlush(const clap_input_events* in, const clap_output_events* out) noexcept {
     processEvents(in);
-    // TODO: handle out for UI.
+    handleEventsFromUIQueue(out);
 }
 
 bool Disstortion::paramsInfo(uint32_t paramIndex, clap_param_info* info) const noexcept {
@@ -303,6 +342,27 @@ bool Disstortion::guiGetSize(uint32_t* width, uint32_t* height) noexcept {
     *width = mEditor->pluginWidth();
     *height = mEditor->pluginHeight();
     return true;
+}
+
+void Disstortion::editorParamsFlush() const {
+    if (_host.canUseParams()) {
+        _host.paramsRequestFlush();
+    }
+}
+
+void Disstortion::beginParameterChange(clap_id param_id) {
+    mEventsQueue.emplace(UIEvent{UIEvent::GESTURE_BEGIN, param_id, 0.0});
+    editorParamsFlush();
+}
+
+void Disstortion::updateParameterChange(clap_id param_id, double value) {
+    mEventsQueue.emplace(UIEvent{UIEvent::ADJUST_VALUE, param_id, value});
+    editorParamsFlush();
+}
+
+void Disstortion::endParameterChange(clap_id param_id) {
+    mEventsQueue.emplace(UIEvent{UIEvent::GESTURE_END, param_id, 0.0});
+    editorParamsFlush();
 }
 
 } // namespace stfefane

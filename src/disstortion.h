@@ -5,7 +5,7 @@
 #include "params/Parameters.h"
 
 #include <clap/helpers/plugin.hh>
-
+#include <readerwriterqueue.h>
 
 namespace stfefane {
 
@@ -83,12 +83,35 @@ public:
         return mParameters.getParamById(param_id);
     }
 
+    void editorParamsFlush() const;
+
+    void beginParameterChange(clap_id param_id);
+    void updateParameterChange(clap_id param_id, double value);
+    void endParameterChange(clap_id param_id);
+
+    struct UIEvent
+    {
+        enum EventType
+        {
+            GESTURE_BEGIN,
+            GESTURE_END,
+            ADJUST_VALUE
+        } type;
+        uint32_t id;
+        double value;
+    };
+    typedef moodycamel::ReaderWriterQueue<UIEvent, 4096> UIEventsQueue;
+
 private:
     void processEvents(const clap_input_events* in_events) const;
     void updateParameters();
+    void handleEventsFromUIQueue(const clap_output_events_t *);
+
+    params::Parameters mParameters;
 
     std::unique_ptr<gui::DisstortionEditor> mEditor;
-    params::Parameters mParameters;
+
+    UIEventsQueue mEventsQueue;
 
     dsp::CubicDrive mDriveProcessor;
 };

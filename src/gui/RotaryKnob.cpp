@@ -4,7 +4,7 @@
 
 namespace stfefane::gui {
 
-RotaryKnob::RotaryKnob(params::Parameter* param) : IParamControl(param) {}
+RotaryKnob::RotaryKnob(Disstortion& disstortion, clap_id param_id) : IParamControl(disstortion, param_id) {}
 
 void RotaryKnob::draw(visage::Canvas& canvas) {
     const auto smaller_size = std::min(width(), height());
@@ -32,6 +32,7 @@ void RotaryKnob::draw(visage::Canvas& canvas) {
 
 void RotaryKnob::mouseDown(const visage::MouseEvent& e) {
     if (e.isLeftButton()) {
+        beginChangeGesture();
         mIsDragging = true;
         mDragStartY = e.position.y;
     }
@@ -40,15 +41,22 @@ void RotaryKnob::mouseDown(const visage::MouseEvent& e) {
 void RotaryKnob::mouseUp(const visage::MouseEvent& e) {
     if (e.isLeftButton()) {
         mIsDragging = false;
+        endChangeGesture();
     }
 }
 
 void RotaryKnob::mouseDrag(const visage::MouseEvent& e) {
     if (mIsDragging) {
-        float dy = mDragStartY - e.position.y;
+        const float dy = mDragStartY - e.position.y;
         const auto range = getMaxValue() - getMinValue();
-        mCurrentValue += dy * range / 200.;
-        mCurrentValue = std::max(getMinValue(), std::min(getMaxValue(), mCurrentValue));
+        auto new_value = mCurrentValue + dy * range / 200.;
+        new_value = std::max(getMinValue(), std::min(getMaxValue(), new_value));
+
+        if (new_value != mCurrentValue) {
+            performChange(new_value);
+            mCurrentValue = new_value;
+        }
+
         mDragStartY = e.position.y;
         redraw();
     }

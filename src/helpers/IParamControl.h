@@ -2,28 +2,33 @@
 
 #include "../params/Parameters.h"
 
+#include <visage/ui.h>
 #include <clap/id.h>
-#include <iostream>
 #include <thread>
+
+namespace stfefane {
+class Disstortion;
+}
 
 namespace stfefane::helpers {
 
 class IParamControl : public visage::Frame, public params::IParameterUIListener {
 public:
-    explicit IParamControl(params::Parameter* param): IParameterUIListener(param), mParamId(param->getInfo().id) {
-        mCurrentValue = param->getInfo().default_value;
-    };
+    explicit IParamControl(Disstortion& disstortion, clap_id param_id);
     IParamControl() = delete;
 
 protected:
     [[nodiscard]] double getMinValue() const noexcept { return mParam->getInfo().min_value; }
     [[nodiscard]] double getMaxValue() const noexcept { return mParam->getInfo().max_value; }
 
-    void onParameterUpdated(double new_value) override {
-        mCurrentValue = new_value;
-        redraw();
-    }
+    // To be called by the UI element on mouse gestures
+    void beginChangeGesture();
+    void performChange(double new_value);
+    void endChangeGesture();
 
+    void onParameterUpdated(double new_value) override;
+
+    Disstortion& mDisstortion;
     clap_id mParamId = UINT32_MAX;
 
     double mCurrentValue = 0.;
