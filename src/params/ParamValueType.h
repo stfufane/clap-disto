@@ -6,6 +6,8 @@
 #include <sstream>
 #include <string>
 
+#include "../helpers/Utils.h"
+
 namespace stfefane::params {
 
 struct ParamValueType {
@@ -25,9 +27,7 @@ struct ParamValueType {
     }
 
     [[nodiscard]] virtual double toValue(const std::string& text) const {
-        double result = 0.;
-        std::from_chars(text.c_str(), text.c_str() + text.size(), result);
-        return result;
+        return utils::stringToDouble(text);
     }
 };
 
