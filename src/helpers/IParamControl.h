@@ -28,10 +28,11 @@ protected:
 
     void onParameterUpdated(double new_value) override;
 
+    double mCurrentValue = 0.;
+
+private:
     Disstortion& mDisstortion;
     clap_id mParamId = UINT32_MAX;
-
-    double mCurrentValue = 0.;
 };
 
 }

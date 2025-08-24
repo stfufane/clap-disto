@@ -1,7 +1,16 @@
 #pragma once
+
+#include <charconv>
+#include <numbers>
+#include <stdexcept>
 #include <string>
 
 namespace stfefane::utils {
+
+constexpr auto kPI = std::numbers::pi_v<float>;
+constexpr auto kTWO_PI = 2.f * kPI;
+constexpr auto kPI_64 = std::numbers::pi_v<double>;
+constexpr auto kTWO_PI_64 = 2. * kPI_64;
 
 [[nodiscard]] inline double stringToDouble(const std::string& str) {
 #ifdef __APPLE__

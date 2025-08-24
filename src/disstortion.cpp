@@ -3,6 +3,7 @@
 #include <clap/helpers/host-proxy.hh>
 #include <clap/helpers/plugin.hh>
 #include <clap/helpers/plugin.hxx>
+#include <choc/audio/choc_SampleBuffers.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
 
@@ -22,6 +23,15 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
     mParameters.addParameter(params::eCutoff, "Cutoff", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 4000., " Hz"));
 }
 
+bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
+    mDistoProcessor.setSampleRate(sampleRate);
+    return true;
+}
+
+void Disstortion::reset() noexcept {
+    mDistoProcessor.reset();
+}
+
 clap_process_status Disstortion::process(const clap_process* process) noexcept {
     // process audio
     if (process->audio_outputs_count <= 0) {
@@ -37,7 +47,16 @@ clap_process_status Disstortion::process(const clap_process* process) noexcept {
     auto out = choc::buffer::createChannelArrayView(process->audio_outputs->data32,
                                                     process->audio_outputs->channel_count, process->frames_count);
     choc::buffer::copy(out, in);
-    mDriveProcessor.process(out);
+
+    auto num_channels = out.getNumChannels();
+    auto num_frames = out.getNumFrames();
+
+    for (uint32_t channel = 0; channel < num_channels; ++channel) {
+        for (uint32_t frame = 0; frame < num_frames; ++frame) {
+            auto& io_sample = out.getSample(channel, frame);
+            io_sample = mDistoProcessor.process(io_sample);
+        }
+    }
 
     return CLAP_PROCESS_CONTINUE;
 }
@@ -57,7 +76,8 @@ void Disstortion::processEvents(const clap_input_events* in_events) const {
 }
 
 void Disstortion::updateParameters() {
-    mDriveProcessor.setDrive(mParameters.getParamValue(params::eDrive));
+    mDistoProcessor.setDrive(mParameters.getParamValue(params::eDrive));
+    mDistoProcessor.setOutputGain(mParameters.getParamValue(params::eGain));
 }
 
 void Disstortion::handleEventsFromUIQueue(const clap_output_events_t* ov) {
