@@ -16,7 +16,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 option(COPY_AFTER_BUILD "Copy the clap to ~/Library on MACOS, ~/.clap on linux" FALSE)
 
-include(cmake/CPM.cmake)
+include(cmake/get_cpm.cmake)
 
 CPMAddPackage("gh:free-audio/clap#main")
 CPMAddPackage("gh:free-audio/clap-helpers#main")
@@ -81,5 +81,14 @@ if(APPLE)
     endif()
 else()
     set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".clap" PREFIX "")
+    if(UNIX AND ${COPY_AFTER_BUILD})
+        message(STATUS "Will copy plugin after every build" )
+        set(products_folder ${CMAKE_BINARY_DIR})
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E echo "Installing ${products_folder}/${PROJECT_NAME}.clap to ~/.clap"
+                COMMAND ${CMAKE_COMMAND} -E make_directory "~/.clap"
+                COMMAND ${CMAKE_COMMAND} -E copy "${products_folder}/${PROJECT_NAME}.clap" "~/.clap"
+        )
+    endif()
 endif()
 
