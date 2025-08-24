@@ -1,6 +1,6 @@
 #include "RotaryKnob.h"
 
-#include <numbers>
+#include "../helpers/Utils.h"
 
 namespace stfefane::gui {
 
@@ -17,10 +17,9 @@ void RotaryKnob::draw(visage::Canvas& canvas) {
     canvas.setColor(0xffaaff88);
     canvas.circle(margin_x, margin_y, w);
 
-    constexpr auto kPI = std::numbers::pi_v<float>;
-    constexpr auto angle_start = .7f * kPI; // Start at the bottom center (PI/2) with a slight offset (0.2 PI)
+    constexpr auto angle_start = .7f * utils::kPI; // Start at the bottom center (PI/2) with a slight offset (0.2 PI)
     // Clamp the angle to 0.8 PI, it will be doubled from the center, covering 1.6 PI at the maximum value.
-    const auto angle = static_cast<float>((mCurrentValue - getMinValue()) / (getMaxValue() - getMinValue())) * kPI * .8f;
+    const auto angle = static_cast<float>((mCurrentValue - getMinValue()) / (getMaxValue() - getMinValue())) * utils::kPI * .8f;
     // Shift the center of the radian
     const auto center_radians = angle + angle_start;
 

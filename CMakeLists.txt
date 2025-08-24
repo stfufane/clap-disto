@@ -32,11 +32,15 @@ set(SOURCE_FILES
     src/helpers/IParamControl.cpp
     src/params/Parameter.cpp
     src/params/Parameters.cpp
-    src/dsp/CubicDrive.h
-    src/dsp/CubicDrive.cpp
     src/gui/DisstortionEditor.h
     src/gui/DisstortionEditor.cpp
-    src/gui/RotaryKnob.cpp)
+    src/gui/RotaryKnob.cpp
+    src/dsp/BiquadFilter.cpp
+    src/dsp/BiquadFilter.h
+    src/dsp/MultiDisto.cpp
+    src/dsp/MultiDisto.h
+    src/dsp/OverSampler.cpp
+    src/dsp/OverSampler.h)
 
 add_library(${PROJECT_NAME} MODULE ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} PRIVATE

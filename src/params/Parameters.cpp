@@ -20,6 +20,7 @@ void Parameters::addParameter(clap_id id, const std::string& name, uint32_t flag
     if (!inserted.second) {
         throw std::logic_error("same parameter id was inserted twice -> " + std::to_string(param_info.id));
     }
+    param_info.cookie = param_ptr;
     mParameters.emplace_back(std::move(new_param));
 }
 
