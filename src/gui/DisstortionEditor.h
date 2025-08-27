@@ -25,9 +25,11 @@ private:
     // Reference to the plugin
     Disstortion& mDisstortion;
 
-    RotaryKnob mDriveKnob;
-    RotaryKnob mGainKnob;
-    RotaryKnob mCutoffKnob;
+    RotaryKnob mDriveType;
+    RotaryKnob mDrive;
+    RotaryKnob mGain;
+    RotaryKnob mPreFilter;
+    RotaryKnob mPostFilter;
 };
 
 } // namespace gui::stfefane

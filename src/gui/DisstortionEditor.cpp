@@ -9,16 +9,21 @@ using namespace visage::dimension;
 
 DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
     : mDisstortion(disstortion)
-    , mDriveKnob(disstortion, params::eDrive)
-    , mGainKnob(disstortion, params::eInGain)
-    , mCutoffKnob(disstortion, params::ePreFilterFreq) {
+    , mDriveType(disstortion, params::eDriveType)
+    , mDrive(disstortion, params::eDrive)
+    , mGain(disstortion, params::eInGain)
+    , mPreFilter(disstortion, params::ePreFilterFreq)
+    , mPostFilter(disstortion, params::ePostFilterFreq) {
 
-    setWindowDimensions(300.f, 450.f);
     setFixedAspectRatio(true);
 
-    addChild(mDriveKnob);
-    addChild(mGainKnob);
-    addChild(mCutoffKnob);
+    addChild(&mDriveType);
+    addChild(&mDrive);
+    addChild(&mGain);
+    addChild(&mPreFilter);
+    addChild(&mPostFilter);
+
+    setWindowDimensions(450.f, 600.f);
 }
 
 void DisstortionEditor::draw(visage::Canvas& canvas) {
@@ -31,9 +36,11 @@ void DisstortionEditor::resized() {
     const auto two_thirds_height = third_height * 2.f;
     const auto half_width = width() / 2.f;
 
-    mDriveKnob.setBounds(visage::Bounds(0.f, 0.f, width(), two_thirds_height));
-    mGainKnob.setBounds(visage::Bounds(0.f, two_thirds_height, half_width, third_height));
-    mCutoffKnob.setBounds(visage::Bounds(half_width, two_thirds_height, half_width, third_height));
+    mDriveType.setBounds(visage::Bounds(0.f, 0.f, width(), third_height));
+    mDrive.setBounds(visage::Bounds(0.f, third_height, half_width, third_height));
+    mGain.setBounds(visage::Bounds(half_width, third_height, half_width, third_height));
+    mPreFilter.setBounds(visage::Bounds(0.f, two_thirds_height, half_width, third_height));
+    mPostFilter.setBounds(visage::Bounds(half_width, two_thirds_height, half_width, third_height));
 }
 
 int DisstortionEditor::pluginWidth() const {
