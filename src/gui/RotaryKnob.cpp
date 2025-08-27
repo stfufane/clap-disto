@@ -4,7 +4,14 @@
 
 namespace stfefane::gui {
 
-RotaryKnob::RotaryKnob(Disstortion& disstortion, clap_id param_id) : IParamControl(disstortion, param_id) {}
+RotaryKnob::RotaryKnob(Disstortion& disstortion, clap_id param_id) : IParamControl(disstortion, param_id)
+    , mRange(getMaxValue() - getMinValue()) {
+    mSensitivity = 200.;
+    if (isStepped()) {
+        // Scale sensitivity based on number of steps - more steps = less sensitive
+        mSensitivity = 100.; // std::max(80.0f, 200.0f / nbSteps());
+    }
+}
 
 void RotaryKnob::draw(visage::Canvas& canvas) {
     const auto smaller_size = std::min(width(), height());
@@ -34,6 +41,8 @@ void RotaryKnob::mouseDown(const visage::MouseEvent& e) {
         beginChangeGesture();
         mIsDragging = true;
         mDragStartY = e.position.y;
+        mDragStartValue = mCurrentValue;
+        mAccumulatedDrag = 0.f;
     }
 }
 
@@ -45,20 +54,37 @@ void RotaryKnob::mouseUp(const visage::MouseEvent& e) {
 }
 
 void RotaryKnob::mouseDrag(const visage::MouseEvent& e) {
-    if (mIsDragging) {
+    if (!mIsDragging) {
+        return;
+    }
+
         const float dy = mDragStartY - e.position.y;
-        const auto range = getMaxValue() - getMinValue();
-        auto new_value = mCurrentValue + dy * range / 200.;
-        new_value = std::max(getMinValue(), std::min(getMaxValue(), new_value));
+    mAccumulatedDrag += dy * mRange / mSensitivity;
+
+    auto target_value = mDragStartValue + mAccumulatedDrag;
+    target_value = std::max(getMinValue(), std::min(getMaxValue(), target_value));
+    double new_value = target_value;
+
+    if (isStepped()) {
+        // For stepped parameters, calculate which step we're closest to
+        const auto num_steps = nbSteps();
+        const double step_size = mRange / static_cast<double>(num_steps - 1);
+
+        // Calculate which step the continuous value corresponds to
+        const auto normalized_pos = (target_value - getMinValue()) / mRange;
+        const int target_step = std::round(normalized_pos * static_cast<double>(num_steps - 1));
+
+        // Convert back to actual value
+        new_value = getMinValue() + target_step * step_size;
+    }
 
         if (new_value != mCurrentValue) {
             performChange(new_value);
             mCurrentValue = new_value;
+        redraw();
         }
 
         mDragStartY = e.position.y;
-        redraw();
-    }
 }
 
 } // namespace stfefane::gui
