@@ -18,10 +18,10 @@ public:
     BiquadFilter(double freq, double q, FilterType type);
 
     void setup(FilterType type, double freq, double q);
-    void setFreq(double freq) { mFreq = freq; }
-    void setSampleRate(double samplerate) { mSampleRate = samplerate; }
+    void setFreq(double freq);
+    void setSampleRate(double samplerate);
 
-    FilterType getType() const { return mType; }
+    [[nodiscard]] FilterType getType() const { return mType; }
 
     double process(double input);
 

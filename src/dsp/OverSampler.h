@@ -13,7 +13,7 @@ public:
     void setupAntiAliasing(double sampleRate);
 
     std::array<double, FACTOR>& upsample(double input);
-    double downsample() const;
+    [[nodiscard]] double downsample() const;
 
 private:
     // Simple linear interpolation upsampler

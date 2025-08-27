@@ -6,7 +6,6 @@ void Oversampler::setupAntiAliasing(double sampleRate) {
     // Low-pass filter at Nyquist/2 to prevent aliasing
     mAntiAliasingFilter.setSampleRate(sampleRate);
     mAntiAliasingFilter.setup(FilterType::LOW_PASS, sampleRate * .25, .707);
-    mAntiAliasingFilter.update();
 }
 
 std::array<double, Oversampler::FACTOR>& Oversampler::upsample(double input) {

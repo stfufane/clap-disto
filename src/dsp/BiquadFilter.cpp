@@ -14,6 +14,17 @@ void BiquadFilter::setup(FilterType type, double freq, double q) {
     mType = type;
     mFreq = freq;
     mQ = q;
+    update();
+}
+
+void BiquadFilter::setFreq(double freq) {
+    mFreq = freq;
+    update();
+}
+
+void BiquadFilter::setSampleRate(double samplerate) {
+    mSampleRate = samplerate;
+    update();
 }
 
 double BiquadFilter::process(double input) {

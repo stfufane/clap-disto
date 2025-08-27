@@ -26,7 +26,14 @@ public:
     double process(double input);
 
     void setDrive(double drive) { mDrive = drive; }
+    void setType(DistortionType type) { mType = type; }
+    void setInputGain(double gain) { mInputGain = gain; }
     void setOutputGain(double gain) { mOutputGain = gain; }
+    void setPreFilterFreq(double freq) { mPreFilter.setFreq(freq); }
+    void setPostFilterFreq(double freq) { mPostFilter.setFreq(freq); }
+    void setBias(double bias) { mBias = bias; }
+    void setAsymmetry(double asymmetry) { mAsymmetry = asymmetry; }
+    void setMix(double mix) { mMix = mix; }
 
 private:
     // DC blocking filter
@@ -42,19 +49,17 @@ private:
         }
     };
 
-    void updateFilters();
-
-    double applyDistortion(double input) const;
+    [[nodiscard]] double applyDistortion(double input) const;
 
     // Distortion algorithms
-    double cubicSaturation(double input) const;
-    double tubeSaturation(double input) const;
-    double asymmetricClip(double input) const;
-    double foldbackDistortion(double input) const;
-    double bitcrushDistortion(double input) const;
-    double waveShaperDistortion(double input) const;
-    double tubeScreamerDistortion(double input) const;
-    double fuzzFaceDistortion(double input) const;
+    [[nodiscard]] double cubicSaturation(double input) const;
+    [[nodiscard]] double tubeSaturation(double input) const;
+    [[nodiscard]] double asymmetricClip(double input) const;
+    [[nodiscard]] double foldbackDistortion(double input) const;
+    [[nodiscard]] double bitcrushDistortion(double input) const;
+    [[nodiscard]] double waveShaperDistortion(double input) const;
+    [[nodiscard]] double tubeScreamerDistortion(double input) const;
+    [[nodiscard]] double fuzzFaceDistortion(double input) const;
 
     double mSampleRate = 44100.0;
     DistortionType mType = DistortionType::TUBE_SCREAMER;
@@ -67,9 +72,9 @@ private:
     double mInputGain = 1.;
     double mOutputGain = 1.;
     double mDrive = .1;
-    double mMix = 1.; // Wet/dry mix
     double mAsymmetry = 0.; // For asymmetric distortion
     double mBias = 0.;
+    double mMix = 1.; // Wet/dry mix
 };
 
 }

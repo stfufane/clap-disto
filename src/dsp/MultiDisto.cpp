@@ -10,7 +10,6 @@ void MultiDisto::setSampleRate(double samplerate) {
     mOversampler.setupAntiAliasing(samplerate);
     mPreFilter.setSampleRate(samplerate);
     mPostFilter.setSampleRate(samplerate);
-    updateFilters();
 }
 
 void MultiDisto::reset() {
@@ -57,12 +56,7 @@ double MultiDisto::process(double input) {
     signal = mMix * signal + (1.0 - mMix) * drySignal;
 
     // Final safety limiting
-    return std::clamp(signal, -0.95, 0.95);
-}
-
-void MultiDisto::updateFilters() {
-    mPreFilter.update();
-    mPostFilter.update();
+    return std::clamp(signal, -1., 1.);
 }
 
 double MultiDisto::applyDistortion(double input) const {
