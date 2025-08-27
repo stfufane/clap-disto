@@ -25,6 +25,7 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
 
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
     mDistoProcessor.setSampleRate(sampleRate);
+    updateParameters();
     return true;
 }
 

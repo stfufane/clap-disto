@@ -9,10 +9,11 @@
 namespace stfefane::params {
 
 class IParameterUIListener;
+
 class Parameter {
 public:
     explicit Parameter(const clap_param_info& info, std::unique_ptr<ParamValueType> value_type, size_t index) :
-         mIndex(index), mInfo(info), mValueType(std::move(value_type)) {}
+         mIndex(index), mInfo(info), mValueType(std::move(value_type)), mValue(mInfo.default_value) {}
     Parameter() = delete;
     Parameter(const Parameter &) = delete;
     Parameter(Parameter &&) = delete;
