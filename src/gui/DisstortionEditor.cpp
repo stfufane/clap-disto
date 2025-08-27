@@ -10,8 +10,8 @@ using namespace visage::dimension;
 DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
     : mDisstortion(disstortion)
     , mDriveKnob(disstortion, params::eDrive)
-    , mGainKnob(disstortion, params::eGain)
-    , mCutoffKnob(disstortion, params::eCutoff) {
+    , mGainKnob(disstortion, params::eInGain)
+    , mCutoffKnob(disstortion, params::ePreFilterFreq) {
 
     setWindowDimensions(300.f, 450.f);
     setFixedAspectRatio(true);

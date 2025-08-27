@@ -19,8 +19,15 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,           "dev.s
 
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
     mParameters.addParameter(params::eDrive, "Drive", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .1));
-    mParameters.addParameter(params::eGain, "Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
-    mParameters.addParameter(params::eCutoff, "Cutoff", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 4000., " Hz"));
+    mParameters.addParameter(params::eDriveType, "Drive Type", CLAP_PARAM_IS_AUTOMATABLE | CLAP_PARAM_IS_STEPPED, std::make_unique<params::SteppedValueType<8>>(std::array<std::string, 8>({ "Cubic Saturation", "Tube Saturation", "Asymmetric Clip", "Foldback", "Bitcrush", "Waveshaper", "Tube Screamer", "Fuzz"}), 0.));
+    mParameters.addParameter(params::eInGain, "Input Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
+    mParameters.addParameter(params::eOutGain, "Output Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
+    mParameters.addParameter(params::ePreFilterFreq, "Pre Filter", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 10000., " Hz"));
+    mParameters.addParameter(params::ePostFilterFreq, "Post Filter", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 80., " Hz"));
+    mParameters.addParameter(params::eAsymmetry, "Asymmetry", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(-0.5, 0.5, 0., std::string()));
+    mParameters.addParameter(params::eBias, "Bias", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(-0.1, 0.1, 0., std::string()));
+    mParameters.addParameter(params::eMix, "Mix", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
+
 }
 
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
@@ -78,7 +85,14 @@ void Disstortion::processEvents(const clap_input_events* in_events) const {
 
 void Disstortion::updateParameters() {
     mDistoProcessor.setDrive(mParameters.getParamValue(params::eDrive));
-    mDistoProcessor.setOutputGain(mParameters.getParamValue(params::eGain));
+    mDistoProcessor.setType(static_cast<dsp::DistortionType>(mParameters.getParamValue(params::eDriveType)));
+    mDistoProcessor.setInputGain(mParameters.getParamValue(params::eInGain));
+    mDistoProcessor.setOutputGain(mParameters.getParamValue(params::eOutGain));
+    mDistoProcessor.setPreFilterFreq(mParameters.getParamValue(params::ePreFilterFreq));
+    mDistoProcessor.setPostFilterFreq(mParameters.getParamValue(params::ePostFilterFreq));
+    mDistoProcessor.setBias(mParameters.getParamValue(params::eBias));
+    mDistoProcessor.setAsymmetry(mParameters.getParamValue(params::eAsymmetry));
+    mDistoProcessor.setMix(mParameters.getParamValue(params::eMix));
 }
 
 void Disstortion::handleEventsFromUIQueue(const clap_output_events_t* ov) {
