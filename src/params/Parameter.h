@@ -24,6 +24,9 @@ public:
     [[nodiscard]] const clap_param_info& getInfo() const noexcept { return mInfo; }
     [[nodiscard]] const ParamValueType& getValueType() const noexcept { return *mValueType; }
 
+    [[nodiscard]] bool isStepped() const noexcept { return mInfo.flags & CLAP_PARAM_IS_STEPPED; }
+    [[nodiscard]] size_t nbSteps() const noexcept;
+
     void addUIListener(IParameterUIListener* listener);
     void removeUIListener(IParameterUIListener* listener);
 

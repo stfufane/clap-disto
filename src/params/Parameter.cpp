@@ -12,6 +12,17 @@ void Parameter::setValue(const double value) {
     }
 }
 
+size_t Parameter::nbSteps() const noexcept {
+    if (!isStepped()) {
+        return 1;
+    }
+    if (const auto* stepped_param = dynamic_cast<SteppedValueType*>(mValueType.get()); stepped_param) {
+        return stepped_param->mValues.size();
+    }
+
+    return 1;
+}
+
 void Parameter::addUIListener(IParameterUIListener* listener) {
     if (std::ranges::find(mUIListeners, listener) == mUIListeners.end()) {
         mUIListeners.push_back(listener);

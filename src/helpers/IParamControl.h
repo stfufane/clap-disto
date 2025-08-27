@@ -20,6 +20,8 @@ public:
 protected:
     [[nodiscard]] double getMinValue() const noexcept { return mParam->getInfo().min_value; }
     [[nodiscard]] double getMaxValue() const noexcept { return mParam->getInfo().max_value; }
+    [[nodiscard]] bool isStepped() const noexcept { return mParam->isStepped(); }
+    [[nodiscard]] size_t nbSteps() const noexcept { return mParam->nbSteps(); }
 
     // To be called by the UI element on mouse gestures
     void beginChangeGesture();

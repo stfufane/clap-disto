@@ -5,6 +5,7 @@
 #include <ios>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "../helpers/Utils.h"
 
@@ -46,28 +47,27 @@ struct ParamPercentValueType final : ParamValueType {
     }
 };
 
-template<size_t NB_STEPS>
 struct SteppedValueType final : ParamValueType {
-    explicit SteppedValueType(std::array<std::string, NB_STEPS>&& values, double defaultVal)
-        : ParamValueType(0., static_cast<double>(NB_STEPS - 1), defaultVal, std::string()), mValues(std::move(values)) {}
+    explicit SteppedValueType(std::vector<std::string>&& values, double defaultVal)
+        : ParamValueType(0., static_cast<double>(values.size() - 1), defaultVal, std::string()), mValues(std::move(values)) {}
 
     [[nodiscard]] std::string toText(double value) const override {
         const auto index = static_cast<size_t>(value);
-        if (index >= NB_STEPS) {
+        if (index >= mValues.size()) {
             return "INVALID INDEX";
         }
         return mValues[index];
     }
 
     [[nodiscard]] double toValue(const std::string& text) const override {
-        if (auto it = std::find(mValues.begin(), mValues.end(), text); it != mValues.end()) {
+        if (const auto it = std::ranges::find(mValues, text); it != mValues.end()) {
             const auto index = std::distance(mValues.begin(), it);
             return static_cast<double>(index);
         }
         return 0.;
     }
 
-    const std::array<std::string, NB_STEPS> mValues;
+    const std::vector<std::string> mValues;
 };
 
 }
