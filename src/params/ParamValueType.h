@@ -46,4 +46,28 @@ struct ParamPercentValueType final : ParamValueType {
     }
 };
 
+template<size_t NB_STEPS>
+struct SteppedValueType final : ParamValueType {
+    explicit SteppedValueType(std::array<std::string, NB_STEPS>&& values, double defaultVal)
+        : ParamValueType(0., static_cast<double>(NB_STEPS - 1), defaultVal, std::string()), mValues(std::move(values)) {}
+
+    [[nodiscard]] std::string toText(double value) const override {
+        const auto index = static_cast<size_t>(value);
+        if (index >= NB_STEPS) {
+            return "INVALID INDEX";
+        }
+        return mValues[index];
+    }
+
+    [[nodiscard]] double toValue(const std::string& text) const override {
+        if (auto it = std::find(mValues.begin(), mValues.end(), text); it != mValues.end()) {
+            const auto index = std::distance(mValues.begin(), it);
+            return static_cast<double>(index);
+        }
+        return 0.;
+    }
+
+    const std::array<std::string, NB_STEPS> mValues;
+};
+
 }
