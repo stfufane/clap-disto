@@ -15,7 +15,6 @@ public:
     DisstortionEditor() = delete;
 
     void draw(visage::Canvas& canvas) override;
-    void resized() override;
 
     [[nodiscard]] int pluginWidth() const;
     [[nodiscard]] int pluginHeight() const;
@@ -25,9 +24,11 @@ private:
     // Reference to the plugin
     Disstortion& mDisstortion;
 
-    RotaryKnob mDriveKnob;
-    RotaryKnob mGainKnob;
-    RotaryKnob mCutoffKnob;
+    RotaryKnob mDriveType;
+    RotaryKnob mDrive;
+    RotaryKnob mGain;
+    RotaryKnob mPreFilter;
+    RotaryKnob mPostFilter;
 };
 
 } // namespace gui::stfefane

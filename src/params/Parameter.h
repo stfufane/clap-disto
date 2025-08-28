@@ -9,10 +9,11 @@
 namespace stfefane::params {
 
 class IParameterUIListener;
+
 class Parameter {
 public:
     explicit Parameter(const clap_param_info& info, std::unique_ptr<ParamValueType> value_type, size_t index) :
-         mIndex(index), mInfo(info), mValueType(std::move(value_type)) {}
+         mIndex(index), mInfo(info), mValueType(std::move(value_type)), mValue(mInfo.default_value) {}
     Parameter() = delete;
     Parameter(const Parameter &) = delete;
     Parameter(Parameter &&) = delete;
@@ -22,6 +23,9 @@ public:
 
     [[nodiscard]] const clap_param_info& getInfo() const noexcept { return mInfo; }
     [[nodiscard]] const ParamValueType& getValueType() const noexcept { return *mValueType; }
+
+    [[nodiscard]] bool isStepped() const noexcept { return mInfo.flags & CLAP_PARAM_IS_STEPPED; }
+    [[nodiscard]] size_t nbSteps() const noexcept;
 
     void addUIListener(IParameterUIListener* listener);
     void removeUIListener(IParameterUIListener* listener);

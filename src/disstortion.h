@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dsp/CubicDrive.h"
+#include "dsp/MultiDisto.h"
 #include "gui/DisstortionEditor.h"
 #include "params/Parameters.h"
 
@@ -25,6 +25,8 @@ public:
 #endif
 
 protected:
+    bool activate(double sampleRate, uint32_t /*minFrames*/, uint32_t maxFrames) noexcept override;
+    void reset() noexcept override;
     clap_process_status process(const clap_process* process) noexcept override;
 
     /**
@@ -113,6 +115,7 @@ private:
 
     UIEventsQueue mEventsQueue;
 
-    dsp::CubicDrive mDriveProcessor;
+    dsp::MultiDisto mDistoProcessor;
+
 };
 } // namespace stfefane

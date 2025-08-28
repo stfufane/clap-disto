@@ -3,6 +3,7 @@
 #include <clap/helpers/host-proxy.hh>
 #include <clap/helpers/plugin.hh>
 #include <clap/helpers/plugin.hxx>
+#include <choc/audio/choc_SampleBuffers.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
 
@@ -18,8 +19,25 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,           "dev.s
 
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
     mParameters.addParameter(params::eDrive, "Drive", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .1));
-    mParameters.addParameter(params::eGain, "Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
-    mParameters.addParameter(params::eCutoff, "Cutoff", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 4000., " Hz"));
+    mParameters.addParameter(params::eDriveType, "Drive Type", CLAP_PARAM_IS_AUTOMATABLE | CLAP_PARAM_IS_STEPPED, std::make_unique<params::SteppedValueType>(std::vector<std::string>({ "Cubic Saturation", "Tube Saturation", "Asymmetric Clip", "Foldback", "Bitcrush", "Waveshaper", "Tube Screamer", "Fuzz"}), 0.));
+    mParameters.addParameter(params::eInGain, "Input Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
+    mParameters.addParameter(params::eOutGain, "Output Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
+    mParameters.addParameter(params::ePreFilterFreq, "Pre Filter", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 10000., " Hz"));
+    mParameters.addParameter(params::ePostFilterFreq, "Post Filter", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 80., " Hz"));
+    mParameters.addParameter(params::eAsymmetry, "Asymmetry", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(-0.5, 0.5, 0., std::string()));
+    mParameters.addParameter(params::eBias, "Bias", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(-0.1, 0.1, 0., std::string()));
+    mParameters.addParameter(params::eMix, "Mix", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
+
+}
+
+bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
+    mDistoProcessor.setSampleRate(sampleRate);
+    updateParameters();
+    return true;
+}
+
+void Disstortion::reset() noexcept {
+    mDistoProcessor.reset();
 }
 
 clap_process_status Disstortion::process(const clap_process* process) noexcept {
@@ -37,7 +55,16 @@ clap_process_status Disstortion::process(const clap_process* process) noexcept {
     auto out = choc::buffer::createChannelArrayView(process->audio_outputs->data32,
                                                     process->audio_outputs->channel_count, process->frames_count);
     choc::buffer::copy(out, in);
-    mDriveProcessor.process(out);
+
+    auto num_channels = out.getNumChannels();
+    auto num_frames = out.getNumFrames();
+
+    for (uint32_t channel = 0; channel < num_channels; ++channel) {
+        for (uint32_t frame = 0; frame < num_frames; ++frame) {
+            auto& io_sample = out.getSample(channel, frame);
+            io_sample = mDistoProcessor.process(io_sample);
+        }
+    }
 
     return CLAP_PROCESS_CONTINUE;
 }
@@ -57,7 +84,15 @@ void Disstortion::processEvents(const clap_input_events* in_events) const {
 }
 
 void Disstortion::updateParameters() {
-    mDriveProcessor.setDrive(mParameters.getParamValue(params::eDrive));
+    mDistoProcessor.setDrive(mParameters.getParamValue(params::eDrive));
+    mDistoProcessor.setType(static_cast<dsp::DistortionType>(mParameters.getParamValue(params::eDriveType)));
+    mDistoProcessor.setInputGain(mParameters.getParamValue(params::eInGain));
+    mDistoProcessor.setOutputGain(mParameters.getParamValue(params::eOutGain));
+    mDistoProcessor.setPreFilterFreq(mParameters.getParamValue(params::ePreFilterFreq));
+    mDistoProcessor.setPostFilterFreq(mParameters.getParamValue(params::ePostFilterFreq));
+    mDistoProcessor.setBias(mParameters.getParamValue(params::eBias));
+    mDistoProcessor.setAsymmetry(mParameters.getParamValue(params::eAsymmetry));
+    mDistoProcessor.setMix(mParameters.getParamValue(params::eMix));
 }
 
 void Disstortion::handleEventsFromUIQueue(const clap_output_events_t* ov) {
@@ -275,6 +310,7 @@ bool Disstortion::guiCreate(const char* api, bool is_floating) noexcept {
         return true;
     }
     mEditor = std::make_unique<gui::DisstortionEditor>(*this);
+    mEditor->setWindowDimensions(600.f, 400.f);
     mEditor->onWindowContentsResized() = [this] {
         _host.guiRequestResize(mEditor->pluginWidth(), mEditor->pluginHeight());
     };
@@ -309,8 +345,8 @@ bool Disstortion::guiGetResizeHints(clap_gui_resize_hints_t* hints) noexcept {
         return false;
     }
     bool fixed_aspect_ratio = mEditor->isFixedAspectRatio();
-    hints->can_resize_horizontally = false;
-    hints->can_resize_vertically = false;
+    hints->can_resize_horizontally = true;
+    hints->can_resize_vertically = true;
     hints->preserve_aspect_ratio = fixed_aspect_ratio;
     if (fixed_aspect_ratio) {
         hints->aspect_ratio_width = mEditor->height() * mEditor->aspectRatio();

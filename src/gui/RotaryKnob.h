@@ -21,6 +21,11 @@ public:
 private:
     bool mIsDragging = false;
     float mDragStartY = 0.f;
+    double mDragStartValue = 0.;
+    float mAccumulatedDrag = 0.f;
+
+    double mRange;
+    double mSensitivity;
 };
 
 }

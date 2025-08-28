@@ -11,8 +11,14 @@ namespace stfefane::params {
 
 enum param_ids : clap_id {
     eDrive,
-    eGain,
-    eCutoff,
+    eDriveType,
+    eInGain,
+    eOutGain,
+    ePreFilterFreq,
+    ePostFilterFreq,
+    eAsymmetry,
+    eBias,
+    eMix,
 };
 
 class Parameters {
