@@ -41,7 +41,7 @@ void RotaryKnob::draw(visage::Canvas& canvas) {
     const auto dot_x = center_x + std::cos(center_radians + angle) * dot_location;
     const auto dot_y = center_y + std::sin(center_radians + angle) * dot_location;
 
-    constexpr auto dot_radius = 5.f;
+    const auto dot_radius = w * .05f;
     canvas.circle(dot_x - dot_radius, dot_y - dot_radius, dot_radius * 2);
 }
 

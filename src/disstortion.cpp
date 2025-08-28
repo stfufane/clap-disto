@@ -310,6 +310,7 @@ bool Disstortion::guiCreate(const char* api, bool is_floating) noexcept {
         return true;
     }
     mEditor = std::make_unique<gui::DisstortionEditor>(*this);
+    mEditor->setWindowDimensions(600.f, 400.f);
     mEditor->onWindowContentsResized() = [this] {
         _host.guiRequestResize(mEditor->pluginWidth(), mEditor->pluginHeight());
     };
@@ -344,8 +345,8 @@ bool Disstortion::guiGetResizeHints(clap_gui_resize_hints_t* hints) noexcept {
         return false;
     }
     bool fixed_aspect_ratio = mEditor->isFixedAspectRatio();
-    hints->can_resize_horizontally = false;
-    hints->can_resize_vertically = false;
+    hints->can_resize_horizontally = true;
+    hints->can_resize_vertically = true;
     hints->preserve_aspect_ratio = fixed_aspect_ratio;
     if (fixed_aspect_ratio) {
         hints->aspect_ratio_width = mEditor->height() * mEditor->aspectRatio();

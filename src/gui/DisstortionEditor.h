@@ -15,7 +15,6 @@ public:
     DisstortionEditor() = delete;
 
     void draw(visage::Canvas& canvas) override;
-    void resized() override;
 
     [[nodiscard]] int pluginWidth() const;
     [[nodiscard]] int pluginHeight() const;
