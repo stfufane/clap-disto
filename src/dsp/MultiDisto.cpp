@@ -1,6 +1,7 @@
 #include "MultiDisto.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace stfefane::dsp {
 
@@ -99,14 +100,14 @@ double MultiDisto::cubicSaturation(double input) const {
         return x * (1.0 + mAsymmetry * x);
     } else {
         double sign = (x > 0.0) ? 1.0 : -1.0;
-        return sign * (1.0 - pow(2.0 - 3.0 * std::abs(x), 2.0) / 3.0);
+        return sign * (1.0 - std::pow(2.0 - 3.0 * std::abs(x), 2.0) / 3.0);
     }
 }
 
 double MultiDisto::tubeSaturation(double input) const {
     double x = input * mDrive * 0.7;
     // Tube-like saturation curve
-    return tanh(x * (1.0 + mAsymmetry)) * (1.0 + 0.1 * x * x);
+    return std::tanh(x * (1.0 + mAsymmetry)) * (1.0 + 0.1 * x * x);
 }
 
 double MultiDisto::asymmetricClip(double input) const {
@@ -139,8 +140,8 @@ double MultiDisto::foldbackDistortion(double input) const {
 double MultiDisto::bitcrushDistortion(double input) const {
     double x = input * mDrive;
     int bits = std::max(1, (int)(16 - mDrive * 12)); // Variable bit depth
-    double levels = pow(2.0, bits) - 1.0;
-    return round(x * levels) / levels;
+    double levels = std::pow(2.0, bits) - 1.0;
+    return std::round(x * levels) / levels;
 }
 
 double MultiDisto::waveShaperDistortion(double input) const {
@@ -159,7 +160,7 @@ double MultiDisto::tubeScreamerDistortion(double input) const {
     if (x < 1.0 / 3.0) {
         return sign * 2.0 * x;
     } else if (x < 2.0 / 3.0) {
-        return sign * (3.0 - pow(2.0 - 3.0 * x, 2.0)) / 3.0;
+        return sign * (3.0 - std::pow(2.0 - 3.0 * x, 2.0)) / 3.0;
     } else {
         return sign;
     }
@@ -172,8 +173,8 @@ double MultiDisto::fuzzFaceDistortion(double input) const {
     x = std::abs(x);
 
     // Asymmetric germanium-like curve
-    double pos_curve = 1.0 - exp(-x * (2.0 + mAsymmetry));
-    double neg_curve = 1.0 - exp(-x * (2.0 - mAsymmetry));
+    double pos_curve = 1.0 - std::exp(-x * (2.0 + mAsymmetry));
+    double neg_curve = 1.0 - std::exp(-x * (2.0 - mAsymmetry));
 
     return sign * (sign > 0 ? pos_curve : neg_curve) * 0.8;
 }
