@@ -11,7 +11,8 @@ DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
     : mDisstortion(disstortion)
     , mDriveType(disstortion, params::eDriveType)
     , mDrive(disstortion, params::eDrive)
-    , mGain(disstortion, params::eInGain)
+    , mInputGain(disstortion, params::eInGain)
+    , mOutputGain(disstortion, params::eOutGain)
     , mPreFilter(disstortion, params::ePreFilterFreq)
     , mPostFilter(disstortion, params::ePostFilterFreq) {
 
@@ -25,7 +26,8 @@ DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
 
     addChild(mDriveType);
     addChild(mDrive);
-    addChild(mGain);
+    addChild(mInputGain);
+    addChild(mOutputGain);
     addChild(mPreFilter);
     addChild(mPostFilter);
 

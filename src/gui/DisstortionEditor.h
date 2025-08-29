@@ -26,7 +26,8 @@ private:
 
     RotaryKnob mDriveType;
     RotaryKnob mDrive;
-    RotaryKnob mGain;
+    RotaryKnob mInputGain;
+    RotaryKnob mOutputGain;
     RotaryKnob mPreFilter;
     RotaryKnob mPostFilter;
 };
