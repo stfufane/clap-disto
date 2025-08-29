@@ -30,4 +30,12 @@ constexpr auto kTWO_PI_64 = 2. * kPI_64;
 #endif
 }
 
+[[nodiscard]] inline double dbToLinear(double dB) {
+    return std::pow(10.0, dB / 20.0);
+}
+
+[[nodiscard]] inline double linearToDB(double linear) {
+    return 20.0 * std::log10(std::max(linear, 1e-10));
+}
+
 }
