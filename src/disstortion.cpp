@@ -18,10 +18,10 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,           "dev.s
                                                   "Disstortion Plugin",   kClapFeatures};
 
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
-    mParameters.addParameter(params::eDrive, "Drive", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .1));
+    mParameters.addParameter(params::eDrive, "Drive", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::DecibelValueType>( .3, 0., dsp::kMaxDriveDb));
     mParameters.addParameter(params::eDriveType, "Drive Type", CLAP_PARAM_IS_AUTOMATABLE | CLAP_PARAM_IS_STEPPED, std::make_unique<params::SteppedValueType>(std::vector<std::string>({ "Cubic Saturation", "Tube Saturation", "Asymmetric Clip", "Foldback", "Bitcrush", "Waveshaper", "Tube Screamer", "Fuzz"}), 0.));
-    mParameters.addParameter(params::eInGain, "Input Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
-    mParameters.addParameter(params::eOutGain, "Output Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
+    mParameters.addParameter(params::eInGain, "Input Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::DecibelValueType>( .3, -12., 24.));
+    mParameters.addParameter(params::eOutGain, "Output Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::DecibelValueType>( .8, -24., 6.));
     mParameters.addParameter(params::ePreFilterFreq, "Pre Filter", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 10000., " Hz"));
     mParameters.addParameter(params::ePostFilterFreq, "Post Filter", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 80., " Hz"));
     mParameters.addParameter(params::eAsymmetry, "Asymmetry", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(-0.5, 0.5, 0., std::string()));

@@ -32,7 +32,7 @@ double MultiDisto::process(double input) {
     }
 
     // Oversampling for anti-aliasing (optional, can be toggled)
-    if (mDrive > 2.0) {
+    if (mDrive > 9.0) {
         auto& upsampled = mOversampler.upsample(signal);
         for (auto& sample : upsampled) {
             sample = applyDistortion(sample);
@@ -58,6 +58,11 @@ double MultiDisto::process(double input) {
 
     // Final safety limiting
     return std::clamp(signal, -1., 1.);
+}
+
+void MultiDisto::setDrive(double drive) {
+    // Denormalize the value to a 0-36dB range
+    mDrive = utils::dbToLinear(drive * kMaxDriveDb);
 }
 
 double MultiDisto::applyDistortion(double input) const {

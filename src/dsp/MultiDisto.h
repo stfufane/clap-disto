@@ -16,6 +16,8 @@ enum class DistortionType {
     FUZZ_FACE
 };
 
+static constexpr double kMaxDriveDb = 36.;
+
 class MultiDisto {
 public:
     MultiDisto() = default;
@@ -25,7 +27,7 @@ public:
 
     double process(double input);
 
-    void setDrive(double drive) { mDrive = drive; }
+    void setDrive(double drive);
     void setType(DistortionType type) { mType = type; }
     void setInputGain(double gain) { mInputGain = gain; }
     void setOutputGain(double gain) { mOutputGain = gain; }
@@ -71,7 +73,7 @@ private:
 
     double mInputGain = 1.;
     double mOutputGain = 1.;
-    double mDrive = .1;
+    double mDrive = 6.;
     double mAsymmetry = 0.; // For asymmetric distortion
     double mBias = 0.;
     double mMix = 1.; // Wet/dry mix
