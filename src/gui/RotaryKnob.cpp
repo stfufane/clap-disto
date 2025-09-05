@@ -1,27 +1,34 @@
 #include "RotaryKnob.h"
 
 #include "../helpers/Utils.h"
+#include "embedded/disto_fonts.h"
 
 namespace stfefane::gui {
 
 RotaryKnob::RotaryKnob(Disstortion& disstortion, clap_id param_id) : IParamControl(disstortion, param_id)
-    , mRange(getMaxValue() - getMinValue()) {
-    mSensitivity = 200.;
+    , mRange(getMaxValue() - getMinValue())
+    , mSensitivity(200.)
+    , mFont(12.f, resources::fonts::DroidSansMono_ttf) {
     if (isStepped()) {
-        // Scale sensitivity based on number of steps - more steps = less sensitive
-        mSensitivity = 100.; // std::max(80.0f, 200.0f / nbSteps());
+        mSensitivity = 100.;
     }
 }
 
 void RotaryKnob::draw(visage::Canvas& canvas) {
-    const auto smaller_size = std::min(width(), height());
-    const auto w = smaller_size * 0.8f;
+    // Keep the bottom 20% of the height for a label
+    const auto knob_height = height() * .8f;
+
+    const auto smaller_size = std::min(width(), knob_height);
+    const auto w = smaller_size * 0.9f;
 
     // Center the knob
     const auto margin_x = (width() - w) * .5f;
-    const auto margin_y = (height() - w) * .5f;
-    const auto center_x = margin_x + w * 0.5f;
-    const auto center_y = margin_y + w * 0.5f;
+    const auto margin_y = (knob_height - w) * .5f;
+    const auto center_x = margin_x + w * .5f;
+    const auto center_y = margin_y + w * .5f;
+
+    canvas.setColor(0xff325232);
+    canvas.roundedRectangleBorder(margin_x, knob_height, w, height() - knob_height, 8.f, 1.f);
 
     // Draw the knob circle
     canvas.setColor(0xffaaff88);
@@ -43,6 +50,11 @@ void RotaryKnob::draw(visage::Canvas& canvas) {
 
     const auto dot_radius = w * .05f;
     canvas.circle(dot_x - dot_radius, dot_y - dot_radius, dot_radius * 2);
+
+    // Write the text value of the knob at the center.
+    canvas.setColor(0xff111111);
+    canvas.text(mValueString, mFont.withSize(12.f), visage::Font::kCenter, 0, 0, width(), knob_height);
+    canvas.text(mTitle, mFont.withSize(10.f), visage::Font::kCenter, margin_x, knob_height, w, height() - knob_height);
 }
 
 void RotaryKnob::mouseDown(const visage::MouseEvent& e) {

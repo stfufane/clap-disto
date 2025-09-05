@@ -42,6 +42,9 @@ set(SOURCE_FILES
     src/dsp/OverSampler.cpp
     src/dsp/OverSampler.h)
 
+file(GLOB_RECURSE FONT_TTF_FILES fonts/*.ttf)
+add_embedded_resources(font_resources "disto_fonts.h" "resources::fonts" "${FONT_TTF_FILES}")
+
 add_library(${PROJECT_NAME} MODULE ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} PRIVATE
         clap
@@ -49,9 +52,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         visage
         choc
         readerwriterqueue
-        nlohmann_json)
+        nlohmann_json
+        font_resources)
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
-
 
 if(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES

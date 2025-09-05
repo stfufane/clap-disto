@@ -26,6 +26,8 @@ private:
 
     double mRange;
     double mSensitivity;
+
+    visage::Font mFont;
 };
 
 }

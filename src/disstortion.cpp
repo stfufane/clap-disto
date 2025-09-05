@@ -310,7 +310,7 @@ bool Disstortion::guiCreate(const char* api, bool is_floating) noexcept {
         return true;
     }
     mEditor = std::make_unique<gui::DisstortionEditor>(*this);
-    mEditor->setWindowDimensions(600.f, 400.f);
+    mEditor->setWindowDimensions(500.f, 300.f);
     mEditor->onWindowContentsResized() = [this] {
         _host.guiRequestResize(mEditor->pluginWidth(), mEditor->pluginHeight());
     };
