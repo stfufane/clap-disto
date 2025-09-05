@@ -47,6 +47,10 @@ void RotaryKnob::draw(visage::Canvas& canvas) {
 
 void RotaryKnob::mouseDown(const visage::MouseEvent& e) {
     if (e.isLeftButton()) {
+        // Reset param on double click
+        if (e.repeat_click_count > 1) {
+            return resetParam();
+        }
         beginChangeGesture();
         mIsDragging = true;
         mDragStartY = e.position.y;

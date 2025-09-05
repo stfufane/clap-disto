@@ -28,11 +28,18 @@ protected:
     void performChange(double new_value);
     void endChangeGesture();
 
+    // Called on double click to reset a parameter value to its default
+    void resetParam();
+
     void onParameterUpdated(double new_value) override;
 
     double mCurrentValue = 0.;
+    std::string mValueString;
+    std::string mTitle;
 
 private:
+    void updateValueString();
+
     Disstortion& mDisstortion;
     clap_id mParamId = UINT32_MAX;
 };
