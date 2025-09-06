@@ -1,6 +1,7 @@
 #pragma once
 
 #include <charconv>
+#include <cmath>
 #include <numbers>
 #include <stdexcept>
 #include <string>
