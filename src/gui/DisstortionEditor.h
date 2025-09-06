@@ -15,14 +15,19 @@ public:
     DisstortionEditor() = delete;
 
     void draw(visage::Canvas& canvas) override;
+    void resized() override;
 
     [[nodiscard]] int pluginWidth() const;
     [[nodiscard]] int pluginHeight() const;
     void setPluginDimensions(int width, int height);
 
 private:
+    void setupKnob(RotaryKnob& knob);
+
     // Reference to the plugin
     Disstortion& mDisstortion;
+
+    visage::ScrollableFrame mScrollable;
 
     RotaryKnob mDriveType;
     RotaryKnob mDrive;

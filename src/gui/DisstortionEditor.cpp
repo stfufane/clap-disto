@@ -8,39 +8,51 @@ namespace stfefane::gui {
 using namespace visage::dimension;
 
 DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
-    : mDisstortion(disstortion)
-    , mDriveType(disstortion, params::eDriveType)
-    , mDrive(disstortion, params::eDrive)
-    , mInputGain(disstortion, params::eInGain)
-    , mOutputGain(disstortion, params::eOutGain)
-    , mPreFilter(disstortion, params::ePreFilterFreq)
-    , mPostFilter(disstortion, params::ePostFilterFreq) {
+: mDisstortion(disstortion)
+, mScrollable("ScrollContainer")
+, mDriveType(disstortion, params::eDriveType)
+, mDrive(disstortion, params::eDrive)
+, mInputGain(disstortion, params::eInGain)
+, mOutputGain(disstortion, params::eOutGain)
+, mPreFilter(disstortion, params::ePreFilterFreq)
+, mPostFilter(disstortion, params::ePostFilterFreq) {
 
-    // setFixedAspectRatio(false);
     setFlexLayout(true);
-    layout().setPadding(10_px);
-    layout().setFlexGap(10_px);
-    layout().setFlexWrap(true);
-    layout().setFlexRows(false);
-    layout().setFlexWrapAlignment(visage::Layout::WrapAlignment::Start);
+    layout().setFlexItemAlignment(visage::Layout::ItemAlignment::Center);
 
-    addChild(mDriveType);
-    addChild(mDrive);
-    addChild(mInputGain);
-    addChild(mOutputGain);
-    addChild(mPreFilter);
-    addChild(mPostFilter);
+    addChild(mScrollable);
 
-    for (auto* child: children()) {
-        child->layout().setHeight(120);
-        child->layout().setWidth(120);
-        child->layout().setFlexGrow(1.0f);
-    }
+    mScrollable.scrollableLayout().setFlex(true);
+    mScrollable.scrollableLayout().setPadding(10_px);
+    mScrollable.scrollableLayout().setFlexGap(10_px);
+    mScrollable.scrollableLayout().setFlexWrap(true);
+    mScrollable.scrollableLayout().setFlexRows(false);
+    mScrollable.scrollableLayout().setFlexWrapAlignment(visage::Layout::WrapAlignment::Start);
+
+    setupKnob(mDriveType);
+    setupKnob(mDrive);
+    setupKnob(mInputGain);
+    setupKnob(mOutputGain);
+    setupKnob(mPreFilter);
+    setupKnob(mPostFilter);
 }
 
 void DisstortionEditor::draw(visage::Canvas& canvas) {
     canvas.setColor(0xffdeadbb);
     canvas.fill(0.f, 0.f, width(), height());
+}
+
+void DisstortionEditor::resized() {
+    mScrollable.setBounds(0, 0, width(), height());
+    mScrollable.setScrollableHeight(mPostFilter.bottom() + 10.f);
+}
+
+void DisstortionEditor::setupKnob(RotaryKnob& knob) {
+    knob.layout().setFlex(true);
+    knob.layout().setHeight(120);
+    knob.layout().setWidth(120);
+    knob.layout().setFlexGrow(1.0f);
+    mScrollable.addScrolledChild(&knob);
 }
 
 int DisstortionEditor::pluginWidth() const {
