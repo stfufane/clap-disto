@@ -53,7 +53,7 @@ void RotaryKnob::draw(visage::Canvas& canvas) {
 
     // Write the text value of the knob at the center.
     canvas.setColor(0xff111111);
-    canvas.text(mValueString, mFont.withSize(12.f), visage::Font::kCenter, 0, 0, width(), knob_height);
+    canvas.text(getValueString(), mFont.withSize(12.f), visage::Font::kCenter, 0, 0, width(), knob_height);
     canvas.text(mTitle, mFont.withSize(10.f), visage::Font::kCenter, margin_x, knob_height, w, height() - knob_height);
 }
 
