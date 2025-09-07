@@ -38,10 +38,8 @@ struct DecibelValueType final : public ParamValueType {
         : ParamValueType(0.0, 1.0, defaultVal, " dB"), mMinDb(min_db), mMaxDb(max_db) {}
 
     [[nodiscard]] std::string toText(double value) const override {
-        std::ostringstream os;
         const double dB = mMinDb + value * (mMaxDb - mMinDb);
-        os << std::fixed << std::setprecision(2) << dB << mUnit;
-        return os.str();
+        return ParamValueType::toText(dB);
     }
 
     [[nodiscard]] double toValue(const std::string& text) const override {
@@ -59,9 +57,7 @@ struct ParamPercentValueType final : public ParamValueType {
         : ParamValueType(0., 1., defaultVal, " %") {}
 
     [[nodiscard]] std::string toText(double value) const override {
-        std::ostringstream os;
-        os << std::fixed << std::setprecision(2) << value * 100. << mUnit;
-        return os.str();
+        return ParamValueType::toText(value * 100.);
     };
 
     [[nodiscard]] double toValue(const std::string& text) const override {
