@@ -35,6 +35,11 @@ private:
     RotaryKnob mOutputGain;
     RotaryKnob mPreFilter;
     RotaryKnob mPostFilter;
+
+    static constexpr int kMinHeight = 120;
+    static constexpr int kMaxHeight = 800;
+    static constexpr int kMinWidth = 120;
+    static constexpr int kMaxWidth = 800;
 };
 
 } // namespace gui::stfefane

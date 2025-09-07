@@ -75,7 +75,7 @@ void DisstortionEditor::setPluginDimensions(int width, int height) {
 #if __APPLE__
     setWindowDimensions(width, height);
 #else
-    setNativeWindowDimensions(width, height);
+    setNativeWindowDimensions(std::clamp(width, kMinWidth, kMaxWidth), std::clamp(height, kMinHeight, kMaxHeight));
 #endif
 }
 

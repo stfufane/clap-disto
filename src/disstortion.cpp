@@ -359,7 +359,11 @@ bool Disstortion::guiAdjustSize(uint32_t* width, uint32_t* height) noexcept {
     if (mEditor == nullptr) {
         return false;
     }
-    mEditor->adjustWindowDimensions(width, height, false, false);
+    if (mEditor->isFixedAspectRatio()) {
+        mEditor->adjustWindowDimensions(width, height, false, false);
+    } else {
+        mEditor->setPluginDimensions(*width, *height);
+    }
     return true;
 }
 
