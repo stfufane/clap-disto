@@ -3,7 +3,6 @@
 #include <clap/helpers/host-proxy.hh>
 #include <clap/helpers/plugin.hh>
 #include <clap/helpers/plugin.hxx>
-#include <choc/audio/choc_SampleBuffers.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
 
@@ -50,19 +49,12 @@ clap_process_status Disstortion::process(const clap_process* process) noexcept {
     processEvents(process->in_events);
     updateParameters();
 
-    auto in = choc::buffer::createChannelArrayView(process->audio_inputs->data32, process->audio_inputs->channel_count,
-                                                   process->frames_count);
-    auto out = choc::buffer::createChannelArrayView(process->audio_outputs->data32,
-                                                    process->audio_outputs->channel_count, process->frames_count);
-    choc::buffer::copy(out, in);
-
-    auto num_channels = out.getNumChannels();
-    auto num_frames = out.getNumFrames();
-
-    for (uint32_t channel = 0; channel < num_channels; ++channel) {
-        for (uint32_t frame = 0; frame < num_frames; ++frame) {
-            auto& io_sample = out.getSample(channel, frame);
-            io_sample = mDistoProcessor.process(io_sample);
+    const auto nb_channels = process->audio_inputs->channel_count;
+    const auto nb_frames = process->frames_count;
+    for (uint32_t channel = 0; channel < nb_channels; ++channel) {
+        for (uint32_t frame = 0; frame < nb_frames; ++frame) {
+            auto in_sample = process->audio_inputs->data32[channel][frame];
+            process->audio_outputs->data32[channel][frame] = mDistoProcessor.process(in_sample);
         }
     }
 

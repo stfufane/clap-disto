@@ -20,7 +20,6 @@ include(cmake/get_cpm.cmake)
 
 CPMAddPackage("gh:free-audio/clap#main")
 CPMAddPackage("gh:free-audio/clap-helpers#main")
-CPMAddPackage("gh:Tracktion/choc#main")
 CPMAddPackage("gh:cameron314/readerwriterqueue#master")
 CPMAddPackage("gh:VitalAudio/visage#main")
 CPMAddPackage("gh:nlohmann/json@3.11.3")
@@ -50,7 +49,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         clap
         clap-helpers
         visage
-        choc
         readerwriterqueue
         nlohmann_json
         font_resources)
