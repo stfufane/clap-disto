@@ -36,6 +36,7 @@ set(SOURCE_FILES
     src/gui/ToggleButton.h
     src/dsp/BiquadFilter.cpp
     src/dsp/BiquadFilter.h
+    src/dsp/NewBiquadFilter.h
     src/dsp/MultiDisto.cpp
     src/dsp/MultiDisto.h
     src/dsp/OverSampler.cpp
@@ -43,6 +44,8 @@ set(SOURCE_FILES
 
 file(GLOB_RECURSE FONT_TTF_FILES fonts/*.ttf)
 add_embedded_resources(font_resources "disto_fonts.h" "resources::fonts" "${FONT_TTF_FILES}")
+
+# TODO: check https://github.com/baconpaul/six-sines/blob/main/CMakeLists.txt for standalone
 
 add_library(${PROJECT_NAME} MODULE ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} PRIVATE

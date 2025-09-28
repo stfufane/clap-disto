@@ -36,13 +36,17 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
 }
 
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
-    mDistoProcessor.setSampleRate(sampleRate);
+    for (auto &proc : mDistoProcessors) {
+        proc.setSampleRate(sampleRate);
+    }
     updateParameters();
     return true;
 }
 
 void Disstortion::reset() noexcept {
-    mDistoProcessor.reset();
+    for (auto &proc : mDistoProcessors) {
+        proc.reset();
+    }
 }
 
 clap_process_status Disstortion::process(const clap_process* process) noexcept {
@@ -55,12 +59,43 @@ clap_process_status Disstortion::process(const clap_process* process) noexcept {
     processEvents(process->in_events);
     updateParameters();
 
-    const auto nb_channels = process->audio_inputs->channel_count;
-    const auto nb_frames = process->frames_count;
-    for (uint32_t channel = 0; channel < nb_channels; ++channel) {
-        for (uint32_t frame = 0; frame < nb_frames; ++frame) {
-            auto in_sample = process->audio_inputs->data32[channel][frame];
-            process->audio_outputs->data32[channel][frame] = mDistoProcessor.process(in_sample);
+    const auto* in = process->audio_inputs_count > 0 ? process->audio_inputs : nullptr;
+    auto* out = process->audio_outputs;
+
+    const uint32_t in_channels = in ? in->channel_count : 0;
+    const uint32_t out_channels = out->channel_count;
+    const uint32_t frames = process->frames_count;
+
+    // If no input, output silence
+    if (in_channels == 0) {
+        for (uint32_t ch = 0; ch < out_channels; ++ch) {
+            std::fill(out->data32[ch], out->data32[ch] + frames, 0.0f);
+        }
+        return CLAP_PROCESS_CONTINUE;
+    }
+
+    const uint32_t proc_channels = std::min({in_channels, out_channels, static_cast<uint32_t>(mDistoProcessors.size())});
+
+    // Process available channel pairs
+    for (uint32_t ch = 0; ch < proc_channels; ++ch) {
+        auto &proc = mDistoProcessors[ch];
+        float* outCh = out->data32[ch];
+        const float* inCh = in->data32[ch];
+        for (uint32_t f = 0; f < frames; ++f) {
+            outCh[f] = static_cast<float>(proc.process(static_cast<double>(inCh[f])));
+        }
+    }
+
+    // If mono-in and more outputs, duplicate left to others
+    if (in_channels == 1 && out_channels > 1) {
+        const float* left = out->data32[0];
+        for (uint32_t ch = 1; ch < out_channels; ++ch) {
+            std::copy(left, left + frames, out->data32[ch]);
+        }
+    } else if (out_channels > proc_channels) {
+        // Zero any remaining output channels to avoid garbage/noise
+        for (uint32_t ch = proc_channels; ch < out_channels; ++ch) {
+            std::fill(out->data32[ch], out->data32[ch] + frames, 0.0f);
         }
     }
 
@@ -82,24 +117,33 @@ void Disstortion::processEvents(const clap_input_events* in_events) const {
 }
 
 void Disstortion::updateParameters() {
-    mDistoProcessor.setDrive(mParameters.getParamValue(params::eDrive));
-    mDistoProcessor.setType(static_cast<dsp::DistortionType>(mParameters.getParamValue(params::eDriveType)));
-    {
-        // Convert the 0-1 param range to dB
-        const auto& vt = mParameters.getParamValueType(params::eInGain);
-        mDistoProcessor.setInputGain(vt.denormalizedValue(mParameters.getParamValue(params::eInGain)));
+    const double drive = mParameters.getParamValue(params::eDrive);
+    const auto type = static_cast<dsp::DistortionType>(mParameters.getParamValue(params::eDriveType));
+    const auto& inVt = mParameters.getParamValueType(params::eInGain);
+    const double inGain = inVt.denormalizedValue(mParameters.getParamValue(params::eInGain));
+    const auto& outVt = mParameters.getParamValueType(params::eOutGain);
+    const double outGain = outVt.denormalizedValue(mParameters.getParamValue(params::eOutGain));
+    const double preFreq = mParameters.getParamValue(params::ePreFilterFreq);
+    const double postFreq = mParameters.getParamValue(params::ePostFilterFreq);
+    const double bias = mParameters.getParamValue(params::eBias);
+    const double asym = mParameters.getParamValue(params::eAsymmetry);
+    const double mix = mParameters.getParamValue(params::eMix);
+    const bool preOn = mParameters.getParamValue(params::ePreFilterOn);
+    const bool postOn = mParameters.getParamValue(params::ePostFilterOn);
+
+    for (auto &proc : mDistoProcessors) {
+        proc.setDrive(drive);
+        proc.setType(type);
+        proc.setInputGain(inGain);
+        proc.setOutputGain(outGain);
+        proc.setPreFilterFreq(preFreq);
+        proc.setPostFilterFreq(postFreq);
+        proc.setBias(bias);
+        proc.setAsymmetry(asym);
+        proc.setMix(mix);
+        proc.setPreFilterOn(preOn);
+        proc.setPostFilterOn(postOn);
     }
-    {
-        const auto& vt = mParameters.getParamValueType(params::eOutGain);
-        mDistoProcessor.setOutputGain(vt.denormalizedValue(mParameters.getParamValue(params::eOutGain)));
-    }
-    mDistoProcessor.setPreFilterFreq(mParameters.getParamValue(params::ePreFilterFreq));
-    mDistoProcessor.setPostFilterFreq(mParameters.getParamValue(params::ePostFilterFreq));
-    mDistoProcessor.setBias(mParameters.getParamValue(params::eBias));
-    mDistoProcessor.setAsymmetry(mParameters.getParamValue(params::eAsymmetry));
-    mDistoProcessor.setMix(mParameters.getParamValue(params::eMix));
-    mDistoProcessor.setPreFilterOn(mParameters.getParamValue(params::ePreFilterOn));
-    mDistoProcessor.setPostFilterOn(mParameters.getParamValue(params::ePostFilterOn));
 }
 
 void Disstortion::handleEventsFromUIQueue(const clap_output_events_t* ov) {

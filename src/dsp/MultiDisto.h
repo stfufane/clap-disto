@@ -47,6 +47,8 @@ private:
 
         double process(double input) {
             double output = input - x1 + R * y1;
+            // Denormal protection
+            if (std::abs(output) < 1e-20) output = 0.0;
             x1 = input;
             y1 = output;
             return output;
@@ -72,6 +74,10 @@ private:
     BiquadFilter mPostFilter = { 80., .707, FilterType::HIGH_PASS };
     DCBlocker mDCBlocker;
     Oversampler mOversampler;
+
+    // State for bitcrusher sample-rate reduction
+    mutable int mBitcrushPhase = 0;
+    mutable double mBitcrushHold = 0.0;
 
     double mInputGain = 1.;
     double mOutputGain = 1.;
