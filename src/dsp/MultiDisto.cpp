@@ -27,7 +27,7 @@ double MultiDisto::process(double input) {
     double signal = input * mInputGain;
 
     // Pre-filter
-    if (mPreFilter.getType() != FilterType::NONE) {
+    if (mPreFilterOn && mPreFilter.getType() != FilterType::NONE) {
         signal = mPreFilter.process(signal);
     }
 
@@ -46,7 +46,7 @@ double MultiDisto::process(double input) {
     signal = mDCBlocker.process(signal);
 
     // Post-filter
-    if (mPostFilter.getType() != FilterType::NONE) {
+    if (mPostFilterOn && mPostFilter.getType() != FilterType::NONE) {
         signal = mPostFilter.process(signal);
     }
 

@@ -29,9 +29,11 @@ public:
 
     void setDrive(double drive);
     void setType(DistortionType type) { mType = type; }
-    void setInputGain(double gain) { mInputGain = gain; }
-    void setOutputGain(double gain) { mOutputGain = gain; }
+    void setInputGain(double gainDb) { mInputGain = utils::dbToLinear(gainDb); }
+    void setOutputGain(double gainDb) { mOutputGain = utils::dbToLinear(gainDb); }
+    void setPreFilterOn(bool on) { mPreFilterOn = on; }
     void setPreFilterFreq(double freq) { mPreFilter.setFreq(freq); }
+    void setPostFilterOn(bool on) { mPostFilterOn = on; }
     void setPostFilterFreq(double freq) { mPostFilter.setFreq(freq); }
     void setBias(double bias) { mBias = bias; }
     void setAsymmetry(double asymmetry) { mAsymmetry = asymmetry; }
@@ -77,6 +79,8 @@ private:
     double mAsymmetry = 0.; // For asymmetric distortion
     double mBias = 0.;
     double mMix = 1.; // Wet/dry mix
+    bool mPreFilterOn = true;
+    bool mPostFilterOn = true;
 };
 
 }

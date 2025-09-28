@@ -21,7 +21,9 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
     mParameters.addParameter(params::eDriveType, "Drive Type",  std::make_unique<params::SteppedValueType>(std::vector<std::string>({ "Cubic Saturation", "Tube Saturation", "Asymmetric Clip", "Foldback", "Bitcrush", "Waveshaper", "Tube Screamer", "Fuzz"}), 0.));
     mParameters.addParameter(params::eInGain, "Input Gain", std::make_unique<params::DecibelValueType>( 0.3333333333333333, -12., 24.));
     mParameters.addParameter(params::eOutGain, "Output Gain", std::make_unique<params::DecibelValueType>( .8, -24., 6.));
+    mParameters.addParameter(params::ePreFilterOn, "Pre Filter On",  std::make_unique<params::BooleanValueType>(true));
     mParameters.addParameter(params::ePreFilterFreq, "Pre Filter", std::make_unique<params::ParamValueType>(20., 20000., 10000., " Hz"));
+    mParameters.addParameter(params::ePostFilterOn, "Post Filter On",  std::make_unique<params::BooleanValueType>(true));
     mParameters.addParameter(params::ePostFilterFreq, "Post Filter", std::make_unique<params::ParamValueType>(20., 20000., 80., " Hz"));
     mParameters.addParameter(params::eAsymmetry, "Asymmetry", std::make_unique<params::ParamValueType>(-0.5, 0.5, 0., std::string()));
     mParameters.addParameter(params::eBias, "Bias", std::make_unique<params::ParamValueType>(-0.1, 0.1, 0., std::string()));
@@ -91,6 +93,8 @@ void Disstortion::updateParameters() {
     mDistoProcessor.setBias(mParameters.getParamValue(params::eBias));
     mDistoProcessor.setAsymmetry(mParameters.getParamValue(params::eAsymmetry));
     mDistoProcessor.setMix(mParameters.getParamValue(params::eMix));
+    mDistoProcessor.setPreFilterOn(mParameters.getParamValue(params::ePreFilterOn));
+    mDistoProcessor.setPostFilterOn(mParameters.getParamValue(params::ePostFilterOn));
 }
 
 void Disstortion::handleEventsFromUIQueue(const clap_output_events_t* ov) {
