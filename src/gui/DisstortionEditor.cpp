@@ -15,7 +15,10 @@ DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
 , mInputGain(disstortion, params::eInGain)
 , mOutputGain(disstortion, params::eOutGain)
 , mPreFilter(disstortion, params::ePreFilterFreq)
-, mPostFilter(disstortion, params::ePostFilterFreq) {
+, mPostFilter(disstortion, params::ePostFilterFreq)
+, mMix(disstortion, params::eMix)
+, mPreFilterOn(disstortion, params::ePreFilterOn)
+, mPostFilterOn(disstortion, params::ePostFilterOn) {
 
     setFlexLayout(true);
     layout().setFlexItemAlignment(visage::Layout::ItemAlignment::Center);
@@ -29,12 +32,15 @@ DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
     mScrollable.scrollableLayout().setFlexRows(false);
     mScrollable.scrollableLayout().setFlexWrapAlignment(visage::Layout::WrapAlignment::Start);
 
-    setupKnob(mDriveType);
-    setupKnob(mDrive);
-    setupKnob(mInputGain);
-    setupKnob(mOutputGain);
-    setupKnob(mPreFilter);
-    setupKnob(mPostFilter);
+    setupElement(mDriveType);
+    setupElement(mDrive);
+    setupElement(mInputGain);
+    setupElement(mOutputGain);
+    setupElement(mPreFilterOn);
+    setupElement(mPreFilter);
+    setupElement(mPostFilterOn);
+    setupElement(mPostFilter);
+    setupElement(mMix);
 }
 
 void DisstortionEditor::draw(visage::Canvas& canvas) {
@@ -47,12 +53,12 @@ void DisstortionEditor::resized() {
     mScrollable.setScrollableHeight(mPostFilter.bottom() + 10.f);
 }
 
-void DisstortionEditor::setupKnob(RotaryKnob& knob) {
-    knob.layout().setFlex(true);
-    knob.layout().setHeight(120);
-    knob.layout().setWidth(120);
-    knob.layout().setFlexGrow(1.0f);
-    mScrollable.addScrolledChild(&knob);
+void DisstortionEditor::setupElement(visage::Frame& element) {
+    element.layout().setFlex(true);
+    element.layout().setHeight(120);
+    element.layout().setWidth(120);
+    element.layout().setFlexGrow(1.0f);
+    mScrollable.addScrolledChild(&element);
 }
 
 int DisstortionEditor::pluginWidth() const {

@@ -100,7 +100,7 @@ struct SteppedValueType : public ParamValueType {
 
 struct BooleanValueType final : SteppedValueType {
     explicit BooleanValueType(bool defaultVal)
-        : SteppedValueType({ "On", "Off" }, defaultVal) {}
+        : SteppedValueType({ "Off", "On" }, defaultVal) {}
 };
 
 }

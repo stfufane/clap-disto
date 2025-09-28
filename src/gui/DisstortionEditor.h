@@ -2,6 +2,7 @@
 
 #include <visage/app.h>
 #include "RotaryKnob.h"
+#include "ToggleButton.h"
 
 namespace stfefane {
 class Disstortion;
@@ -22,7 +23,7 @@ public:
     void setPluginDimensions(int width, int height);
 
 private:
-    void setupKnob(RotaryKnob& knob);
+    void setupElement(visage::Frame& element);
 
     // Reference to the plugin
     Disstortion& mDisstortion;
@@ -35,6 +36,10 @@ private:
     RotaryKnob mOutputGain;
     RotaryKnob mPreFilter;
     RotaryKnob mPostFilter;
+    RotaryKnob mMix;
+    ToggleButton mPreFilterOn;
+    ToggleButton mPostFilterOn;
+
 
     static constexpr int kMinHeight = 120;
     static constexpr int kMaxHeight = 800;
