@@ -25,7 +25,7 @@ class Parameters {
 public:
     Parameters() = default;
 
-    void addParameter(clap_id id, const std::string& name, uint32_t flags, std::unique_ptr<ParamValueType> value_type);
+    void addParameter(clap_id id, const std::string& name, std::unique_ptr<ParamValueType> value_type);
 
     [[nodiscard]] size_t count() const noexcept { return mParameters.size(); }
 

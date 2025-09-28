@@ -4,10 +4,10 @@
 
 namespace stfefane::params {
 
-void Parameters::addParameter(clap_id id, const std::string& name, uint32_t flags, std::unique_ptr<ParamValueType> value_type) {
+void Parameters::addParameter(clap_id id, const std::string& name, std::unique_ptr<ParamValueType> value_type) {
     clap_param_info param_info {
         .id = id,
-        .flags = flags,
+        .flags = value_type->mFlags,
         .min_value = value_type->mMin,
         .max_value = value_type->mMax,
         .default_value = value_type->mDefault,

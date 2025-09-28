@@ -21,6 +21,7 @@ struct ParamValueType {
     double mMax = std::numeric_limits<double>::max();
     double mDefault = 0.;
     std::string mUnit;
+    uint32_t mFlags = CLAP_PARAM_IS_AUTOMATABLE;
 
     [[nodiscard]] virtual std::string toText(double value) const {
         std::ostringstream os;
@@ -72,9 +73,11 @@ struct ParamPercentValueType final : public ParamValueType {
     }
 };
 
-struct SteppedValueType final : public ParamValueType {
+struct SteppedValueType : public ParamValueType {
     explicit SteppedValueType(std::vector<std::string>&& values, double defaultVal)
-        : ParamValueType(0., static_cast<double>(values.size() - 1), defaultVal, std::string()), mValues(std::move(values)) {}
+        : ParamValueType(0., static_cast<double>(values.size() - 1), defaultVal, std::string()), mValues(std::move(values)) {
+        mFlags = CLAP_PARAM_IS_AUTOMATABLE | CLAP_PARAM_IS_STEPPED;
+    }
 
     [[nodiscard]] std::string toText(double value) const override {
         const auto index = static_cast<size_t>(value);

@@ -17,16 +17,15 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,           "dev.s
                                                   "Disstortion Plugin",   kClapFeatures};
 
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
-    mParameters.addParameter(params::eDrive, "Drive", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::DecibelValueType>( .3, 0., dsp::kMaxDriveDb));
-    mParameters.addParameter(params::eDriveType, "Drive Type", CLAP_PARAM_IS_AUTOMATABLE | CLAP_PARAM_IS_STEPPED, std::make_unique<params::SteppedValueType>(std::vector<std::string>({ "Cubic Saturation", "Tube Saturation", "Asymmetric Clip", "Foldback", "Bitcrush", "Waveshaper", "Tube Screamer", "Fuzz"}), 0.));
-    mParameters.addParameter(params::eInGain, "Input Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::DecibelValueType>( .3, -12., 24.));
-    mParameters.addParameter(params::eOutGain, "Output Gain", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::DecibelValueType>( .8, -24., 6.));
-    mParameters.addParameter(params::ePreFilterFreq, "Pre Filter", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 10000., " Hz"));
-    mParameters.addParameter(params::ePostFilterFreq, "Post Filter", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(20., 20000., 80., " Hz"));
-    mParameters.addParameter(params::eAsymmetry, "Asymmetry", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(-0.5, 0.5, 0., std::string()));
-    mParameters.addParameter(params::eBias, "Bias", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamValueType>(-0.1, 0.1, 0., std::string()));
-    mParameters.addParameter(params::eMix, "Mix", CLAP_PARAM_IS_AUTOMATABLE, std::make_unique<params::ParamPercentValueType>( .5));
-
+    mParameters.addParameter(params::eDrive, "Drive", std::make_unique<params::DecibelValueType>( .3, 0., dsp::kMaxDriveDb));
+    mParameters.addParameter(params::eDriveType, "Drive Type",  std::make_unique<params::SteppedValueType>(std::vector<std::string>({ "Cubic Saturation", "Tube Saturation", "Asymmetric Clip", "Foldback", "Bitcrush", "Waveshaper", "Tube Screamer", "Fuzz"}), 0.));
+    mParameters.addParameter(params::eInGain, "Input Gain", std::make_unique<params::DecibelValueType>( 0.3333333333333333, -12., 24.));
+    mParameters.addParameter(params::eOutGain, "Output Gain", std::make_unique<params::DecibelValueType>( .8, -24., 6.));
+    mParameters.addParameter(params::ePreFilterFreq, "Pre Filter", std::make_unique<params::ParamValueType>(20., 20000., 10000., " Hz"));
+    mParameters.addParameter(params::ePostFilterFreq, "Post Filter", std::make_unique<params::ParamValueType>(20., 20000., 80., " Hz"));
+    mParameters.addParameter(params::eAsymmetry, "Asymmetry", std::make_unique<params::ParamValueType>(-0.5, 0.5, 0., std::string()));
+    mParameters.addParameter(params::eBias, "Bias", std::make_unique<params::ParamValueType>(-0.1, 0.1, 0., std::string()));
+    mParameters.addParameter(params::eMix, "Mix", std::make_unique<params::ParamPercentValueType>( .5));
 }
 
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
@@ -78,8 +77,15 @@ void Disstortion::processEvents(const clap_input_events* in_events) const {
 void Disstortion::updateParameters() {
     mDistoProcessor.setDrive(mParameters.getParamValue(params::eDrive));
     mDistoProcessor.setType(static_cast<dsp::DistortionType>(mParameters.getParamValue(params::eDriveType)));
-    mDistoProcessor.setInputGain(mParameters.getParamValue(params::eInGain));
-    mDistoProcessor.setOutputGain(mParameters.getParamValue(params::eOutGain));
+    {
+        // Convert the 0-1 param range to dB
+        const auto& vt = mParameters.getParamValueType(params::eInGain);
+        mDistoProcessor.setInputGain(vt.denormalizedValue(mParameters.getParamValue(params::eInGain)));
+    }
+    {
+        const auto& vt = mParameters.getParamValueType(params::eOutGain);
+        mDistoProcessor.setOutputGain(vt.denormalizedValue(mParameters.getParamValue(params::eOutGain)));
+    }
     mDistoProcessor.setPreFilterFreq(mParameters.getParamValue(params::ePreFilterFreq));
     mDistoProcessor.setPostFilterFreq(mParameters.getParamValue(params::ePostFilterFreq));
     mDistoProcessor.setBias(mParameters.getParamValue(params::eBias));
