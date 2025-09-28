@@ -31,6 +31,10 @@ struct ParamValueType {
     [[nodiscard]] virtual double toValue(const std::string& text) const {
         return utils::stringToDouble(text);
     }
+
+    [[nodiscard]] virtual double denormalizedValue(double value) const {
+        return value;
+    }
 };
 
 struct DecibelValueType final : public ParamValueType {
@@ -38,13 +42,16 @@ struct DecibelValueType final : public ParamValueType {
         : ParamValueType(0.0, 1.0, defaultVal, " dB"), mMinDb(min_db), mMaxDb(max_db) {}
 
     [[nodiscard]] std::string toText(double value) const override {
-        const double dB = mMinDb + value * (mMaxDb - mMinDb);
-        return ParamValueType::toText(dB);
+        return ParamValueType::toText(denormalizedValue(value));
     }
 
     [[nodiscard]] double toValue(const std::string& text) const override {
         // FIXME: value not good
         return utils::dbToLinear(utils::stringToDouble(text)) / (mMaxDb - mMinDb);
+    }
+
+    [[nodiscard]] double denormalizedValue(double value) const override {
+        return mMinDb + value * (mMaxDb - mMinDb);
     }
 
     // The parameter is normalized, but we want to be able to map it to different dB values.
