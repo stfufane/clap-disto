@@ -98,4 +98,9 @@ struct SteppedValueType : public ParamValueType {
     const std::vector<std::string> mValues;
 };
 
+struct BooleanValueType final : SteppedValueType {
+    explicit BooleanValueType(bool defaultVal)
+        : SteppedValueType({ "On", "Off" }, defaultVal) {}
+};
+
 }
