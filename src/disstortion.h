@@ -104,6 +104,9 @@ public:
     };
     typedef moodycamel::ReaderWriterQueue<UIEvent, 4096> UIEventsQueue;
 
+    static constexpr uint32_t kNbInChannels = 2;
+    static constexpr uint32_t kNbOutChannels = 2;
+
 private:
     void processEvents(const clap_input_events* in_events) const;
     void updateParameters();

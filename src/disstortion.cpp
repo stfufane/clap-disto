@@ -170,7 +170,7 @@ bool Disstortion::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_i
         info->id = 0;
         snprintf(info->name, sizeof(info->name), "%s", "Audio Input");
         info->flags = CLAP_AUDIO_PORT_IS_MAIN;
-        info->channel_count = 2;
+        info->channel_count = kNbInChannels;
         info->port_type = CLAP_PORT_STEREO;
         info->in_place_pair = 0; // Paired with output port 0 for in-place processing
     } else {
@@ -178,7 +178,7 @@ bool Disstortion::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_i
         info->id = 0;
         snprintf(info->name, sizeof(info->name), "%s", "Audio Output");
         info->flags = CLAP_AUDIO_PORT_IS_MAIN;
-        info->channel_count = 2;
+        info->channel_count = kNbOutChannels;
         info->port_type = CLAP_PORT_STEREO;
         info->in_place_pair = 0; // Paired with input port 0 for in-place processing
     }
