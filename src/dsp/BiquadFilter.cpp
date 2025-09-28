@@ -14,6 +14,7 @@ void BiquadFilter::setup(FilterType type, double freq, double q) {
     mType = type;
     mFreq = freq;
     mQ = q;
+    reset();
     update();
 }
 
@@ -24,11 +25,15 @@ void BiquadFilter::setFreq(double freq) {
 
 void BiquadFilter::setSampleRate(double samplerate) {
     mSampleRate = samplerate;
+    reset();
     update();
 }
 
 double BiquadFilter::process(double input) {
     double output = a0 * input + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2;
+
+    // Denormal protection
+    if (std::abs(output) < 1e-20) output = 0.0;
 
     x2 = x1;
     x1 = input;
@@ -50,6 +55,7 @@ void BiquadFilter::update() {
     double sinw = sin(w);
     double alpha = sinw / (2.0 * mQ);
 
+    double a0_den = 1.0 + alpha;
     switch (mType) {
         case FilterType::LOW_PASS:
             b1 = -2.0 * cosw;
@@ -70,9 +76,9 @@ void BiquadFilter::update() {
         case FilterType::BAND_PASS:
             b1 = -2.0 * cosw;
             b2 = 1.0 - alpha;
-            a0 = sinw * 0.5;
+            a0 = alpha;
             a1 = 0.0;
-            a2 = -sinw * 0.5;
+            a2 = -alpha;
             break;
 
         case FilterType::NOTCH:
@@ -90,14 +96,15 @@ void BiquadFilter::update() {
             a0 = 1.0 + alpha * A;
             a1 = -2.0 * cosw;
             a2 = 1.0 - alpha * A;
+            a0_den = 1.0 + alpha / A; // denominator a0 for peaking EQ
             break;
         }
         default:
             return;
     }
 
-    // Normalize coefficients
-    normalize(1.0 / (1.0 + alpha));
+    // Normalize coefficients by the denominator a0
+    normalize(1.0 / a0_den);
 }
 
 void BiquadFilter::normalize(double factor) {

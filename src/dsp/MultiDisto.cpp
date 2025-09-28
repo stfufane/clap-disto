@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include "../helpers/Utils.h"
 
 namespace stfefane::dsp {
 
@@ -31,19 +32,24 @@ double MultiDisto::process(double input) {
         signal = mPreFilter.process(signal);
     }
 
-    // Oversampling for anti-aliasing (optional, can be toggled)
-    if (mDrive > 9.0) {
-        auto& upsampled = mOversampler.upsample(signal);
-        for (auto& sample : upsampled) {
-            sample = applyDistortion(sample);
-        }
-        signal = mOversampler.downsample();
-    } else {
-        signal = applyDistortion(signal);
-    }
+    // Determine if non-linear stage can be bypassed (drive ~ 0dB and no bias/asymmetry)
+    const bool bypassNonLinear = (std::abs(mDrive - 1.0) < 1e-12) && (mBias == 0.0) && (mAsymmetry == 0.0);
 
-    // DC blocking
-    signal = mDCBlocker.process(signal);
+    if (!bypassNonLinear) {
+        // Oversampling for anti-aliasing on non-linear types (avoid for bitcrusher)
+        if (mType != DistortionType::BITCRUSHER) {
+            auto& upsampled = mOversampler.upsample(signal);
+            for (auto& sample : upsampled) {
+                sample = applyDistortion(sample);
+            }
+            signal = mOversampler.downsample();
+        } else {
+            signal = applyDistortion(signal);
+        }
+
+        // DC blocking (only needed when using non-linearities / bias)
+        signal = mDCBlocker.process(signal);
+    }
 
     // Post-filter
     if (mPostFilterOn && mPostFilter.getType() != FilterType::NONE) {
@@ -110,9 +116,12 @@ double MultiDisto::cubicSaturation(double input) const {
 }
 
 double MultiDisto::tubeSaturation(double input) const {
-    double x = input * mDrive * 0.7;
-    // Tube-like saturation curve
-    return std::tanh(x * (1.0 + mAsymmetry)) * (1.0 + 0.1 * x * x);
+    // Normalize tanh drive to avoid level jumps: y = tanh(g*x) / tanh(g)
+    double g = std::max(1e-6, mDrive * 0.7 * (1.0 + mAsymmetry));
+    double x = input;
+    double y = std::tanh(g * x);
+    double norm = std::tanh(g);
+    return (norm > 0.0 ? y / norm : y);
 }
 
 double MultiDisto::asymmetricClip(double input) const {
@@ -130,23 +139,38 @@ double MultiDisto::asymmetricClip(double input) const {
 
 double MultiDisto::foldbackDistortion(double input) const {
     double x = input * mDrive;
-    double threshold = 1.0;
+    constexpr double threshold = 1.0;
 
-    while (std::abs(x) > threshold) {
-        if (x > threshold) {
-            x = 2.0 * threshold - x;
-        } else if (x < -threshold) {
-            x = -2.0 * threshold - x;
-        }
-    }
-    return x * 0.7; // Scale down to prevent excessive levels
+    // Modulo-based foldback into [-threshold, threshold]
+    const double ax = std::abs(x);
+    double y = std::fmod(ax, 2.0 * threshold);
+    if (y > threshold) y = 2.0 * threshold - y;
+    y = std::copysign(y, x);
+
+    return y * 0.7; // Scale down to prevent excessive levels
 }
 
 double MultiDisto::bitcrushDistortion(double input) const {
-    double x = input * mDrive;
-    int bits = std::max(1, (int)(16 - mDrive * 12)); // Variable bit depth
+    // Map drive (in dB) to a 0..1 control for bit depth and rate reduction
+    double driveDbNorm = std::clamp(utils::linearToDB(mDrive) / kMaxDriveDb, 0.0, 1.0);
+
+    // Bit depth: from 16 bits (low drive) down to 4 bits (high drive)
+    int bits = 4 + (int)std::round((1.0 - driveDbNorm) * 12.0);
+    bits = std::clamp(bits, 1, 24);
     double levels = std::pow(2.0, bits) - 1.0;
-    return std::round(x * levels) / levels;
+
+    // Sample-rate reduction: hold every N samples, from 1 (no SRR) up to ~40 at max drive
+    int holdN = 1 + (int)std::round(driveDbNorm * 39.0);
+
+    // Quantize a clipped version of the signal to avoid explosive outputs
+    double x = std::clamp(input, -1.0, 1.0);
+
+    if (mBitcrushPhase == 0) {
+        mBitcrushHold = std::round(x * levels) / levels;
+    }
+    mBitcrushPhase = (mBitcrushPhase + 1) % holdN;
+
+    return mBitcrushHold;
 }
 
 double MultiDisto::waveShaperDistortion(double input) const {
