@@ -34,6 +34,8 @@ set(SOURCE_FILES
     src/gui/DisstortionEditor.h
     src/gui/DisstortionEditor.cpp
     src/gui/RotaryKnob.cpp
+    src/gui/ToggleButton.cpp
+    src/gui/ToggleButton.h
     src/dsp/BiquadFilter.cpp
     src/dsp/BiquadFilter.h
     src/dsp/MultiDisto.cpp
