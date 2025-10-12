@@ -50,7 +50,6 @@ void DisstortionEditor::draw(visage::Canvas& canvas) {
 
 void DisstortionEditor::resized() {
     mScrollable.setBounds(0, 0, width(), height());
-    mScrollable.setScrollableHeight(mPostFilter.bottom() + 10.f);
 }
 
 void DisstortionEditor::setupElement(visage::Frame& element) {
