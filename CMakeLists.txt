@@ -34,9 +34,7 @@ set(SOURCE_FILES
     src/gui/RotaryKnob.cpp
     src/gui/ToggleButton.cpp
     src/gui/ToggleButton.h
-    src/dsp/BiquadFilter.cpp
     src/dsp/BiquadFilter.h
-    src/dsp/NewBiquadFilter.h
     src/dsp/MultiDisto.cpp
     src/dsp/MultiDisto.h
     src/dsp/OverSampler.cpp

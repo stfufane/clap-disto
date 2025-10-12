@@ -12,8 +12,8 @@ void Oversampler::setupAntiAliasing(double sampleRate) {
     // Keep passband up to ~0.45 * original Nyquist to leave some transition band
     const double cutoff = sampleRate * 0.45; // equals 0.45 * (fs/2)
 
-    mAntiImagingFilter.setup(FilterType::LOW_PASS, cutoff, 0.707);
-    mAntiAliasFilter.setup(FilterType::LOW_PASS, cutoff, 0.707);
+    mAntiImagingFilter.setup(BiquadFilter::Type::LowPass, cutoff, 0.707);
+    mAntiAliasFilter.setup(BiquadFilter::Type::LowPass, cutoff, 0.707);
 
     // Reset interpolation state
     mPrevInput = 0.0;

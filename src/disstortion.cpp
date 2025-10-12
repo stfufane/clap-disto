@@ -37,6 +37,7 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
 
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
     for (auto &proc : mDistoProcessors) {
+        proc.activate();
         proc.setSampleRate(sampleRate);
     }
     updateParameters();
@@ -69,7 +70,7 @@ clap_process_status Disstortion::process(const clap_process* process) noexcept {
     // If no input, output silence
     if (in_channels == 0) {
         for (uint32_t ch = 0; ch < out_channels; ++ch) {
-            std::fill(out->data32[ch], out->data32[ch] + frames, 0.0f);
+            std::fill_n(out->data32[ch], frames, 0.0f);
         }
         return CLAP_PROCESS_CONTINUE;
     }
@@ -90,12 +91,12 @@ clap_process_status Disstortion::process(const clap_process* process) noexcept {
     if (in_channels == 1 && out_channels > 1) {
         const float* left = out->data32[0];
         for (uint32_t ch = 1; ch < out_channels; ++ch) {
-            std::copy(left, left + frames, out->data32[ch]);
+            std::copy_n(left, frames, out->data32[ch]);
         }
     } else if (out_channels > proc_channels) {
         // Zero any remaining output channels to avoid garbage/noise
         for (uint32_t ch = proc_channels; ch < out_channels; ++ch) {
-            std::fill(out->data32[ch], out->data32[ch] + frames, 0.0f);
+            std::fill_n(out->data32[ch], frames, 0.0f);
         }
     }
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <array>
 #include "../helpers/Utils.h"
 #include "BiquadFilter.h"
+#include <array>
 
 namespace stfefane::dsp {
 

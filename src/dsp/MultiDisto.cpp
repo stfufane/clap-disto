@@ -6,6 +6,10 @@
 
 namespace stfefane::dsp {
 
+void MultiDisto::activate() {
+    mPreFilter.setup(BiquadFilter::Type::LowPass, 10000.);
+    mPostFilter.setup(BiquadFilter::Type::HighPass, 80.);
+}
 
 void MultiDisto::setSampleRate(double samplerate) {
     mSampleRate = samplerate;
@@ -28,7 +32,7 @@ double MultiDisto::process(double input) {
     double signal = input * mInputGain;
 
     // Pre-filter
-    if (mPreFilterOn && mPreFilter.getType() != FilterType::NONE) {
+    if (mPreFilterOn && mPreFilter.getType() != BiquadFilter::Type::None) {
         signal = mPreFilter.process(signal);
     }
 
@@ -52,7 +56,7 @@ double MultiDisto::process(double input) {
     }
 
     // Post-filter
-    if (mPostFilterOn && mPostFilter.getType() != FilterType::NONE) {
+    if (mPostFilterOn && mPostFilter.getType() != BiquadFilter::Type::None) {
         signal = mPostFilter.process(signal);
     }
 
@@ -155,12 +159,12 @@ double MultiDisto::bitcrushDistortion(double input) const {
     double driveDbNorm = std::clamp(utils::linearToDB(mDrive) / kMaxDriveDb, 0.0, 1.0);
 
     // Bit depth: from 16 bits (low drive) down to 4 bits (high drive)
-    int bits = 4 + (int)std::round((1.0 - driveDbNorm) * 12.0);
+    int bits = 4 + static_cast<int>(std::round((1.0 - driveDbNorm) * 12.0));
     bits = std::clamp(bits, 1, 24);
     double levels = std::pow(2.0, bits) - 1.0;
 
     // Sample-rate reduction: hold every N samples, from 1 (no SRR) up to ~40 at max drive
-    int holdN = 1 + (int)std::round(driveDbNorm * 39.0);
+    const int holdN = 1 + static_cast<int>(std::round(driveDbNorm * 39.0));
 
     // Quantize a clipped version of the signal to avoid explosive outputs
     double x = std::clamp(input, -1.0, 1.0);
