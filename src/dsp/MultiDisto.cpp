@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <spdlog/spdlog.h>
 #include "../helpers/Utils.h"
+
 
 namespace stfefane::dsp {
 
@@ -12,6 +14,7 @@ void MultiDisto::activate() {
 }
 
 void MultiDisto::setSampleRate(double samplerate) {
+    spdlog::info("[MultiDisto::setSampleRate] new_samplerate = {}", samplerate);
     mSampleRate = samplerate;
     mOversampler.setupAntiAliasing(samplerate);
     mPreFilter.setSampleRate(samplerate);

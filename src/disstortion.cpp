@@ -3,8 +3,8 @@
 #include <clap/helpers/host-proxy.hh>
 #include <clap/helpers/plugin.hh>
 #include <clap/helpers/plugin.hxx>
-#include <iostream>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 namespace stfefane {
 
@@ -22,6 +22,8 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,
                                                   kClapFeatures};
 
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
+    spdlog::set_level(spdlog::level::info);
+    spdlog::info("[constructor]");
     mParameters.addParameter(params::eDrive, "Drive", std::make_unique<params::DecibelValueType>( .3, 0., dsp::kMaxDriveDb));
     mParameters.addParameter(params::eDriveType, "Drive Type",  std::make_unique<params::SteppedValueType>(std::vector<std::string>({ "Cubic Saturation", "Tube Saturation", "Asymmetric Clip", "Foldback", "Bitcrush", "Waveshaper", "Tube Screamer", "Fuzz"}), 0.));
     mParameters.addParameter(params::eInGain, "Input Gain", std::make_unique<params::DecibelValueType>( 0.3333333333333333, -12., 24.));
@@ -36,6 +38,7 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
 }
 
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
+    spdlog::info("[activate]");
     for (auto &proc : mDistoProcessors) {
         proc.activate();
         proc.setSampleRate(sampleRate);
@@ -45,6 +48,7 @@ bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
 }
 
 void Disstortion::reset() noexcept {
+    spdlog::info("[Disstortion::reset]");
     for (auto &proc : mDistoProcessors) {
         proc.reset();
     }
@@ -260,6 +264,7 @@ bool Disstortion::stateSave(const clap_ostream* stream) noexcept {
     }
 
     const auto jsonStr = j.dump();
+    spdlog::debug("[stateSave] -> {}", j.dump(4));
 
     // CLAP streams may have size limitations, so we need to write in chunks
     const auto* buffer = jsonStr.data();
@@ -309,6 +314,7 @@ bool Disstortion::stateLoad(const clap_istream* stream) noexcept {
 
     try {
         nlohmann::json j = nlohmann::json::parse(buffer.data());
+        spdlog::debug("[stateLoad] -> {}", j.dump(4));
 
         const auto state_version = j["state_version"].get<std::string>();
         if (state_version == PROJECT_VERSION) {
@@ -355,6 +361,7 @@ bool Disstortion::guiIsApiSupported(const char* api, bool is_floating) noexcept 
 }
 
 bool Disstortion::guiCreate(const char* api, bool is_floating) noexcept {
+    spdlog::info("[guiCreate]");
     if (is_floating) {
         return false;
     }

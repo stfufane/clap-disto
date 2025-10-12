@@ -3,6 +3,8 @@
 #include "../disstortion.h"
 #include "../params/Parameters.h"
 
+#include <spdlog/spdlog.h>
+
 namespace stfefane::gui {
 
 using namespace visage::dimension;
@@ -19,7 +21,7 @@ DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
 , mMix(disstortion, params::eMix)
 , mPreFilterOn(disstortion, params::ePreFilterOn)
 , mPostFilterOn(disstortion, params::ePostFilterOn) {
-
+    spdlog::info("[DisstortionEditor::createUI]");
     setFlexLayout(true);
     layout().setFlexItemAlignment(visage::Layout::ItemAlignment::Center);
 

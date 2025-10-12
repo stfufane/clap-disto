@@ -2,6 +2,8 @@
 
 #include "../disstortion.h"
 
+#include <spdlog/spdlog.h>
+
 namespace stfefane::helpers {
 
 IParamControl::IParamControl(Disstortion& disstortion, clap_id param_id)
@@ -14,6 +16,7 @@ IParamControl::IParamControl(Disstortion& disstortion, clap_id param_id)
 }
 
 void IParamControl::onParameterUpdated(double new_value) {
+    spdlog::info("[IParamControl::onParameterUpdated] -> {} = {}", mParam->getInfo().name, new_value);
     mCurrentValue = new_value;
     redraw();
 }

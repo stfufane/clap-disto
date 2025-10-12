@@ -21,6 +21,7 @@ CPMAddPackage("gh:free-audio/clap-helpers#main")
 CPMAddPackage("gh:cameron314/readerwriterqueue#master")
 CPMAddPackage("gh:VitalAudio/visage#main")
 CPMAddPackage("gh:nlohmann/json@3.11.3")
+CPMAddPackage("gh:gabime/spdlog@1.16.0")
 
 set(SOURCE_FILES
     src/disstortion.h
@@ -52,6 +53,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         visage
         readerwriterqueue
         nlohmann_json
+        spdlog::spdlog
         font_resources)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         PROJECT_VERSION="${PROJECT_VERSION}"
