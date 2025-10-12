@@ -10,7 +10,7 @@ IParamControl::IParamControl(Disstortion& disstortion, clap_id param_id)
     , mTitle(mParam->getInfo().name)
     , mDisstortion(disstortion)
     , mParamId(mParam->getInfo().id) {
-    mCurrentValue = mParam->getInfo().default_value;
+    mCurrentValue = mParam->getValue();
 }
 
 void IParamControl::onParameterUpdated(double new_value) {
