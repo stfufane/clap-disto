@@ -9,3 +9,4 @@ MaxEmptyLinesToKeep: 1
 SeparateDefinitionBlocks: Leave
 SpacesInContainerLiterals: true
 PointerAlignment: Left
+ColumnLimit: 132
