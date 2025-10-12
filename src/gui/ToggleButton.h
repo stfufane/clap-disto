@@ -15,7 +15,6 @@ public:
     explicit ToggleButton(Disstortion& disstortion, clap_id param_id);
 
 protected:
-    void onParameterUpdated(double new_value) override;
     void draw(visage::Canvas& canvas) override;
     void resized() override;
 

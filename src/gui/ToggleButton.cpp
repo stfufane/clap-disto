@@ -7,8 +7,8 @@ namespace stfefane::gui {
 ToggleButton::ToggleButton(Disstortion& disstortion, clap_id param_id)
     : IParamControl(disstortion, param_id),
       mFont(12.f, resources::fonts::DroidSansMono_ttf),
-      mButton("On", mFont) {
-    mButton.setToggled(true);
+      mButton(name() + " ToggleButton", mFont) {
+    mButton.setToggled(mParam->getValue() > .5);
     mButton.onToggle() = [this]([[maybe_unused]] visage::Button* button, bool toggled) {
         beginChangeGesture();
         performChange(toggled);
@@ -16,11 +16,6 @@ ToggleButton::ToggleButton(Disstortion& disstortion, clap_id param_id)
         mButton.setText(toggled ? "On" : "Off");
     };
     addChild(mButton);
-}
-
-void ToggleButton::onParameterUpdated(double new_value) {
-    mCurrentValue = new_value;
-    mButton.setText(mCurrentValue ? "On" : "Off");
 }
 
 void ToggleButton::draw(visage::Canvas& canvas) {
@@ -33,6 +28,9 @@ void ToggleButton::draw(visage::Canvas& canvas) {
 
     canvas.setColor(0xff111111);
     canvas.text(mTitle, mFont.withSize(10.f), visage::Font::kCenter, margin_x, button_height, w, height() - button_height);
+
+    mButton.setToggled(mCurrentValue > .5);
+    mButton.setText(mCurrentValue > .5 ? "On" : "Off");
 }
 
 void ToggleButton::resized() {
