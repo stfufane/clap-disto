@@ -7,8 +7,12 @@ namespace stfefane::params {
 
 void Parameter::setValue(const double value) {
     mValue = value;
+    notifyAllParamListeners();
+}
+
+void Parameter::notifyAllParamListeners() const noexcept {
     for (auto* listener : mUIListeners) {
-        listener->onParameterUpdated(value);
+        listener->onParameterUpdated(mValue);
     }
 }
 

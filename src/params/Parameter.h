@@ -21,6 +21,8 @@ public:
     [[nodiscard]] double getValue() const noexcept { return mValue; }
     void setValue(double value);
 
+    void notifyAllParamListeners() const noexcept;
+
     [[nodiscard]] const clap_param_info& getInfo() const noexcept { return mInfo; }
     [[nodiscard]] const ParamValueType& getValueType() const noexcept { return *mValueType; }
 
