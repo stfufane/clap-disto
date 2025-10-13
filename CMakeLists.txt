@@ -52,7 +52,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         readerwriterqueue
         nlohmann_json
         font_resources)
-target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+        PROJECT_VERSION="${PROJECT_VERSION}"
+        PLUGIN_ID_SUFFIX=$<IF:$<CONFIG:Debug>,".debug","">)
 
 if (APPLE)
     # Calls all the mac specific bundle and sanitizer stuff

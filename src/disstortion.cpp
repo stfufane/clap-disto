@@ -10,11 +10,16 @@ namespace stfefane {
 
 static const char* kClapFeatures[] = {CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, nullptr};
 
-clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,           "dev.stephanealbanese.disstortion",
-                                                  "Disstortion",          "Stfefane",
-                                                  "stephanealbanese.dev", "stephanealbanese.dev",
-                                                  "stephanealbanese.dev", "0.0.1",
-                                                  "Disstortion Plugin",   kClapFeatures};
+clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,
+                                                  "dev.stephanealbanese.disstortion" PLUGIN_ID_SUFFIX,
+                                                  "Disstortion" PLUGIN_ID_SUFFIX,
+                                                  "Stfefane",
+                                                  "stephanealbanese.dev",
+                                                  "stephanealbanese.dev",
+                                                  "stephanealbanese.dev",
+                                                  PROJECT_VERSION,
+                                                  "Disstortion Plugin",
+                                                  kClapFeatures};
 
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
     mParameters.addParameter(params::eDrive, "Drive", std::make_unique<params::DecibelValueType>( .3, 0., dsp::kMaxDriveDb));
