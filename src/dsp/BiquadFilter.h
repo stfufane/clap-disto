@@ -1,8 +1,7 @@
 #pragma once
 
 #include <array>
-#include <cmath>
-#include <cstddef>
+#include "../helpers/Utils.h"
 
 namespace stfefane::dsp {
 
@@ -30,8 +29,8 @@ public:
 
     BiquadFilter() = default;
 
-    explicit BiquadFilter(Type type, double sampleRate, double freq, double q = 0.707, double gainDb = 0.0)
-        : mType(type), mSampleRate(sampleRate), mFreq(freq), mQ(q), mGainDb(gainDb) {
+    explicit BiquadFilter(Type type, double freq, double q = 0.707, double gainDb = 0.0)
+        : mType(type), mFreq(freq), mQ(q), mGainDb(gainDb) {
         updateCoefficients();
     }
 
@@ -53,14 +52,17 @@ public:
         mType = type;
         updateCoefficients();
     }
+
     void setFreq(double freq) {
         mFreq = freq;
         updateCoefficients();
     }
+
     void setQ(double q) {
         mQ = q;
         updateCoefficients();
     }
+
     void setGainDb(double gainDb) {
         mGainDb = gainDb;
         updateCoefficients();
@@ -128,7 +130,7 @@ public:
             f = nyquist * 0.99; // safety clamp under Nyquist
         }
 
-        const double w0 = 2.0 * M_PI * (f / mSampleRate);
+        const double w0 = 2.0 * utils::kPI * (f / mSampleRate);
         const double cw = std::cos(w0);
         const double sw = std::sin(w0);
         const double A = std::pow(10.0, mGainDb / 40.0); // for shelving/peak

@@ -8,11 +8,6 @@
 
 namespace stfefane::dsp {
 
-void MultiDisto::activate() {
-    mPreFilter.setup(BiquadFilter::Type::LowPass, 10000.);
-    mPostFilter.setup(BiquadFilter::Type::HighPass, 80.);
-}
-
 void MultiDisto::setSampleRate(double samplerate) {
     spdlog::info("[MultiDisto::setSampleRate] new_samplerate = {}", samplerate);
     mSampleRate = samplerate;

@@ -39,10 +39,7 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
 
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
     spdlog::info("[activate]");
-    for (auto &proc : mDistoProcessors) {
-        proc.activate();
-        proc.setSampleRate(sampleRate);
-    }
+    std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.setSampleRate(sampleRate); });
     updateParameters();
     return true;
 }

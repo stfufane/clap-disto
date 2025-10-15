@@ -22,7 +22,6 @@ class MultiDisto {
 public:
     MultiDisto() = default;
 
-    void activate();
     void setSampleRate(double samplerate);
     void reset();
 
@@ -71,8 +70,8 @@ private:
     double mSampleRate = 44100.0;
     DistortionType mType = DistortionType::TUBE_SCREAMER;
 
-    BiquadFilter mPreFilter;
-    BiquadFilter mPostFilter;
+    BiquadFilter mPreFilter { BiquadFilter::Type::LowPass, 10000. };
+    BiquadFilter mPostFilter { BiquadFilter::Type::HighPass, 80. };
     DCBlocker mDCBlocker;
     Oversampler mOversampler;
 
