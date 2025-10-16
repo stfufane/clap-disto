@@ -5,3 +5,5 @@
 cmake-build-debug
 cmake-build-release
 .env
+
+/cmake/mac/sign_plugin.sh

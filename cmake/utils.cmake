@@ -24,6 +24,8 @@ function(copy_after_build target)
     if (APPLE)
         # On macOS the CLAP is a bundle directory
         add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E echo "Signing bundle if configured"
+                COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/cmake/mac/run_sign.sh "$<TARGET_BUNDLE_DIR:${target}>"
                 COMMAND ${CMAKE_COMMAND} -E echo "Installing $<TARGET_BUNDLE_DIR:${target}> to ${dest_path}"
                 COMMAND ${CMAKE_COMMAND} -E copy_directory
                         "$<TARGET_BUNDLE_DIR:${target}>"
