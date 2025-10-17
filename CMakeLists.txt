@@ -57,7 +57,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         font_resources)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         PROJECT_VERSION="${PROJECT_VERSION}"
-        PLUGIN_ID_SUFFIX=$<IF:$<CONFIG:Debug>,".debug","">)
+        PLUGIN_ID_SUFFIX=$<IF:$<CONFIG:Debug>,".debug","">
+        $<$<CONFIG:Debug>:DEBUG>)
 
 if (APPLE)
     # Calls all the mac specific bundle and sanitizer stuff

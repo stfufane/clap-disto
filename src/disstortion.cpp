@@ -22,23 +22,37 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,
                                                   kClapFeatures};
 
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
-    spdlog::set_level(spdlog::level::info);
-    spdlog::info("[constructor]");
-    mParameters.addParameter(params::eDrive, "Drive", std::make_unique<params::DecibelValueType>( .3, 0., dsp::kMaxDriveDb));
-    mParameters.addParameter(params::eDriveType, "Drive Type",  std::make_unique<params::SteppedValueType>(std::vector<std::string>({ "Cubic Saturation", "Tube Saturation", "Asymmetric Clip", "Foldback", "Bitcrush", "Waveshaper", "Tube Screamer", "Fuzz"}), 0.));
-    mParameters.addParameter(params::eInGain, "Input Gain", std::make_unique<params::DecibelValueType>( 0.3333333333333333, -12., 24.));
-    mParameters.addParameter(params::eOutGain, "Output Gain", std::make_unique<params::DecibelValueType>( .8, -24., 6.));
-    mParameters.addParameter(params::ePreFilterOn, "Pre Filter On",  std::make_unique<params::BooleanValueType>(true));
-    mParameters.addParameter(params::ePreFilterFreq, "Pre Filter", std::make_unique<params::ParamValueType>(20., 20000., 10000., " Hz"));
-    mParameters.addParameter(params::ePostFilterOn, "Post Filter On",  std::make_unique<params::BooleanValueType>(true));
-    mParameters.addParameter(params::ePostFilterFreq, "Post Filter", std::make_unique<params::ParamValueType>(20., 20000., 80., " Hz"));
-    mParameters.addParameter(params::eAsymmetry, "Asymmetry", std::make_unique<params::ParamValueType>(-0.5, 0.5, 0., std::string()));
+#if DEBUG
+    spdlog::set_level(spdlog::level::debug);
+#else
+    spdlog::set_level(spdlog::level::off);
+#endif
+    spdlog::info("[Disstortion::constructor]");
+
+    mParameters.addParameter(params::eDrive, "Drive", std::make_unique<params::DecibelValueType>(.3, 0., dsp::kMaxDriveDb));
+    mParameters.addParameter(params::eDriveType, "Drive Type",
+                             std::make_unique<params::SteppedValueType>(
+                                 std::vector<std::string>({"Cubic Saturation", "Tube Saturation", "Asymmetric Clip", "Foldback",
+                                                           "Bitcrush", "Waveshaper", "Tube Screamer", "Fuzz"}),
+                                 0.));
+    mParameters.addParameter(params::eInGain, "Input Gain",
+                             std::make_unique<params::DecibelValueType>(0.3333333333333333, -12., 24.));
+    mParameters.addParameter(params::eOutGain, "Output Gain", std::make_unique<params::DecibelValueType>(.8, -24., 6.));
+    mParameters.addParameter(params::ePreFilterOn, "Pre Filter On", std::make_unique<params::BooleanValueType>(true));
+    mParameters.addParameter(params::ePreFilterFreq, "Pre Filter",
+                             std::make_unique<params::ParamValueType>(20., 20000., 10000., " Hz"));
+    mParameters.addParameter(params::ePostFilterOn, "Post Filter On", std::make_unique<params::BooleanValueType>(true));
+    mParameters.addParameter(params::ePostFilterFreq, "Post Filter",
+                             std::make_unique<params::ParamValueType>(20., 20000., 80., " Hz"));
+    mParameters.addParameter(params::eAsymmetry, "Asymmetry",
+                             std::make_unique<params::ParamValueType>(-0.5, 0.5, 0., std::string()));
     mParameters.addParameter(params::eBias, "Bias", std::make_unique<params::ParamValueType>(-0.1, 0.1, 0., std::string()));
-    mParameters.addParameter(params::eMix, "Mix", std::make_unique<params::ParamPercentValueType>( .5));
+    mParameters.addParameter(params::eMix, "Mix", std::make_unique<params::ParamPercentValueType>(.5));
+
 }
 
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
-    spdlog::info("[activate]");
+    spdlog::info("[Disstortion::activate]");
     std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.setSampleRate(sampleRate); });
     updateParameters();
     return true;
@@ -46,9 +60,7 @@ bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
 
 void Disstortion::reset() noexcept {
     spdlog::info("[Disstortion::reset]");
-    for (auto &proc : mDistoProcessors) {
-        proc.reset();
-    }
+    std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.reset(); });
 }
 
 clap_process_status Disstortion::process(const clap_process* process) noexcept {
