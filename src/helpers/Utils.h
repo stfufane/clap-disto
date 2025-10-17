@@ -1,6 +1,8 @@
 #pragma once
 
+#ifndef __APPLE__
 #include <charconv>
+#endif
 #include <cmath>
 #include <numbers>
 #include <stdexcept>
