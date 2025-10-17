@@ -7,7 +7,7 @@
 namespace stfefane::helpers {
 
 IParamControl::IParamControl(Disstortion& disstortion, clap_id param_id)
-    : IParameterUIListener(disstortion.getParameter(param_id))
+    : IParameterListener(disstortion.getParameter(param_id))
     , visage::Frame(mParam->getInfo().name)
     , mTitle(mParam->getInfo().name)
     , mDisstortion(disstortion)
@@ -16,7 +16,7 @@ IParamControl::IParamControl(Disstortion& disstortion, clap_id param_id)
 }
 
 void IParamControl::onParameterUpdated(double new_value) {
-    spdlog::info("[IParamControl::onParameterUpdated] -> {} = {}", mParam->getInfo().name, new_value);
+    spdlog::debug("[IParamControl::onParameterUpdated] -> {} = {}", mParam->getInfo().name, new_value);
     mCurrentValue = new_value;
     redraw();
 }

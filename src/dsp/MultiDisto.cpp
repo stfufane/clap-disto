@@ -4,9 +4,51 @@
 #include <cmath>
 #include <spdlog/spdlog.h>
 #include "../helpers/Utils.h"
-
+#include "../disstortion.h"
 
 namespace stfefane::dsp {
+
+void MultiDisto::initParameterAttachments(const Disstortion& d) {
+    using namespace params;
+    mParameterAttachments.reserve(12);
+
+    auto add_basic_attachment = [&](clap_id id, double& attached_to) {
+        mParameterAttachments.emplace_back(d.getParameter(id), [&](Parameter* param, double new_val) {
+            spdlog::debug("Set parameter {} to new value {}", param->getInfo().name, new_val);
+            attached_to = new_val;
+        });
+    };
+    add_basic_attachment(eMix, mMix);
+    add_basic_attachment(eBias, mBias);
+    add_basic_attachment(eAsymmetry, mAsymmetry);
+
+    auto add_dB_attachment = [&](clap_id id, double& attached_to) {
+        mParameterAttachments.emplace_back(d.getParameter(id), [&](Parameter* param, double new_val) {
+            attached_to = utils::dbToLinear(param->getValueType().denormalizedValue(new_val));
+            spdlog::debug("Set parameter {} to {} dB", param->getInfo().name, attached_to);
+        });
+    };
+    add_dB_attachment(eDrive, mDrive);
+    add_dB_attachment(eInGain, mInputGain);
+    add_dB_attachment(eOutGain, mOutputGain);
+
+    mParameterAttachments.emplace_back(d.getParameter(eDriveType), [&](Parameter*, double new_type) {
+        mType = static_cast<dsp::DistortionType>(new_type);
+    });
+    mParameterAttachments.emplace_back(d.getParameter(ePreFilterOn), [&](Parameter*, double new_pre) {
+        mPreFilterOn = new_pre > .5;
+    });
+    mParameterAttachments.emplace_back(d.getParameter(ePreFilterFreq), [&](Parameter*, double new_freq) {
+        mPreFilter.setFreq(new_freq);
+    });
+
+    mParameterAttachments.emplace_back(d.getParameter(ePostFilterOn), [&](Parameter*, double new_post) {
+        mPostFilterOn = new_post > .5;
+    });
+    mParameterAttachments.emplace_back(d.getParameter(ePostFilterFreq), [&](Parameter*, double new_freq) {
+        mPostFilter.setFreq(new_freq);
+    });
+}
 
 void MultiDisto::setSampleRate(double samplerate) {
     spdlog::info("[MultiDisto::setSampleRate] new_samplerate = {}", samplerate);
@@ -66,11 +108,6 @@ double MultiDisto::process(double input) {
 
     // Final safety limiting
     return std::clamp(signal, -1., 1.);
-}
-
-void MultiDisto::setDrive(double drive) {
-    // Denormalize the value to a 0-36dB range
-    mDrive = utils::dbToLinear(drive * kMaxDriveDb);
 }
 
 double MultiDisto::applyDistortion(double input) const {

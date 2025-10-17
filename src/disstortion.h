@@ -110,7 +110,6 @@ public:
 
 private:
     void processEvents(const clap_input_events* in_events) const;
-    void updateParameters();
     void handleEventsFromUIQueue(const clap_output_events_t *);
 
     params::Parameters mParameters;

@@ -13,7 +13,7 @@ class Disstortion;
 
 namespace stfefane::helpers {
 
-class IParamControl : public params::IParameterUIListener, public visage::Frame {
+class IParamControl : public params::IParameterListener, public visage::Frame {
 public:
     explicit IParamControl(Disstortion& disstortion, clap_id param_id);
     IParamControl() = delete;

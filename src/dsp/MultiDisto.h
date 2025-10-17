@@ -1,7 +1,12 @@
 #pragma once
 
+#include "../params/Parameter.h"
 #include "BiquadFilter.h"
 #include "OverSampler.h"
+
+namespace stfefane {
+class Disstortion;
+}
 
 namespace stfefane::dsp {
 
@@ -22,22 +27,12 @@ class MultiDisto {
 public:
     MultiDisto() = default;
 
+    void initParameterAttachments(const Disstortion& d);
+
     void setSampleRate(double samplerate);
     void reset();
 
     double process(double input);
-
-    void setDrive(double drive);
-    void setType(DistortionType type) { mType = type; }
-    void setInputGain(double gainDb) { mInputGain = utils::dbToLinear(gainDb); }
-    void setOutputGain(double gainDb) { mOutputGain = utils::dbToLinear(gainDb); }
-    void setPreFilterOn(bool on) { mPreFilterOn = on; }
-    void setPreFilterFreq(double freq) { mPreFilter.setFreq(freq); }
-    void setPostFilterOn(bool on) { mPostFilterOn = on; }
-    void setPostFilterFreq(double freq) { mPostFilter.setFreq(freq); }
-    void setBias(double bias) { mBias = bias; }
-    void setAsymmetry(double asymmetry) { mAsymmetry = asymmetry; }
-    void setMix(double mix) { mMix = mix; }
 
 private:
     // DC blocking filter
@@ -78,6 +73,8 @@ private:
     // State for bitcrusher sample-rate reduction
     mutable int mBitcrushPhase = 0;
     mutable double mBitcrushHold = 0.0;
+
+    std::vector<params::ParameterAttachment> mParameterAttachments;
 
     double mInputGain = 1.;
     double mOutputGain = 1.;

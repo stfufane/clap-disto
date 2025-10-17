@@ -6,13 +6,13 @@
 namespace stfefane::params {
 
 void Parameter::setValue(const double value) {
-    mValue = value;
+    mValue.store(value, std::memory_order_relaxed);
     notifyAllParamListeners();
 }
 
 void Parameter::notifyAllParamListeners() const noexcept {
-    for (auto* listener : mUIListeners) {
-        listener->onParameterUpdated(mValue);
+    for (auto* listener : mListeners) {
+        listener->onParameterUpdated(getValue());
     }
 }
 
@@ -27,14 +27,14 @@ size_t Parameter::nbSteps() const noexcept {
     return 1;
 }
 
-void Parameter::addUIListener(IParameterUIListener* listener) {
-    if (std::ranges::find(mUIListeners, listener) == mUIListeners.end()) {
-        mUIListeners.push_back(listener);
+void Parameter::addListener(IParameterListener* listener) {
+    if (std::ranges::find(mListeners, listener) == mListeners.end()) {
+        mListeners.push_back(listener);
     }
 }
 
-void Parameter::removeUIListener(IParameterUIListener* listener) {
-    std::erase(mUIListeners, listener);
+void Parameter::removeListener(IParameterListener* listener) {
+    std::erase(mListeners, listener);
 }
 
 } // namespace stfefane::params

@@ -49,12 +49,12 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
     mParameters.addParameter(params::eBias, "Bias", std::make_unique<params::ParamValueType>(-0.1, 0.1, 0., std::string()));
     mParameters.addParameter(params::eMix, "Mix", std::make_unique<params::ParamPercentValueType>(.5));
 
+    std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.initParameterAttachments(*this); });
 }
 
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
     spdlog::info("[Disstortion::activate]");
     std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.setSampleRate(sampleRate); });
-    updateParameters();
     return true;
 }
 
@@ -71,7 +71,6 @@ clap_process_status Disstortion::process(const clap_process* process) noexcept {
 
     handleEventsFromUIQueue(process->out_events);
     processEvents(process->in_events);
-    updateParameters();
 
     const auto* in = process->audio_inputs_count > 0 ? process->audio_inputs : nullptr;
     auto* out = process->audio_outputs;
@@ -127,36 +126,6 @@ void Disstortion::processEvents(const clap_input_events* in_events) const {
                 mParameters.getParamById(param_event->param_id)->setValue(param_event->value);
             }
         }
-    }
-}
-
-void Disstortion::updateParameters() {
-    const double drive = mParameters.getParamValue(params::eDrive);
-    const auto type = static_cast<dsp::DistortionType>(mParameters.getParamValue(params::eDriveType));
-    const auto& inVt = mParameters.getParamValueType(params::eInGain);
-    const double inGain = inVt.denormalizedValue(mParameters.getParamValue(params::eInGain));
-    const auto& outVt = mParameters.getParamValueType(params::eOutGain);
-    const double outGain = outVt.denormalizedValue(mParameters.getParamValue(params::eOutGain));
-    const double preFreq = mParameters.getParamValue(params::ePreFilterFreq);
-    const double postFreq = mParameters.getParamValue(params::ePostFilterFreq);
-    const double bias = mParameters.getParamValue(params::eBias);
-    const double asym = mParameters.getParamValue(params::eAsymmetry);
-    const double mix = mParameters.getParamValue(params::eMix);
-    const bool preOn = mParameters.getParamValue(params::ePreFilterOn);
-    const bool postOn = mParameters.getParamValue(params::ePostFilterOn);
-
-    for (auto &proc : mDistoProcessors) {
-        proc.setDrive(drive);
-        proc.setType(type);
-        proc.setInputGain(inGain);
-        proc.setOutputGain(outGain);
-        proc.setPreFilterFreq(preFreq);
-        proc.setPostFilterFreq(postFreq);
-        proc.setBias(bias);
-        proc.setAsymmetry(asym);
-        proc.setMix(mix);
-        proc.setPreFilterOn(preOn);
-        proc.setPostFilterOn(postOn);
     }
 }
 
