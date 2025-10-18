@@ -1,10 +1,13 @@
 #pragma once
 
-#include "../params/Parameter.h"
+#include <vector>
 #include "BiquadFilter.h"
 #include "OverSampler.h"
 
 namespace stfefane {
+namespace params {
+class ParameterAttachment;
+}
 class Disstortion;
 }
 

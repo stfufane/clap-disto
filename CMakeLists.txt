@@ -39,7 +39,10 @@ set(SOURCE_FILES
     src/dsp/MultiDisto.cpp
     src/dsp/MultiDisto.h
     src/dsp/OverSampler.cpp
-    src/dsp/OverSampler.h)
+    src/dsp/OverSampler.h
+    src/params/IParameterListener.cpp
+    src/params/IParameterListener.h
+    src/helpers/Logger.h)
 
 file(GLOB_RECURSE FONT_TTF_FILES fonts/*.ttf)
 add_embedded_resources(font_resources "disto_fonts.h" "resources::fonts" "${FONT_TTF_FILES}")

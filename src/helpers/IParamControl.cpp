@@ -15,6 +15,22 @@ IParamControl::IParamControl(Disstortion& disstortion, clap_id param_id)
     mCurrentValue = mParam->getValue();
 }
 
+double IParamControl::getMinValue() const noexcept {
+    return mParam->getInfo().min_value;
+}
+
+double IParamControl::getMaxValue() const noexcept {
+    return mParam->getInfo().max_value;
+}
+
+bool IParamControl::isStepped() const noexcept {
+    return mParam->isStepped();
+}
+
+size_t IParamControl::nbSteps() const noexcept {
+    return mParam->nbSteps();
+}
+
 void IParamControl::onParameterUpdated(double new_value) {
     spdlog::debug("[IParamControl::onParameterUpdated] -> {} = {}", mParam->getInfo().name, new_value);
     mCurrentValue = new_value;
@@ -25,6 +41,10 @@ void IParamControl::resetParam() {
     beginChangeGesture();
     performChange(mParam->getInfo().default_value);
     endChangeGesture();
+}
+
+std::string IParamControl::getValueString() const noexcept {
+    return mParam->getValueType().toText(mCurrentValue.load(std::memory_order_relaxed));
 }
 
 void IParamControl::beginChangeGesture() { mDisstortion.beginParameterChange(mParamId); }

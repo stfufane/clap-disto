@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../params/Parameters.h"
+#include "../params/IParameterListener.h"
 
 #include <visage/ui.h>
 #include <clap/id.h>
@@ -19,11 +19,11 @@ public:
     IParamControl() = delete;
 
 protected:
-    [[nodiscard]] double getMinValue() const noexcept { return mParam->getInfo().min_value; }
-    [[nodiscard]] double getMaxValue() const noexcept { return mParam->getInfo().max_value; }
-    [[nodiscard]] bool isStepped() const noexcept { return mParam->isStepped(); }
-    [[nodiscard]] size_t nbSteps() const noexcept { return mParam->nbSteps(); }
-    [[nodiscard]] std::string getValueString() const noexcept { return mParam->getValueType().toText(mCurrentValue); }
+    [[nodiscard]] double getMinValue() const noexcept;
+    [[nodiscard]] double getMaxValue() const noexcept;
+    [[nodiscard]] bool isStepped() const noexcept;
+    [[nodiscard]] size_t nbSteps() const noexcept;
+    [[nodiscard]] std::string getValueString() const noexcept;
 
     // To be called by the UI element on mouse gestures
     void beginChangeGesture();

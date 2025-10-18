@@ -1,5 +1,6 @@
 #include "ToggleButton.h"
 
+#include "../params/Parameter.h"
 #include "embedded/disto_fonts.h"
 
 namespace stfefane::gui {
