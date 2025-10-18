@@ -32,8 +32,8 @@ size_t IParamControl::nbSteps() const noexcept {
 }
 
 void IParamControl::onParameterUpdated(double new_value) {
-    spdlog::debug("[IParamControl::onParameterUpdated] -> {} = {}", mParam->getInfo().name, new_value);
-    mCurrentValue = new_value;
+    spdlog::get("param")->info("[IParamControl::onParameterUpdated] -> {} = {}", mParam->getInfo().name, new_value);
+    mCurrentValue.store(new_value, std::memory_order_relaxed);
     redraw();
 }
 

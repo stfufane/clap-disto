@@ -21,7 +21,7 @@ DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
 , mMix(disstortion, params::eMix)
 , mPreFilterOn(disstortion, params::ePreFilterOn)
 , mPostFilterOn(disstortion, params::ePostFilterOn) {
-    spdlog::info("[DisstortionEditor::createUI]");
+    spdlog::get("ui")->info("[DisstortionEditor::createUI]");
     setFlexLayout(true);
     layout().setFlexItemAlignment(visage::Layout::ItemAlignment::Center);
 

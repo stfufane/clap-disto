@@ -1,6 +1,7 @@
 #include "disstortion.h"
 
 #include <cstring>
+#include "helpers/Logger.h"
 
 namespace stfefane::plugin_entry {
 
@@ -17,6 +18,8 @@ static const clap_plugin *createPlugin(const clap_plugin_factory *factory, const
     if (strcmp(plugin_id, Disstortion::descriptor.id) != 0) {
         return nullptr;
     }
+
+    utils::initLoggers();
 
     auto *p = new Disstortion(host);
     return p->clapPlugin();
