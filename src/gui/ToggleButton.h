@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../helpers/IParamControl.h"
+#include "helpers/IParamControl.h"
 #include "visage_widgets/button.h"
 
 namespace stfefane {

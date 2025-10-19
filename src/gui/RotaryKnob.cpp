@@ -1,9 +1,9 @@
 #include "RotaryKnob.h"
 
-#include "../helpers/Utils.h"
-#include "embedded/disto_fonts.h"
 #include <algorithm>
 #include <cmath>
+#include "embedded/disto_fonts.h"
+#include "helpers/Utils.h"
 
 namespace stfefane::gui {
 

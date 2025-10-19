@@ -50,6 +50,7 @@ add_embedded_resources(font_resources "disto_fonts.h" "resources::fonts" "${FONT
 # TODO: check https://github.com/baconpaul/six-sines/blob/main/CMakeLists.txt for standalone
 
 add_library(${PROJECT_NAME} MODULE ${SOURCE_FILES})
+target_include_directories(${PROJECT_NAME} PUBLIC src)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         clap
         clap-helpers

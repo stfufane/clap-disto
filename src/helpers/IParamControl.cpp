@@ -1,8 +1,7 @@
 #include "IParamControl.h"
 
-#include "../disstortion.h"
-
-#include <spdlog/spdlog.h>
+#include "disstortion.h"
+#include "helpers/Logger.h"
 
 namespace stfefane::helpers {
 
@@ -32,7 +31,7 @@ size_t IParamControl::nbSteps() const noexcept {
 }
 
 void IParamControl::onParameterUpdated(double new_value) {
-    spdlog::get("param")->info("[IParamControl::onParameterUpdated] -> {} = {}", mParam->getInfo().name, new_value);
+    LOG_INFO("param", "[IParamControl::onParameterUpdated] -> {} = {}", mParam->getInfo().name, new_value);
     mCurrentValue.store(new_value, std::memory_order_relaxed);
     redraw();
 }

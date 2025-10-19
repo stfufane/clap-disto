@@ -1,12 +1,12 @@
 #pragma once
 
+#include <array>
+#include <clap/helpers/plugin.hh>
+#include <readerwriterqueue.h>
+
 #include "dsp/MultiDisto.h"
 #include "gui/DisstortionEditor.h"
 #include "params/Parameters.h"
-#include <array>
-
-#include <clap/helpers/plugin.hh>
-#include <readerwriterqueue.h>
 
 namespace stfefane {
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../params/IParameterListener.h"
-
-#include <visage/ui.h>
-#include <clap/id.h>
 #include <atomic>
 #include <thread>
+#include <visage/ui.h>
+#include <clap/id.h>
+
+#include "params/IParameterListener.h"
 
 namespace stfefane {
 class Disstortion;

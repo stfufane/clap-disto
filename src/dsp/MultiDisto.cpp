@@ -2,19 +2,19 @@
 
 #include <algorithm>
 #include <cmath>
-#include <spdlog/spdlog.h>
-#include "../helpers/Utils.h"
-#include "../disstortion.h"
+#include "helpers/Logger.h"
+#include "helpers/Utils.h"
+#include "disstortion.h"
 
 namespace stfefane::dsp {
 
 void MultiDisto::initParameterAttachments(const Disstortion& d) {
     using namespace params;
-    mParameterAttachments.reserve(12);
+    mParameterAttachments.reserve(d.getParameters().count());
 
     auto add_basic_attachment = [&](clap_id id, double& attached_to) {
         mParameterAttachments.emplace_back(d.getParameter(id), [&](Parameter* param, double new_val) {
-            spdlog::get("param")->info("Set parameter {} to new value {}", param->getInfo().name, new_val);
+            LOG_INFO("param", "Set parameter {} to new value {}", param->getInfo().name, new_val);
             attached_to = new_val;
         });
     };
@@ -25,7 +25,7 @@ void MultiDisto::initParameterAttachments(const Disstortion& d) {
     auto add_dB_attachment = [&](clap_id id, double& attached_to) {
         mParameterAttachments.emplace_back(d.getParameter(id), [&](Parameter* param, double new_val) {
             attached_to = utils::dbToLinear(param->getValueType().denormalizedValue(new_val));
-            spdlog::get("param")->info("Set parameter {} to {} dB", param->getInfo().name, attached_to);
+            LOG_INFO("param", "Set parameter {} to {} dB", param->getInfo().name, attached_to);
         });
     };
     add_dB_attachment(eDrive, mDrive);
@@ -51,7 +51,7 @@ void MultiDisto::initParameterAttachments(const Disstortion& d) {
 }
 
 void MultiDisto::setSampleRate(double samplerate) {
-    spdlog::get("dsp")->info("[MultiDisto::setSampleRate] new_samplerate = {}", samplerate);
+    LOG_INFO("dsp", "[MultiDisto::setSampleRate] new_samplerate = {}", samplerate);
     mSampleRate = samplerate;
     mOversampler.setupAntiAliasing(samplerate);
     mPreFilter.setSampleRate(samplerate);

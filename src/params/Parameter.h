@@ -1,11 +1,11 @@
 #pragma once
 
-#include "clap/ext/params.h"
-#include "ParamValueType.h"
-
 #include <atomic>
 #include <memory>
 #include <vector>
+#include <clap/ext/params.h>
+
+#include "ParamValueType.h"
 
 namespace stfefane::params {
 

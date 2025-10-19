@@ -1,9 +1,7 @@
 #include "DisstortionEditor.h"
 
-#include "../disstortion.h"
-#include "../params/Parameters.h"
-
-#include <spdlog/spdlog.h>
+#include "params/Parameters.h"
+#include "helpers/Logger.h"
 
 namespace stfefane::gui {
 
@@ -21,7 +19,7 @@ DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
 , mMix(disstortion, params::eMix)
 , mPreFilterOn(disstortion, params::ePreFilterOn)
 , mPostFilterOn(disstortion, params::ePostFilterOn) {
-    spdlog::get("ui")->info("[DisstortionEditor::createUI]");
+    LOG_INFO("ui", "[DisstortionEditor::createUI]");
     setFlexLayout(true);
     layout().setFlexItemAlignment(visage::Layout::ItemAlignment::Center);
 

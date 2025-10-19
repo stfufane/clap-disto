@@ -1,9 +1,9 @@
 #include "Parameter.h"
 
-#include "IParameterListener.h"
-
 #include <algorithm>
 #include <vector>
+
+#include "IParameterListener.h"
 
 namespace stfefane::params {
 

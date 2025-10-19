@@ -1,10 +1,11 @@
 #include "disstortion.h"
 
+#include "helpers/Logger.h"
+
 #include <clap/helpers/host-proxy.hh>
 #include <clap/helpers/plugin.hh>
 #include <clap/helpers/plugin.hxx>
 #include <nlohmann/json.hpp>
-#include <spdlog/spdlog.h>
 
 namespace stfefane {
 
@@ -22,7 +23,7 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,
                                                   kClapFeatures};
 
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
-    spdlog::get("dsp")->info("[Disstortion::constructor]");
+    LOG_INFO("dsp", "[Disstortion::constructor]");
 
     mParameters.addParameter(params::eDrive, "Drive", std::make_unique<params::DecibelValueType>(.3, 0., dsp::kMaxDriveDb));
     mParameters.addParameter(params::eDriveType, "Drive Type",
@@ -48,13 +49,13 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
 }
 
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
-    spdlog::get("dsp")->info("[Disstortion::activate]");
+    LOG_INFO("dsp", "[Disstortion::activate]");
     std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.setSampleRate(sampleRate); });
     return true;
 }
 
 void Disstortion::reset() noexcept {
-    spdlog::get("dsp")->info("[Disstortion::reset]");
+    LOG_INFO("dsp", "[Disstortion::reset]");
     std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.reset(); });
 }
 
@@ -118,7 +119,7 @@ void Disstortion::processEvents(const clap_input_events* in_events) const {
         if (event->space_id == CLAP_CORE_EVENT_SPACE_ID && event->type == CLAP_EVENT_PARAM_VALUE) {
             auto* param_event = reinterpret_cast<const clap_event_param_value*>(event);
             if (mParameters.isValidParamId(param_event->param_id)) {
-                spdlog::get("param")->info("Processing event for param {}", getParameter(param_event->param_id)->getInfo().name);
+                LOG_INFO("param", "Processing event for param {}", getParameter(param_event->param_id)->getInfo().name);
                 mParameters.getParamById(param_event->param_id)->setValue(param_event->value);
             }
         }
@@ -155,7 +156,7 @@ void Disstortion::handleEventsFromUIQueue(const clap_output_events_t* ov) {
             evt.header.flags = 0;
             evt.param_id = f.id;
             evt.value = f.value;
-            spdlog::get("param")->info("Set param {} value from UI event", getParameter(evt.param_id)->getInfo().name);
+            LOG_INFO("param", "Set param {} value from UI event", getParameter(evt.param_id)->getInfo().name);
             mParameters.getParamById(evt.param_id)->setValue(evt.value);
             ov->try_push(ov, &evt.header);
             break;
@@ -239,7 +240,7 @@ bool Disstortion::stateSave(const clap_ostream* stream) noexcept {
     }
 
     const auto jsonStr = j.dump();
-    spdlog::get("param")->debug("[stateSave] -> {}", j.dump(4));
+    LOG_DEBUG("param", "[stateSave] -> {}", j.dump(4));
 
     // CLAP streams may have size limitations, so we need to write in chunks
     const auto* buffer = jsonStr.data();
@@ -289,7 +290,7 @@ bool Disstortion::stateLoad(const clap_istream* stream) noexcept {
 
     try {
         nlohmann::json j = nlohmann::json::parse(buffer.data());
-        spdlog::get("param")->debug("[stateLoad] -> {}", j.dump(4));
+        LOG_DEBUG("param", "[stateLoad] -> {}", j.dump(4));
 
         const auto state_version = j["state_version"].get<std::string>();
         if (state_version == PROJECT_VERSION) {
@@ -336,7 +337,7 @@ bool Disstortion::guiIsApiSupported(const char* api, bool is_floating) noexcept 
 }
 
 bool Disstortion::guiCreate(const char* api, bool is_floating) noexcept {
-    spdlog::get("dsp")->info("[guiCreate]");
+    LOG_INFO("ui", "[guiCreate]");
     if (is_floating) {
         return false;
     }

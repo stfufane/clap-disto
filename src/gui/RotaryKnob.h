@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../helpers/IParamControl.h"
+#include "helpers/IParamControl.h"
 
 namespace stfefane {
 class Disstortion;
