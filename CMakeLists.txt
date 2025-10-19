@@ -57,8 +57,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         visage
         readerwriterqueue
         nlohmann_json
-        spdlog::spdlog
-        font_resources)
+        font_resources
+        debug spdlog::spdlog)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         PROJECT_VERSION="${PROJECT_VERSION}"
         PLUGIN_ID_SUFFIX=$<IF:$<CONFIG:Debug>,".debug","">

@@ -19,7 +19,9 @@ static const clap_plugin *createPlugin(const clap_plugin_factory *factory, const
         return nullptr;
     }
 
+#if DEBUG
     utils::initLoggers();
+#endif
 
     auto *p = new Disstortion(host);
     return p->clapPlugin();
