@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <iomanip>
 #include <ios>
 #include <sstream>
@@ -7,6 +8,7 @@
 #include <vector>
 
 #include "../helpers/Utils.h"
+
 
 namespace stfefane::params {
 
@@ -45,8 +47,13 @@ struct DecibelValueType final : public ParamValueType {
     }
 
     [[nodiscard]] double toValue(const std::string& text) const override {
-        // FIXME: value not good
-        return utils::dbToLinear(utils::stringToDouble(text)) / (mMaxDb - mMinDb);
+        const double range = (mMaxDb - mMinDb);
+        if (range == 0.0) {
+            return 0.0;
+        }
+        const double db = utils::stringToDouble(text);
+        double t = (db - mMinDb) / range;
+        return std::clamp(t, 0.0, 1.0);
     }
 
     [[nodiscard]] double denormalizedValue(double value) const override {
