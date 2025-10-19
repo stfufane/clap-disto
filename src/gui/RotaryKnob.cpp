@@ -7,7 +7,7 @@
 
 namespace stfefane::gui {
 
-RotaryKnob::RotaryKnob(Disstortion& disstortion, clap_id param_id, Mapping mapping) : IParamControl(disstortion, param_id)
+RotaryKnob::RotaryKnob(Disstortion& disstortion, clap_id param_id, utils::Mapping mapping) : IParamControl(disstortion, param_id)
     , mRange(getMaxValue() - getMinValue())
     , mSensitivity(200.)
     , mMapping(mapping)
@@ -39,7 +39,7 @@ void RotaryKnob::draw(visage::Canvas& canvas) {
 
     constexpr auto angle_start = .7f * utils::kPI; // Start at the bottom center (PI/2) with a slight offset (0.2 PI)
     // Compute normalized position depending on mapping
-    const double t = normalize(mCurrentValue);
+    const double t = utils::normalize(mMapping, mCurrentValue, getMinValue(), getMaxValue());
     // Clamp the angle to 0.8 PI, it will be doubled from the center, covering 1.6 PI at the maximum value.
     const auto angle = static_cast<float>(t) * utils::kPI * .8f;
     // Shift the center of the radian
@@ -93,11 +93,11 @@ void RotaryKnob::mouseDrag(const visage::MouseEvent& e) {
     mAccumulatedDrag += dy / static_cast<float>(mSensitivity);
 
     // Starting normalized position from the start value
-    double start_t = normalize(mDragStartValue);
+    double start_t = utils::normalize(mMapping, mDragStartValue, getMinValue(), getMaxValue());
     double target_t = start_t + static_cast<double>(mAccumulatedDrag);
     target_t = std::clamp(target_t, 0.0, 1.0);
 
-    double target_value = denormalize(target_t);
+    double target_value = utils::denormalize(mMapping, target_t, getMinValue(), getMaxValue());
     target_value = std::clamp(target_value, getMinValue(), getMaxValue());
     double new_value = target_value;
 
@@ -121,51 +121,6 @@ void RotaryKnob::mouseDrag(const visage::MouseEvent& e) {
     }
 
     mDragStartY = e.position.y;
-}
-
-// Mapping helpers
-double RotaryKnob::denormalize(double t) const noexcept {
-    t = std::clamp(t, 0.0, 1.0);
-    const double min = getMinValue();
-    const double max = getMaxValue();
-    switch (mMapping) {
-        case Mapping::Linear:
-            return min + t * (max - min);
-        case Mapping::Logarithmic: {
-            // Guard against non-positive bounds; fallback to linear in that case
-            if (min <= 0.0 || max <= 0.0) {
-                return min + t * (max - min);
-            }
-            const double log_min = std::log(min);
-            const double log_max = std::log(max);
-            const double log_val = log_min + t * (log_max - log_min);
-            return std::exp(log_val);
-        }
-    }
-    // Fallback
-    return min + t * (max - min);
-}
-
-double RotaryKnob::normalize(double value) const noexcept {
-    const double min = getMinValue();
-    const double max = getMaxValue();
-    const double range = max - min;
-    if (range <= 0.0) return 0.0;
-    switch (mMapping) {
-        case Mapping::Linear:
-            return std::clamp((value - min) / range, 0.0, 1.0);
-        case Mapping::Logarithmic: {
-            if (min <= 0.0 || max <= 0.0 || value <= 0.0) {
-                return std::clamp((value - min) / range, 0.0, 1.0);
-            }
-            const double log_min = std::log(min);
-            const double log_max = std::log(max);
-            const double log_v = std::log(value);
-            const double t = (log_v - log_min) / (log_max - log_min);
-            return std::clamp(t, 0.0, 1.0);
-        }
-    }
-    return std::clamp((value - min) / range, 0.0, 1.0);
 }
 
 } // namespace stfefane::gui
