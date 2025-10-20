@@ -18,9 +18,10 @@ public:
     void mouseDown(const visage::MouseEvent& e) override;
     void mouseUp(const visage::MouseEvent& e) override;
     void mouseDrag(const visage::MouseEvent& e) override;
+    bool mouseWheel(const visage::MouseEvent& e) override;
 
 private:
-
+    void handleMouseDelta();
 
     bool mIsDragging = false;
     float mDragStartY = 0.f;

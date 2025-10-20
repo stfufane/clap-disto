@@ -1,9 +1,9 @@
 #include "RotaryKnob.h"
 
-#include <algorithm>
-#include <cmath>
 #include "embedded/disto_fonts.h"
 #include "helpers/Utils.h"
+#include <algorithm>
+#include <cmath>
 
 namespace stfefane::gui {
 
@@ -90,8 +90,22 @@ void RotaryKnob::mouseDrag(const visage::MouseEvent& e) {
 
     const float dy = mDragStartY - e.position.y;
     // Accumulate drag in normalized space so mapping can be applied
-    mAccumulatedDrag += dy / static_cast<float>(mSensitivity);
+    mAccumulatedDrag += dy / static_cast<float>(mSensitivity * (e.isMainModifier() ? 4.f : 1.f));
+    handleMouseDelta();
+    mDragStartY = e.position.y;
+}
 
+bool RotaryKnob::mouseWheel(const visage::MouseEvent& e) {
+    if (mIsDragging) {
+        return false;
+    }
+    mDragStartValue = mCurrentValue;
+    mAccumulatedDrag = e.wheel_delta_y / (isStepped() ? 5.f : mSensitivity * .5f);
+    handleMouseDelta();
+    return true;
+}
+
+void RotaryKnob::handleMouseDelta() {
     // Starting normalized position from the start value
     double start_t = utils::normalize(mMapping, mDragStartValue, getMinValue(), getMaxValue());
     double target_t = start_t + static_cast<double>(mAccumulatedDrag);
@@ -119,8 +133,6 @@ void RotaryKnob::mouseDrag(const visage::MouseEvent& e) {
         mCurrentValue = new_value;
         redraw();
     }
-
-    mDragStartY = e.position.y;
 }
 
 } // namespace stfefane::gui
