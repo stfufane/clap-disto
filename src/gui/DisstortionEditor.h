@@ -30,13 +30,15 @@ private:
 
     visage::ScrollableFrame mScrollable;
 
-    RotaryKnob mDriveType;
     RotaryKnob mDrive;
+    RotaryKnob mDriveType;
+    RotaryKnob mMix;
+    RotaryKnob mBias;
+    RotaryKnob mAsymmetry;
     RotaryKnob mInputGain;
     RotaryKnob mOutputGain;
     RotaryKnob mPreFilter;
     RotaryKnob mPostFilter;
-    RotaryKnob mMix;
     ToggleButton mPreFilterOn;
     ToggleButton mPostFilterOn;
 

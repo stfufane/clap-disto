@@ -42,7 +42,7 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
                              std::make_unique<params::ParamValueType>(20., 20000., 80., " Hz"));
     mParameters.addParameter(params::eAsymmetry, "Asymmetry",
                              std::make_unique<params::ParamValueType>(-0.5, 0.5, 0., std::string()));
-    mParameters.addParameter(params::eBias, "Bias", std::make_unique<params::ParamValueType>(-0.1, 0.1, 0., std::string()));
+    mParameters.addParameter(params::eBias, "Bias", std::make_unique<params::ParamValueType>(-0.3, 0.3, 0., std::string()));
     mParameters.addParameter(params::eMix, "Mix", std::make_unique<params::ParamPercentValueType>(.5));
 
     std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.initParameterAttachments(*this); });

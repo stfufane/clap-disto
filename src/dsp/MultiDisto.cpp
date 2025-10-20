@@ -157,7 +157,7 @@ double MultiDisto::cubicSaturation(double input) const {
 double MultiDisto::tubeSaturation(double input) const {
     // Normalize tanh drive to avoid level jumps: y = tanh(g*x) / tanh(g)
     double g = std::max(1e-6, mDrive * 0.7 * (1.0 + mAsymmetry));
-    double x = input;
+    double x = input * mDrive;
     double y = std::tanh(g * x);
     double norm = std::tanh(g);
     return (norm > 0.0 ? y / norm : y);

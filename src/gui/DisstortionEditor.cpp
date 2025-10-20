@@ -10,13 +10,15 @@ using namespace visage::dimension;
 DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
 : mDisstortion(disstortion)
 , mScrollable("ScrollContainer")
-, mDriveType(disstortion, params::eDriveType)
 , mDrive(disstortion, params::eDrive)
+, mDriveType(disstortion, params::eDriveType)
+, mMix(disstortion, params::eMix)
+, mBias(disstortion, params::eBias, utils::Mapping::BipolarSCurve)
+, mAsymmetry(disstortion, params::eAsymmetry, utils::Mapping::BipolarSCurve)
 , mInputGain(disstortion, params::eInGain)
 , mOutputGain(disstortion, params::eOutGain)
 , mPreFilter(disstortion, params::ePreFilterFreq, utils::Mapping::Logarithmic)
 , mPostFilter(disstortion, params::ePostFilterFreq, utils::Mapping::Logarithmic)
-, mMix(disstortion, params::eMix)
 , mPreFilterOn(disstortion, params::ePreFilterOn)
 , mPostFilterOn(disstortion, params::ePostFilterOn) {
     LOG_INFO("ui", "[DisstortionEditor::createUI]");
@@ -32,15 +34,17 @@ DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
     mScrollable.scrollableLayout().setFlexRows(false);
     mScrollable.scrollableLayout().setFlexWrapAlignment(visage::Layout::WrapAlignment::Start);
 
-    setupElement(mDriveType);
     setupElement(mDrive);
+    setupElement(mDriveType);
+    setupElement(mMix);
+    setupElement(mBias);
+    setupElement(mAsymmetry);
     setupElement(mInputGain);
     setupElement(mOutputGain);
     setupElement(mPreFilterOn);
     setupElement(mPreFilter);
     setupElement(mPostFilterOn);
     setupElement(mPostFilter);
-    setupElement(mMix);
 }
 
 void DisstortionEditor::draw(visage::Canvas& canvas) {
