@@ -42,6 +42,8 @@ set(SOURCE_FILES
     src/dsp/OverSampler.h
     src/params/IParameterListener.cpp
     src/params/IParameterListener.h
+    src/params/ValueMapping.cpp
+    src/params/ValueMapping.h
     src/helpers/Logger.h)
 
 file(GLOB_RECURSE FONT_TTF_FILES fonts/*.ttf)
