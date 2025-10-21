@@ -19,16 +19,16 @@ inline void initLoggers() {
 }
 
 #define LOG_DEBUG(type, message, ...) \
-    spdlog::get(type)->debug(message, __VA_ARGS__)
+    spdlog::get(type)->debug(message __VA_OPT__(,) __VA_ARGS__)
 
 #define LOG_INFO(type, message, ...) \
-    spdlog::get(type)->info(message, __VA_ARGS__)
+    spdlog::get(type)->info(message __VA_OPT__(,) __VA_ARGS__)
 
 #define LOG_WARN(type, message, ...) \
-    spdlog::get(type)->warn(message, __VA_ARGS__)
+    spdlog::get(type)->warn(message __VA_OPT__(,) __VA_ARGS__)
 
 #define LOG_ERROR(type, message, ...) \
-    spdlog::get(type)->error(message, __VA_ARGS__)
+    spdlog::get(type)->error(message __VA_OPT__(,) __VA_ARGS__)
 
 }
 
