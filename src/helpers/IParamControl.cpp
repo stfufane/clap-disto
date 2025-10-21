@@ -22,6 +22,12 @@ double IParamControl::getMaxValue() const noexcept {
     return mParam->getInfo().max_value;
 }
 
+double IParamControl::getNormalizedCurrentValue() const noexcept {
+    return !isStepped()
+        ? mCurrentValue.load(std::memory_order::relaxed)
+        : mParam->getValueType().normalizedValue(mCurrentValue.load(std::memory_order::relaxed));
+}
+
 bool IParamControl::isStepped() const noexcept {
     return mParam->isStepped();
 }

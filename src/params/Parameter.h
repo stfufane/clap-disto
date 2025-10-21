@@ -13,8 +13,7 @@ class IParameterListener;
 
 class Parameter {
 public:
-    explicit Parameter(const clap_param_info& info, std::unique_ptr<ParamValueType> value_type, size_t index) :
-         mIndex(index), mInfo(info), mValueType(std::move(value_type)), mValue(mInfo.default_value) {}
+    explicit Parameter(clap_id id, const std::string& name, std::unique_ptr<ParamValueType> value_type, size_t index);
     Parameter() = delete;
     Parameter(const Parameter &) = delete;
     Parameter(Parameter &&) = delete;
@@ -36,9 +35,9 @@ public:
 private:
     size_t mIndex = -1;
     clap_param_info mInfo;
+    std::atomic<double> mValue = 0.;
 
     std::unique_ptr<ParamValueType> mValueType;
-    std::atomic<double> mValue = 0.;
 
     std::vector<IParameterListener*> mListeners;
 };

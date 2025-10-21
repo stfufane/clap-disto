@@ -12,7 +12,7 @@ namespace stfefane::gui {
 class RotaryKnob final : public helpers::IParamControl
 {
 public:
-    explicit RotaryKnob(Disstortion& disstortion, clap_id param_id, utils::Mapping mapping = utils::Mapping::Linear);
+    explicit RotaryKnob(Disstortion& disstortion, clap_id param_id);
 
     void draw(visage::Canvas& canvas) override;
     void mouseDown(const visage::MouseEvent& e) override;
@@ -28,10 +28,7 @@ private:
     double mDragStartValue = 0.;
     float mAccumulatedDrag = 0.f; // Accumulated drag in normalized units
 
-    double mRange;
     double mSensitivity;
-
-    utils::Mapping mMapping = utils::Mapping::Linear;
 
     visage::Font mFont;
 };

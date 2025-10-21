@@ -8,79 +8,43 @@
 #include <vector>
 
 #include "helpers/Utils.h"
-
+#include "params/ValueMapping.h"
 
 namespace stfefane::params {
 
 struct ParamValueType {
-    ParamValueType(double min, double max, double defaultVal, std::string unit)
-        : mMin(min), mMax(max), mDefault(defaultVal), mUnit(std::move(unit)) {}
+    ParamValueType(double min, double max, double defaultVal, std::string unit = std::string(), MappingType mapping = MappingType::Linear)
+        : mMapping(mapping, min, max), mDefault(mMapping.normalize(defaultVal)), mUnit(std::move(unit)) {}
     virtual ~ParamValueType() = default;
 
-    double mMin = std::numeric_limits<double>::lowest();
-    double mMax = std::numeric_limits<double>::max();
+    ValueMapping mMapping;
     double mDefault = 0.;
     std::string mUnit;
     uint32_t mFlags = CLAP_PARAM_IS_AUTOMATABLE;
 
     [[nodiscard]] virtual std::string toText(double value) const {
         std::ostringstream os;
-        os << std::fixed << std::setprecision(2) << value << mUnit;
+        os << std::fixed << std::setprecision(2) << denormalizedValue(value) << mUnit;
         return os.str();
     }
 
     [[nodiscard]] virtual double toValue(const std::string& text) const {
-        return utils::stringToDouble(text);
+        return normalizedValue(utils::stringToDouble(text));
     }
 
-    [[nodiscard]] virtual double denormalizedValue(double value) const {
-        return value;
-    }
-};
-
-struct DecibelValueType final : public ParamValueType {
-    explicit DecibelValueType(double defaultVal, double min_db, double max_db)
-        : ParamValueType(0.0, 1.0, defaultVal, " dB"), mMinDb(min_db), mMaxDb(max_db) {}
-
-    [[nodiscard]] std::string toText(double value) const override {
-        return ParamValueType::toText(denormalizedValue(value));
+    [[nodiscard]] double denormalizedValue(double value) const {
+        return mMapping.denormalize(value);
     }
 
-    [[nodiscard]] double toValue(const std::string& text) const override {
-        const double range = (mMaxDb - mMinDb);
-        if (range == 0.0) {
-            return 0.0;
-        }
-        const double db = utils::stringToDouble(text);
-        double t = (db - mMinDb) / range;
-        return std::clamp(t, 0.0, 1.0);
-    }
-
-    [[nodiscard]] double denormalizedValue(double value) const override {
-        return mMinDb + value * (mMaxDb - mMinDb);
-    }
-
-    // The parameter is normalized, but we want to be able to map it to different dB values.
-    double mMinDb = 0.;
-    double mMaxDb = 24.;
-};
-
-struct ParamPercentValueType final : public ParamValueType {
-    explicit ParamPercentValueType(double defaultVal)
-        : ParamValueType(0., 1., defaultVal, " %") {}
-
-    [[nodiscard]] std::string toText(double value) const override {
-        return ParamValueType::toText(value * 100.);
-    };
-
-    [[nodiscard]] double toValue(const std::string& text) const override {
-        return ParamValueType::toValue(text) / 100.;
+    [[nodiscard]] double normalizedValue(double value) const {
+        return mMapping.normalize(value);
     }
 };
 
 struct SteppedValueType : public ParamValueType {
     explicit SteppedValueType(std::vector<std::string>&& values, double defaultVal)
-        : ParamValueType(0., static_cast<double>(values.size() - 1), defaultVal, std::string()), mValues(std::move(values)) {
+        : ParamValueType(0., static_cast<double>(values.size() - 1), defaultVal)
+        , mValues(std::move(values)) {
         mFlags = CLAP_PARAM_IS_AUTOMATABLE | CLAP_PARAM_IS_STEPPED;
     }
 

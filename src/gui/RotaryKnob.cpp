@@ -1,16 +1,17 @@
 #include "RotaryKnob.h"
 
 #include "embedded/disto_fonts.h"
+#include "helpers/Logger.h"
 #include "helpers/Utils.h"
+#include "params/Parameter.h"
+
 #include <algorithm>
 #include <cmath>
 
 namespace stfefane::gui {
 
-RotaryKnob::RotaryKnob(Disstortion& disstortion, clap_id param_id, utils::Mapping mapping) : IParamControl(disstortion, param_id)
-    , mRange(getMaxValue() - getMinValue())
+RotaryKnob::RotaryKnob(Disstortion& disstortion, clap_id param_id) : IParamControl(disstortion, param_id)
     , mSensitivity(200.)
-    , mMapping(mapping)
     , mFont(12.f, resources::fonts::DroidSansMono_ttf) {
     if (isStepped()) {
         mSensitivity = 100.;
@@ -38,8 +39,8 @@ void RotaryKnob::draw(visage::Canvas& canvas) {
     canvas.circle(margin_x, margin_y, w);
 
     constexpr auto angle_start = .7f * utils::kPI; // Start at the bottom center (PI/2) with a slight offset (0.2 PI)
-    // Compute normalized position depending on mapping
-    const double t = utils::normalize(mMapping, mCurrentValue, getMinValue(), getMaxValue());
+    // Use normalized value to compute the angle
+    const double t = getNormalizedCurrentValue();
     // Clamp the angle to 0.8 PI, it will be doubled from the center, covering 1.6 PI at the maximum value.
     const auto angle = static_cast<float>(t) * utils::kPI * .8f;
     // Shift the center of the radian
@@ -71,7 +72,7 @@ void RotaryKnob::mouseDown(const visage::MouseEvent& e) {
         beginChangeGesture();
         mIsDragging = true;
         mDragStartY = e.position.y;
-        mDragStartValue = mCurrentValue;
+        mDragStartValue = getNormalizedCurrentValue();
         mAccumulatedDrag = 0.f;
     }
 }
@@ -99,38 +100,23 @@ bool RotaryKnob::mouseWheel(const visage::MouseEvent& e) {
     if (mIsDragging) {
         return false;
     }
-    mDragStartValue = mCurrentValue;
+    mDragStartValue = getNormalizedCurrentValue();
     mAccumulatedDrag = e.wheel_delta_y / (isStepped() ? 5.f : mSensitivity * .5f);
     handleMouseDelta();
     return true;
 }
 
 void RotaryKnob::handleMouseDelta() {
-    // Starting normalized position from the start value
-    double start_t = utils::normalize(mMapping, mDragStartValue, getMinValue(), getMaxValue());
-    double target_t = start_t + static_cast<double>(mAccumulatedDrag);
-    target_t = std::clamp(target_t, 0.0, 1.0);
-
-    double target_value = utils::denormalize(mMapping, target_t, getMinValue(), getMaxValue());
-    target_value = std::clamp(target_value, getMinValue(), getMaxValue());
-    double new_value = target_value;
-
+    double target_t = mDragStartValue + static_cast<double>(mAccumulatedDrag);
     if (isStepped()) {
         // For stepped parameters, calculate which step we're closest to (linear spacing across actual range)
-        const auto num_steps = nbSteps();
-        const double step_size = mRange / static_cast<double>(num_steps - 1);
-
-        // Calculate which step the continuous value corresponds to
-        const auto normalized_pos = (target_value - getMinValue()) / mRange;
-        const int target_step = std::round(normalized_pos * static_cast<double>(num_steps - 1));
-
-        // Convert back to actual value
-        new_value = getMinValue() + target_step * step_size;
+        target_t = std::round(target_t * static_cast<double>(nbSteps() - 1));
     }
+    const auto new_value = std::clamp(target_t, getMinValue(), getMaxValue());
 
     if (new_value != mCurrentValue) {
         performChange(new_value);
-        mCurrentValue = new_value;
+        mCurrentValue.store(new_value, std::memory_order::relaxed);
         redraw();
     }
 }

@@ -21,6 +21,7 @@ public:
 protected:
     [[nodiscard]] double getMinValue() const noexcept;
     [[nodiscard]] double getMaxValue() const noexcept;
+    [[nodiscard]] double getNormalizedCurrentValue() const noexcept;
     [[nodiscard]] bool isStepped() const noexcept;
     [[nodiscard]] size_t nbSteps() const noexcept;
     [[nodiscard]] std::string getValueString() const noexcept;
@@ -35,7 +36,7 @@ protected:
 
     void onParameterUpdated(double new_value) override;
 
-    std::atomic<double> mCurrentValue = 0.;
+    std::atomic<double> mCurrentValue = 0.; // Normalized value of parameter
     std::string mTitle;
 
 private:

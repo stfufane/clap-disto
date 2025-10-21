@@ -4,8 +4,29 @@
 #include <vector>
 
 #include "IParameterListener.h"
+#include "helpers/Logger.h"
 
 namespace stfefane::params {
+
+Parameter::Parameter(clap_id id, const std::string& name, std::unique_ptr<ParamValueType> value_type, size_t index)
+    : mIndex(index)
+    , mInfo {
+        .id = id,
+        .flags = value_type->mFlags,
+        .cookie = this,
+        .min_value = 0.,
+        .max_value = 1.,
+        .default_value = value_type->mDefault,
+    }
+    , mValue(value_type->mDefault)
+    , mValueType(std::move(value_type))
+{
+    snprintf(mInfo.name, sizeof(mInfo.name), "%s", name.c_str());
+    LOG_INFO("param", "Parameter {} init with default_value {}", name, mInfo.default_value);
+    if (isStepped()) {
+        mInfo.max_value = static_cast<double>(nbSteps() - 1);
+    }
+}
 
 void Parameter::setValue(const double value) {
     mValue.store(value, std::memory_order_relaxed);
