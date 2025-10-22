@@ -8,9 +8,9 @@ namespace stfefane::utils {
 
 inline void initLoggers() {
     auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    spdlog::register_logger(std::make_shared<spdlog::logger>("dsp", stdout_sink));
-    spdlog::register_logger(std::make_shared<spdlog::logger>("ui", stdout_sink));
-    spdlog::register_logger(std::make_shared<spdlog::logger>("param", stdout_sink));
+    spdlog::register_or_replace(std::make_shared<spdlog::logger>("dsp", stdout_sink));
+    spdlog::register_or_replace(std::make_shared<spdlog::logger>("ui", stdout_sink));
+    spdlog::register_or_replace(std::make_shared<spdlog::logger>("param", stdout_sink));
     stdout_sink->set_pattern("[%T.%f][%t][%n][%^%l%$] %v");
 
     spdlog::get("dsp")->set_level(spdlog::level::warn);
