@@ -14,39 +14,39 @@ void MultiDisto::initParameterAttachments(const Disstortion& d) {
 
     auto add_basic_attachment = [&](clap_id id, double& attached_to) {
         mParameterAttachments.emplace_back(d.getParameter(id), [&](Parameter* param, double new_val) {
-            LOG_INFO("param", "Set parameter {} to new value {}", param->getInfo().name, new_val);
-            attached_to = new_val;
+            attached_to = param->getValueType().denormalizedValue(new_val);
         });
     };
-    add_basic_attachment(eMix, mMix);
     add_basic_attachment(eBias, mBias);
     add_basic_attachment(eAsymmetry, mAsymmetry);
 
     auto add_dB_attachment = [&](clap_id id, double& attached_to) {
         mParameterAttachments.emplace_back(d.getParameter(id), [&](Parameter* param, double new_val) {
             attached_to = utils::dbToLinear(param->getValueType().denormalizedValue(new_val));
-            LOG_INFO("param", "Set parameter {} to {} dB", param->getInfo().name, attached_to);
         });
     };
     add_dB_attachment(eDrive, mDrive);
     add_dB_attachment(eInGain, mInputGain);
     add_dB_attachment(eOutGain, mOutputGain);
 
+    mParameterAttachments.emplace_back(d.getParameter(eMix), [&](Parameter*, double new_val) {
+        mMix = new_val;
+    });
     mParameterAttachments.emplace_back(d.getParameter(eDriveType), [&](Parameter*, double new_type) {
         mType = static_cast<dsp::DistortionType>(new_type);
     });
     mParameterAttachments.emplace_back(d.getParameter(ePreFilterOn), [&](Parameter*, double new_pre) {
         mPreFilterOn = new_pre > .5;
     });
-    mParameterAttachments.emplace_back(d.getParameter(ePreFilterFreq), [&](Parameter*, double new_freq) {
-        mPreFilter.setFreq(new_freq);
+    mParameterAttachments.emplace_back(d.getParameter(ePreFilterFreq), [&](Parameter* param, double new_freq) {
+        mPreFilter.setFreq(param->getValueType().denormalizedValue(new_freq));
     });
 
     mParameterAttachments.emplace_back(d.getParameter(ePostFilterOn), [&](Parameter*, double new_post) {
         mPostFilterOn = new_post > .5;
     });
-    mParameterAttachments.emplace_back(d.getParameter(ePostFilterFreq), [&](Parameter*, double new_freq) {
-        mPostFilter.setFreq(new_freq);
+    mParameterAttachments.emplace_back(d.getParameter(ePostFilterFreq), [&](Parameter* param, double new_freq) {
+        mPostFilter.setFreq(param->getValueType().denormalizedValue(new_freq));
     });
 }
 

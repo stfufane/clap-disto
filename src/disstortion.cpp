@@ -48,7 +48,11 @@ Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, ho
         std::make_unique<params::ParamValueType>(-0.3, 0.3, 0., std::string(), params::MappingType::BipolarSCurve));
     mParameters.addParameter(params::eMix, "Mix", std::make_unique<params::ParamValueType>(0., 100., 50., " %"));
 
+    // Register param listeners on the engine and init the values.
     std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.initParameterAttachments(*this); });
+    for (const auto& param: mParameters.getParams()) {
+        param->notifyAllListeners();
+    }
 }
 
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {

@@ -28,12 +28,15 @@ Parameter::Parameter(clap_id id, const std::string& name, std::unique_ptr<ParamV
     }
 }
 
-void Parameter::setValue(const double value) {
+void Parameter::setValue(double value) {
+    if (isStepped()) {
+        value = std::round(value);
+    }
     mValue.store(value, std::memory_order_relaxed);
-    notifyAllParamListeners();
+    notifyAllListeners();
 }
 
-void Parameter::notifyAllParamListeners() const noexcept {
+void Parameter::notifyAllListeners() const noexcept {
     for (auto* listener : mListeners) {
         listener->onParameterUpdated(getValue());
     }

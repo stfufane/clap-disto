@@ -79,9 +79,9 @@ private:
 
     std::vector<params::ParameterAttachment> mParameterAttachments;
 
-    double mInputGain = 1.;
-    double mOutputGain = 1.;
-    double mDrive = 6.;
+    double mInputGain = 0.;
+    double mOutputGain = 0.;
+    double mDrive = 0.;
     double mAsymmetry = 0.; // For asymmetric distortion
     double mBias = 0.;
     double mMix = 1.; // Wet/dry mix
