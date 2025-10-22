@@ -12,7 +12,7 @@ void MultiDisto::initParameterAttachments(const Disstortion& d) {
     using namespace params;
     mParameterAttachments.reserve(d.getParameters().count());
 
-    auto add_basic_attachment = [&](clap_id id, double& attached_to) {
+    auto add_basic_attachment = [&](clap_id id, SmoothedValue& attached_to) {
         mParameterAttachments.emplace_back(d.getParameter(id), [&](Parameter* param, double new_val) {
             attached_to = param->getValueType().denormalizedValue(new_val);
         });
@@ -20,7 +20,7 @@ void MultiDisto::initParameterAttachments(const Disstortion& d) {
     add_basic_attachment(eBias, mBias);
     add_basic_attachment(eAsymmetry, mAsymmetry);
 
-    auto add_dB_attachment = [&](clap_id id, double& attached_to) {
+    auto add_dB_attachment = [&]<typename T>(clap_id id, T& attached_to) {
         mParameterAttachments.emplace_back(d.getParameter(id), [&](Parameter* param, double new_val) {
             attached_to = utils::dbToLinear(param->getValueType().denormalizedValue(new_val));
         });
@@ -56,6 +56,9 @@ void MultiDisto::setSampleRate(double samplerate) {
     mOversampler.setupAntiAliasing(samplerate);
     mPreFilter.setSampleRate(samplerate);
     mPostFilter.setSampleRate(samplerate);
+    mDrive.setup(samplerate, 10.);
+    mBias.setup(samplerate, 10.);
+    mAsymmetry.setup(samplerate, 5.);
 }
 
 void MultiDisto::reset() {
@@ -106,8 +109,8 @@ double MultiDisto::process(double input) {
     // Wet/dry mix
     signal = mMix * signal + (1.0 - mMix) * drySignal;
 
-    // Final safety limiting
-    return std::clamp(signal, -1., 1.);
+    // Final soft safety limiting
+    return std::tanh(signal);
 }
 
 double MultiDisto::applyDistortion(double input) const {

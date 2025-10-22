@@ -1,8 +1,9 @@
 #pragma once
 
-#include <vector>
 #include "BiquadFilter.h"
 #include "OverSampler.h"
+#include "SmoothedValue.h"
+#include <vector>
 
 namespace stfefane {
 namespace params {
@@ -41,7 +42,7 @@ private:
     // DC blocking filter
     struct DCBlocker {
         double x1 = 0.0, y1 = 0.0;
-        double R = 0.995; // pole location (close to 1 for DC blocking)
+        double R = 0.991; // pole location (close to 1 for DC blocking)
 
         double process(double input) {
             double output = input - x1 + R * y1;
@@ -81,9 +82,9 @@ private:
 
     double mInputGain = 0.;
     double mOutputGain = 0.;
-    double mDrive = 0.;
-    double mAsymmetry = 0.; // For asymmetric distortion
-    double mBias = 0.;
+    SmoothedValue mDrive;
+    SmoothedValue mAsymmetry; // For asymmetric distortion
+    SmoothedValue mBias;
     double mMix = 1.; // Wet/dry mix
     bool mPreFilterOn = true;
     bool mPostFilterOn = true;
