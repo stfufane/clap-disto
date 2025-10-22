@@ -1,9 +1,8 @@
 #pragma once
 
 #include <atomic>
-#include <thread>
-#include <visage/ui.h>
 #include <clap/id.h>
+#include <visage/ui.h>
 
 #include "params/IParameterListener.h"
 
@@ -11,7 +10,7 @@ namespace stfefane {
 class Disstortion;
 }
 
-namespace stfefane::helpers {
+namespace stfefane::gui {
 
 class IParamControl : public params::IParameterListener, public visage::Frame {
 public:

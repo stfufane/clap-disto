@@ -1,7 +1,7 @@
 #include "DisstortionEditor.h"
 
 #include "params/Parameters.h"
-#include "helpers/Logger.h"
+#include "utils/Logger.h"
 
 namespace stfefane::gui {
 

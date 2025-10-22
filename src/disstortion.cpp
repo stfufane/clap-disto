@@ -1,6 +1,6 @@
 #include "disstortion.h"
 
-#include "helpers/Logger.h"
+#include "utils/Logger.h"
 
 #include <clap/helpers/host-proxy.hh>
 #include <clap/helpers/plugin.hh>

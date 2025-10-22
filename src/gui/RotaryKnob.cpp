@@ -1,9 +1,9 @@
 #include "RotaryKnob.h"
 
 #include "embedded/disto_fonts.h"
-#include "helpers/Logger.h"
-#include "helpers/Utils.h"
 #include "params/Parameter.h"
+#include "utils/Logger.h"
+#include "utils/Utils.h"
 
 #include <algorithm>
 #include <cmath>

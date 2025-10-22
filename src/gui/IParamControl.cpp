@@ -1,9 +1,9 @@
 #include "IParamControl.h"
 
 #include "disstortion.h"
-#include "helpers/Logger.h"
+#include "utils/Logger.h"
 
-namespace stfefane::helpers {
+namespace stfefane::gui {
 
 IParamControl::IParamControl(Disstortion& disstortion, clap_id param_id)
     : IParameterListener(disstortion.getParameter(param_id))

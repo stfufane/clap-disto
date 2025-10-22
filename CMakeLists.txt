@@ -23,28 +23,48 @@ CPMAddPackage("gh:VitalAudio/visage#main")
 CPMAddPackage("gh:nlohmann/json@3.11.3")
 CPMAddPackage("gh:gabime/spdlog@1.16.0")
 
+set(DSP_FILES
+        src/dsp/BiquadFilter.h
+        src/dsp/MultiDisto.cpp
+        src/dsp/MultiDisto.h
+        src/dsp/OverSampler.cpp
+        src/dsp/OverSampler.h
+        src/dsp/SmoothedValue.h)
+
+set(GUI_FILES
+        src/gui/DisstortionEditor.h
+        src/gui/DisstortionEditor.cpp
+        src/gui/RotaryKnob.cpp
+        src/gui/RotaryKnob.h
+        src/gui/ToggleButton.cpp
+        src/gui/ToggleButton.h
+        src/gui/IParamControl.cpp
+        src/gui/IParamControl.h
+)
+
+set(PARAM_FILES
+        src/params/Parameter.cpp
+        src/params/Parameters.cpp
+        src/params/IParameterListener.cpp
+        src/params/IParameterListener.h
+        src/params/ValueMapping.cpp
+        src/params/ValueMapping.h
+)
+
+set(UTILS_FILES
+        src/utils/Logger.h
+        src/utils/Utils.h
+)
+
 set(SOURCE_FILES
-    src/disstortion.h
-    src/disstortion.cpp
-    src/disstortion-pluginentry.cpp
-    src/helpers/IParamControl.cpp
-    src/params/Parameter.cpp
-    src/params/Parameters.cpp
-    src/gui/DisstortionEditor.h
-    src/gui/DisstortionEditor.cpp
-    src/gui/RotaryKnob.cpp
-    src/gui/ToggleButton.cpp
-    src/gui/ToggleButton.h
-    src/dsp/BiquadFilter.h
-    src/dsp/MultiDisto.cpp
-    src/dsp/MultiDisto.h
-    src/dsp/OverSampler.cpp
-    src/dsp/OverSampler.h
-    src/params/IParameterListener.cpp
-    src/params/IParameterListener.h
-    src/params/ValueMapping.cpp
-    src/params/ValueMapping.h
-    src/helpers/Logger.h)
+        src/disstortion.h
+        src/disstortion.cpp
+        src/disstortion-pluginentry.cpp
+        ${DSP_FILES}
+        ${GUI_FILES}
+        ${PARAM_FILES}
+        ${UTILS_FILES}
+)
 
 file(GLOB_RECURSE FONT_TTF_FILES fonts/*.ttf)
 add_embedded_resources(font_resources "disto_fonts.h" "resources::fonts" "${FONT_TTF_FILES}")

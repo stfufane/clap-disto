@@ -1,7 +1,6 @@
 #pragma once
 
-#include "helpers/IParamControl.h"
-#include "helpers/Utils.h"
+#include "gui/IParamControl.h"
 
 namespace stfefane {
 class Disstortion;
@@ -9,7 +8,7 @@ class Disstortion;
 
 namespace stfefane::gui {
 
-class RotaryKnob final : public helpers::IParamControl
+class RotaryKnob final : public IParamControl
 {
 public:
     explicit RotaryKnob(Disstortion& disstortion, clap_id param_id);
