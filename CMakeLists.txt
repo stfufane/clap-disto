@@ -66,6 +66,11 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         PLUGIN_ID_SUFFIX=$<IF:$<CONFIG:Debug>,".debug","">
         $<$<CONFIG:Debug>:DEBUG>)
 
+if(WIN32)
+    # This enables the use of the __VA_OPTS__ macro definition
+    string(APPEND CMAKE_CXX_FLAGS " /Zc:preprocessor")
+endif()
+
 if (APPLE)
     # Calls all the mac specific bundle and sanitizer stuff
     include(cmake/mac/utils.cmake)
