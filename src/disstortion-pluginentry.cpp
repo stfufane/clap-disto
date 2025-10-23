@@ -1,6 +1,7 @@
 #include "disstortion.h"
 
 #include "utils/Logger.h"
+#include "utils/Folders.h"
 #include <cstring>
 
 namespace stfefane::plugin_entry {
@@ -19,6 +20,7 @@ static const clap_plugin *createPlugin(const clap_plugin_factory *factory, const
         return nullptr;
     }
 
+    utils::folders::setupDataFolder();
 #if DEBUG
     utils::initLoggers();
 #endif
