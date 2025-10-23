@@ -33,7 +33,6 @@ private:
     RotaryKnob mDrive;
     RotaryKnob mDriveType;
     RotaryKnob mMix;
-    RotaryKnob mBias;
     RotaryKnob mAsymmetry;
     RotaryKnob mInputGain;
     RotaryKnob mOutputGain;

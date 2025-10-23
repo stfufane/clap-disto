@@ -42,7 +42,7 @@ private:
     // DC blocking filter
     struct DCBlocker {
         double x1 = 0.0, y1 = 0.0;
-        double R = 0.991; // pole location (close to 1 for DC blocking)
+        double R = 0.995; // pole location (close to 1 for DC blocking)
 
         double process(double input) {
             double output = input - x1 + R * y1;
@@ -86,7 +86,6 @@ private:
     double mOutputGain = 0.;
     SmoothedValue mDrive;
     SmoothedValue mAsymmetry; // For asymmetric distortion
-    SmoothedValue mBias;
     double mMix = 1.; // Wet/dry mix
     bool mPreFilterOn = true;
     bool mPostFilterOn = true;

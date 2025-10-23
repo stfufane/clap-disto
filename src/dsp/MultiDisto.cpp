@@ -17,7 +17,6 @@ void MultiDisto::initParameterAttachments(const Disstortion& d) {
             attached_to = param->getValueType().denormalizedValue(new_val);
         });
     };
-    add_basic_attachment(eBias, mBias);
     add_basic_attachment(eAsymmetry, mAsymmetry);
 
     auto add_dB_attachment = [&]<typename T>(clap_id id, T& attached_to) {
@@ -57,7 +56,6 @@ void MultiDisto::setSampleRate(double samplerate) {
     mPreFilter.setSampleRate(samplerate);
     mPostFilter.setSampleRate(samplerate);
     mDrive.setup(samplerate, 10.);
-    mBias.setup(samplerate, 10.);
     mAsymmetry.setup(samplerate, 5.);
 }
 
@@ -82,9 +80,8 @@ double MultiDisto::process(double input) {
         signal = mPreFilter.process(signal);
     }
 
-    // Determine if non-linear stage can be bypassed (drive ~ 0dB and no bias/asymmetry)
+    // Determine if non-linear stage can be bypassed (drive ~ 0dB and no asymmetry)
     const bool bypassNonLinear = utils::almostEqual<double>(mDrive, 1.)
-                                && utils::almostEqual<double>(mBias, 0.)
                                 && utils::almostEqual<double>(mAsymmetry, 0.);
 
     if (!bypassNonLinear) {
@@ -99,7 +96,7 @@ double MultiDisto::process(double input) {
             signal = applyDistortion(signal);
         }
 
-        // DC blocking (only needed when using non-linearities / bias)
+        // DC blocking (only needed when using non-linearities)
         signal = mDCBlocker.process(signal);
     }
 
@@ -120,14 +117,10 @@ double MultiDisto::process(double input) {
 
 void MultiDisto::smoothValues() {
     mDrive.process();
-    mBias.process();
     mAsymmetry.process();
 }
 
 double MultiDisto::applyDistortion(double input) const {
-    // Add bias
-    // input += mBias;
-
     switch (mType) {
     case DistortionType::CUBIC_SATURATION:
         return cubicSaturation(input);

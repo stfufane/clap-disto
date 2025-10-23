@@ -18,7 +18,6 @@ enum param_ids : clap_id {
     ePostFilterFreq,
     ePostFilterOn,
     eAsymmetry,
-    eBias,
     eMix,
 };
 

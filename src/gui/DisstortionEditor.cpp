@@ -13,7 +13,6 @@ DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
 , mDrive(disstortion, params::eDrive)
 , mDriveType(disstortion, params::eDriveType)
 , mMix(disstortion, params::eMix)
-, mBias(disstortion, params::eBias)
 , mAsymmetry(disstortion, params::eAsymmetry)
 , mInputGain(disstortion, params::eInGain)
 , mOutputGain(disstortion, params::eOutGain)
@@ -37,7 +36,6 @@ DisstortionEditor::DisstortionEditor(Disstortion& disstortion)
     setupElement(mDrive);
     setupElement(mDriveType);
     setupElement(mMix);
-    setupElement(mBias);
     setupElement(mAsymmetry);
     setupElement(mInputGain);
     setupElement(mOutputGain);
