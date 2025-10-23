@@ -68,6 +68,9 @@ void MultiDisto::reset() {
 }
 
 double MultiDisto::process(double input) {
+    // Compute smoothing of values
+    smoothValues();
+
     // Store dry signal for mix
     double drySignal = input;
 
@@ -80,7 +83,9 @@ double MultiDisto::process(double input) {
     }
 
     // Determine if non-linear stage can be bypassed (drive ~ 0dB and no bias/asymmetry)
-    const bool bypassNonLinear = (std::abs(mDrive - 1.0) < 1e-12) && (mBias == 0.0) && (mAsymmetry == 0.0);
+    const bool bypassNonLinear = utils::almostEqual<double>(mDrive, 1.)
+                                && utils::almostEqual<double>(mBias, 0.)
+                                && utils::almostEqual<double>(mAsymmetry, 0.);
 
     if (!bypassNonLinear) {
         // Oversampling for anti-aliasing on non-linear types (avoid for bitcrusher)
@@ -113,9 +118,15 @@ double MultiDisto::process(double input) {
     return std::tanh(signal);
 }
 
+void MultiDisto::smoothValues() {
+    mDrive.process();
+    mBias.process();
+    mAsymmetry.process();
+}
+
 double MultiDisto::applyDistortion(double input) const {
     // Add bias
-    input += mBias;
+    // input += mBias;
 
     switch (mType) {
     case DistortionType::CUBIC_SATURATION:
@@ -151,15 +162,14 @@ double MultiDisto::cubicSaturation(double input) const {
     double x = input * mDrive;
     if (std::abs(x) < 2.0 / 3.0) {
         return x * (1.0 + mAsymmetry * x);
-    } else {
-        double sign = (x > 0.0) ? 1.0 : -1.0;
-        return sign * (1.0 - std::pow(2.0 - 3.0 * std::abs(x), 2.0) / 3.0);
     }
+    double sign = (x > 0.0) ? 1.0 : -1.0;
+    return sign * (1.0 - std::pow(2.0 - 3.0 * std::abs(x), 2.0) / 3.0);
 }
 
 double MultiDisto::tubeSaturation(double input) const {
     // Normalize tanh drive to avoid level jumps: y = tanh(g*x) / tanh(g)
-    double g = std::max(1e-6, mDrive * 0.7 * (1.0 + mAsymmetry));
+    double g = std::max(1e-6, 0.7 * (1.0 + mAsymmetry));
     double x = input * mDrive;
     double y = std::tanh(g * x);
     double norm = std::tanh(g);
@@ -173,7 +183,8 @@ double MultiDisto::asymmetricClip(double input) const {
 
     if (x > posThresh) {
         return posThresh + (x - posThresh) * 0.1;
-    } else if (x < negThresh) {
+    }
+    if (x < negThresh) {
         return negThresh + (x - negThresh) * 0.1;
     }
     return x;
@@ -186,7 +197,9 @@ double MultiDisto::foldbackDistortion(double input) const {
     // Modulo-based foldback into [-threshold, threshold]
     const double ax = std::abs(x);
     double y = std::fmod(ax, 2.0 * threshold);
-    if (y > threshold) y = 2.0 * threshold - y;
+    if (y > threshold) {
+        y = 2.0 * threshold - y;
+    }
     y = std::copysign(y, x);
 
     return y * 0.7; // Scale down to prevent excessive levels

@@ -54,6 +54,8 @@ private:
         }
     };
 
+    void smoothValues();
+
     [[nodiscard]] double applyDistortion(double input) const;
 
     // Distortion algorithms

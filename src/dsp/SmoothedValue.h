@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils/Utils.h"
 #include <algorithm>
 
 namespace stfefane::dsp {
@@ -10,9 +11,7 @@ namespace stfefane::dsp {
 struct SmoothedValue {
     double mSampleRate = 44100.0;
     double mCoeff = 0.0;
-    // Set to mutable so process can be used inside const methods.
-    // The real important value is the target value so it's not really a problem.
-    mutable double mProcessedValue = 0.0;
+    double mProcessedValue = 0.0;
     double mTargetValue = 0.0;
 
     void setup(double sr, double ms) {
@@ -21,15 +20,17 @@ struct SmoothedValue {
         mCoeff = 1.0 - std::exp(-1.0 / (tau * mSampleRate));
     }
 
-    double process() const {
+    void process() {
+        if (utils::almostEqual(mProcessedValue, mTargetValue)) {
+            return;
+        }
         mProcessedValue += mCoeff * (mTargetValue - mProcessedValue);
-        return mProcessedValue;
     }
 
     // Allows to use arithmetic operations with a regular double.
     // Voluntarily not made explicit to allow simple automatic conversion.
     operator double() const {
-        return process();
+        return mProcessedValue;
     }
 
     // Set the target with a simple value assignment
@@ -40,11 +41,11 @@ struct SmoothedValue {
 
     // Simple operator to compare with other double values
     bool operator==(double v) const {
-        return mTargetValue == v;
+        return mProcessedValue == v;
     }
 
     bool operator==(const SmoothedValue& v) const {
-        return mTargetValue == v.mTargetValue;
+        return mProcessedValue == v.mProcessedValue;
     }
 };
 

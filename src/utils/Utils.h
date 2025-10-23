@@ -16,6 +16,13 @@ constexpr auto kTWO_PI = 2.f * kPI;
 constexpr auto kPI_64 = std::numbers::pi_v<double>;
 constexpr auto kTWO_PI_64 = 2. * kPI_64;
 
+template<typename FLOATING_TYPE>
+[[nodiscard]] bool almostEqual(FLOATING_TYPE a, FLOATING_TYPE b) {
+    constexpr auto kEpsilon = static_cast<FLOATING_TYPE>(1e-12);
+    return std::fabs(a - b) < kEpsilon;
+}
+
+
 [[nodiscard]] inline double stringToDouble(const std::string& str) {
 #ifdef __APPLE__
     char* end;
