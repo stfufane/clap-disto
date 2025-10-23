@@ -54,6 +54,7 @@ set(PARAM_FILES
 set(UTILS_FILES
         src/utils/Logger.h
         src/utils/Utils.h
+        src/utils/Folders.h
 )
 
 set(SOURCE_FILES
@@ -83,6 +84,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         debug spdlog::spdlog)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         PROJECT_VERSION="${PROJECT_VERSION}"
+        USERDATA_DIR="${plugin_folder}"
         PLUGIN_ID_SUFFIX=$<IF:$<CONFIG:Debug>,".debug","">
         $<$<CONFIG:Debug>:DEBUG>)
 
