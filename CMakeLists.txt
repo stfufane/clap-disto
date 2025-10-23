@@ -1,17 +1,24 @@
 cmake_minimum_required(VERSION 3.27)
 
-project(Disstortion VERSION 0.1.1 LANGUAGES C CXX)
+project(Disstortion
+        VERSION 0.1.1
+        LANGUAGES C CXX
+        DESCRIPTION "An amateur distortion plugin in CLAP !")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+
+if(WIN32)
+    # This enables the use of the __VA_OPTS__ macro definition
+    string(APPEND CMAKE_CXX_FLAGS " /Zc:preprocessor")
+endif()
+
 if (APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET 11.0 CACHE STRING "Build for 11.0")
     option(USE_SANITIZER "Build and link with ASAN" FALSE)
 endif()
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 include(cmake/get_cpm.cmake)
 include(cmake/utils.cmake)
@@ -87,11 +94,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         USERDATA_DIR="${plugin_folder}"
         PLUGIN_ID_SUFFIX=$<IF:$<CONFIG:Debug>,".debug","">
         $<$<CONFIG:Debug>:DEBUG>)
-
-if(WIN32)
-    # This enables the use of the __VA_OPTS__ macro definition
-    string(APPEND CMAKE_CXX_FLAGS " /Zc:preprocessor")
-endif()
 
 if (APPLE)
     # Calls all the mac specific bundle and sanitizer stuff

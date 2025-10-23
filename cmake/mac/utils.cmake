@@ -14,8 +14,8 @@ function(macos_bundle_flag target)
             LIBRARY_OUTPUT_NAME ${PROJECT_NAME}
             MACOSX_BUNDLE_GUI_IDENTIFIER dev.stephanealbanese.${PROJECT_NAME}
             MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
-            MACOSX_BUNDLE_BUNDLE_VERSION "0.1"
-            MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1"
+            MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+            MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
             MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/cmake/mac/${PROJECT_NAME}.plist.in
     )
 endfunction(macos_bundle_flag)
