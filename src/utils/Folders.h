@@ -6,6 +6,9 @@
 #elif __APPLE__
 #include <glob.h>
 #include <sysdir.h>
+#else
+#include <unistd.h>
+#include <pwd.h>
 #endif
 
 #include <filesystem>
@@ -15,8 +18,24 @@
 
 namespace stfefane::utils::folders {
 
-#if WIN32
+#if __APPLE__
+inline std::string expandTilde(const char* str) {
+    if (!str) {
+        return {};
+    }
+
+    glob_t globbuf;
+    if (glob(str, GLOB_TILDE, nullptr, &globbuf) == 0) {
+        std::string result(globbuf.gl_pathv[0]);
+        globfree(&globbuf);
+        return result;
+    }
+    return {};
+}
+#endif
+
 inline const auto SETTINGS_DIR = []() -> std::filesystem::path {
+#if WIN32
     PWSTR path_tmp;
 
     /* Attempt to get user's AppData folder
@@ -40,24 +59,8 @@ inline const auto SETTINGS_DIR = []() -> std::filesystem::path {
     CoTaskMemFree(path_tmp);
 
     return settings_path;
-}();
 #elif __APPLE__
-
-inline std::string expandTilde(const char* str) {
-    if (!str) {
-        return {};
-    }
-
-    glob_t globbuf;
-    if (glob(str, GLOB_TILDE, nullptr, &globbuf) == 0) {
-        std::string result(globbuf.gl_pathv[0]);
-        globfree(&globbuf);
-        return result;
-    }
-    return {};
-}
-
-inline const auto SETTINGS_DIR = []() -> std::filesystem::path {
+    // On macOS, use the sysdir API to retrieve the user Application Support folder.
     char path[PATH_MAX];
     auto state = sysdir_start_search_path_enumeration(SYSDIR_DIRECTORY_APPLICATION_SUPPORT,
                                                       SYSDIR_DOMAIN_MASK_USER);
@@ -65,15 +68,16 @@ inline const auto SETTINGS_DIR = []() -> std::filesystem::path {
         return std::filesystem::path(expandTilde(path)) / USERDATA_DIR;
     }
     return {};
-}();
-
 #else
-inline const auto SETTINGS_DIR = std::filesystem::path(USERDATA_DIR);
+    const char* home_dir = getpwuid(getuid())->pw_dir;
+    return std::filesystem::path(home_dir) / ".config" / USERDATA_DIR;
 #endif
+}();
 
 inline const auto LOG_SETTINGS_FILE = SETTINGS_DIR / "log.settings";
 
 inline void setupDataFolder() {
+    std::cout << "Create data folder at " << std::filesystem::absolute(SETTINGS_DIR) << "\n";
     if (!std::filesystem::exists(SETTINGS_DIR)) {
         try {
             std::filesystem::create_directories(SETTINGS_DIR);
@@ -102,7 +106,7 @@ inline std::string readFileContent(const std::filesystem::path& path) {
     }
 
     try {
-        std::ifstream file(path.string(), std::ifstream::binary);
+        std::ifstream file(path.generic_string(), std::ifstream::binary);
         if (file.is_open()) {
             std::string content;
             file >> content;
