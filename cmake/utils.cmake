@@ -1,13 +1,16 @@
+# The subfolder to store plugin data
+# Will be under :
+# - ~/Library/Application Support on macOS
+# - %AppData on windows
+# - ~/.config on Linux
+set(plugin_folder "stfefane/${PROJECT_NAME}")
+
 if (APPLE)
     set(clap_dest_folder "~/Library/Audio/Plug-Ins/CLAP")
-    set(plugin_folder "~/Library/Application Support/stfefane/${PROJECT_NAME}")
 elseif (UNIX)
     set(clap_dest_folder "~/.clap")
-    set(plugin_folder "~/.config/stfefane/${PROJECT_NAME}")
 elseif (WIN32)
     set(clap_dest_folder "%LOCALAPPDATA%/Programs/Common/CLAP")
-    # The parent directory will be fetched in code because windows is a PITA
-    set(plugin_folder "stfefane/${PROJECT_NAME}")
 else()
     message(FATAL_ERROR "Unsupported platform")
     return()

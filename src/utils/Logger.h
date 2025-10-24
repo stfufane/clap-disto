@@ -18,7 +18,10 @@ constexpr auto LOGS_DEFAULT_CONF = R"(dsp=info,ui=debug,param=info)"sv;
 
 // Fetch the log levels from a configuration file
 inline void loadLevels() {
-    const auto log_settings = folders::readFileContent(folders::LOG_SETTINGS_FILE);
+    auto log_settings = folders::readFileContent(folders::LOG_SETTINGS_FILE);
+    if (log_settings.empty()) {
+        log_settings = LOGS_DEFAULT_CONF;
+    }
     spdlog::cfg::helpers::load_levels(log_settings);
 }
 

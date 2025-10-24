@@ -3,6 +3,9 @@
 #if WIN32
 #define NOMINMAX
 #include <shlobj.h>
+#elif __APPLE__
+#include <glob.h>
+#include <sysdir.h>
 #endif
 
 #include <filesystem>
@@ -38,8 +41,34 @@ inline const auto SETTINGS_DIR = []() -> std::filesystem::path {
 
     return settings_path;
 }();
+#elif __APPLE__
+
+inline std::string expandTilde(const char* str) {
+    if (!str) {
+        return {};
+    }
+
+    glob_t globbuf;
+    if (glob(str, GLOB_TILDE, nullptr, &globbuf) == 0) {
+        std::string result(globbuf.gl_pathv[0]);
+        globfree(&globbuf);
+        return result;
+    }
+    return {};
+}
+
+inline const auto SETTINGS_DIR = []() -> std::filesystem::path {
+    char path[PATH_MAX];
+    auto state = sysdir_start_search_path_enumeration(SYSDIR_DIRECTORY_APPLICATION_SUPPORT,
+                                                      SYSDIR_DOMAIN_MASK_USER);
+    if ((state = sysdir_get_next_search_path_enumeration(state, path))) {
+        return std::filesystem::path(expandTilde(path)) / USERDATA_DIR;
+    }
+    return {};
+}();
+
 #else
-inline const std::filesystem::path SETTINGS_DIR = std::filesystem::path(USERDATA_DIR);
+inline const auto SETTINGS_DIR = std::filesystem::path(USERDATA_DIR);
 #endif
 
 inline const auto LOG_SETTINGS_FILE = SETTINGS_DIR / "log.settings";
