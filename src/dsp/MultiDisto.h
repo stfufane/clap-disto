@@ -10,7 +10,7 @@ namespace params {
 class ParameterAttachment;
 }
 class Disstortion;
-}
+} // namespace stfefane
 
 namespace stfefane::dsp {
 
@@ -38,6 +38,11 @@ public:
 
     double process(double input);
 
+    static constexpr std::vector<std::string> types() {
+        return {"Cubic Saturation", "Tube Saturation", "Asymmetric Clip", "Foldback",
+                "Bitcrush",         "Waveshaper",      "Tube Screamer",   "Fuzz"};
+    }
+
 private:
     // DC blocking filter
     struct DCBlocker {
@@ -47,7 +52,9 @@ private:
         double process(double input) {
             double output = input - x1 + R * y1;
             // Denormal protection
-            if (std::abs(output) < 1e-20) output = 0.0;
+            if (std::abs(output) < 1e-20) {
+                output = 0.0;
+            }
             x1 = input;
             y1 = output;
             return output;
@@ -71,8 +78,8 @@ private:
     double mSampleRate = 44100.0;
     DistortionType mType = DistortionType::TUBE_SCREAMER;
 
-    BiquadFilter mPreFilter { BiquadFilter::Type::LowPass, 10000. };
-    BiquadFilter mPostFilter { BiquadFilter::Type::HighPass, 80. };
+    BiquadFilter mPreFilter{BiquadFilter::Type::LowPass, 10000.};
+    BiquadFilter mPostFilter{BiquadFilter::Type::HighPass, 80.};
     DCBlocker mDCBlocker;
     Oversampler mOversampler;
 
@@ -86,9 +93,9 @@ private:
     double mOutputGain = 0.;
     SmoothedValue mDrive;
     SmoothedValue mAsymmetry; // For asymmetric distortion
-    double mMix = 1.; // Wet/dry mix
+    double mMix = 1.;         // Wet/dry mix
     bool mPreFilterOn = true;
     bool mPostFilterOn = true;
 };
 
-}
+} // namespace stfefane::dsp

@@ -25,27 +25,8 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
     LOG_INFO("dsp", "[Disstortion::constructor]");
 
-    mParameters.addParameter(params::eDrive, "Drive", std::make_unique<params::ParamValueType>(0., dsp::kMaxDriveDb, 6., " dB"));
-    mParameters.addParameter(params::eDriveType, "Drive Type",
-                             std::make_unique<params::SteppedValueType>(
-                                 std::vector<std::string>({"Cubic Saturation", "Tube Saturation", "Asymmetric Clip", "Foldback",
-                                                           "Bitcrush", "Waveshaper", "Tube Screamer", "Fuzz"}),
-                                 0.));
-    mParameters.addParameter(params::eInGain, "Input Gain", std::make_unique<params::ParamValueType>(-12., 24., 0., " dB"));
-    mParameters.addParameter(params::eOutGain, "Output Gain", std::make_unique<params::ParamValueType>(-24., 6., 0., " dB"));
-    mParameters.addParameter(params::ePreFilterOn, "Pre Filter On", std::make_unique<params::BooleanValueType>(true));
-    mParameters.addParameter(
-        params::ePreFilterFreq, "Pre Filter",
-        std::make_unique<params::ParamValueType>(20., 20000., 10000., " Hz", params::MappingType::Logarithmic));
-    mParameters.addParameter(params::ePostFilterOn, "Post Filter On", std::make_unique<params::BooleanValueType>(true));
-    mParameters.addParameter(params::ePostFilterFreq, "Post Filter",
-                             std::make_unique<params::ParamValueType>(20., 20000., 80., " Hz", params::MappingType::Logarithmic));
-    mParameters.addParameter(
-        params::eAsymmetry, "Asymmetry",
-        std::make_unique<params::ParamValueType>(-0.5, 0.5, 0., std::string(), params::MappingType::BipolarSCurve));
-    mParameters.addParameter(params::eMix, "Mix", std::make_unique<params::ParamValueType>(0., 100., 50., " %"));
-
-    // Register param listeners on the engine and init the values.
+    // Setup all the parameters, register their listeners on the engine and init the values.
+    mParameters.setup();
     std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.initParameterAttachments(*this); });
     for (const auto& param: mParameters.getParams()) {
         param->notifyAllListeners();

@@ -34,18 +34,37 @@ void MultiDisto::initParameterAttachments(const Disstortion& d) {
     mParameterAttachments.emplace_back(d.getParameter(eDriveType), [&](Parameter*, double new_type) {
         mType = static_cast<dsp::DistortionType>(new_type);
     });
+
     mParameterAttachments.emplace_back(d.getParameter(ePreFilterOn), [&](Parameter*, double new_pre) {
         mPreFilterOn = new_pre > .5;
     });
+    mParameterAttachments.emplace_back(d.getParameter(ePreFilterType), [&](Parameter*, double new_type) {
+        mPreFilter.setType(static_cast<BiquadFilter::Type>(new_type + 1)); // +1 because we skip None.
+    });
     mParameterAttachments.emplace_back(d.getParameter(ePreFilterFreq), [&](Parameter* param, double new_freq) {
         mPreFilter.setFreq(param->getValueType().denormalizedValue(new_freq));
+    });
+    mParameterAttachments.emplace_back(d.getParameter(ePreFilterQ), [&](Parameter* param, double new_q) {
+        mPreFilter.setQ(param->getValueType().denormalizedValue(new_q));
+    });
+    mParameterAttachments.emplace_back(d.getParameter(ePreFilterGain), [&](Parameter* param, double new_gain) {
+        mPreFilter.setGainDb(param->getValueType().denormalizedValue(new_gain));
     });
 
     mParameterAttachments.emplace_back(d.getParameter(ePostFilterOn), [&](Parameter*, double new_post) {
         mPostFilterOn = new_post > .5;
     });
+    mParameterAttachments.emplace_back(d.getParameter(ePostFilterType), [&](Parameter*, double new_type) {
+        mPostFilter.setType(static_cast<BiquadFilter::Type>(new_type + 1)); // +1 because we skip None.
+    });
     mParameterAttachments.emplace_back(d.getParameter(ePostFilterFreq), [&](Parameter* param, double new_freq) {
         mPostFilter.setFreq(param->getValueType().denormalizedValue(new_freq));
+    });
+    mParameterAttachments.emplace_back(d.getParameter(ePostFilterQ), [&](Parameter* param, double new_q) {
+        mPostFilter.setQ(param->getValueType().denormalizedValue(new_q));
+    });
+    mParameterAttachments.emplace_back(d.getParameter(ePostFilterGain), [&](Parameter* param, double new_gain) {
+        mPostFilter.setGainDb(param->getValueType().denormalizedValue(new_gain));
     });
 }
 

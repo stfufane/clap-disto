@@ -45,6 +45,7 @@ struct SteppedValueType : public ParamValueType {
     explicit SteppedValueType(std::vector<std::string>&& values, double defaultVal)
         : ParamValueType(0., static_cast<double>(values.size() - 1), defaultVal)
         , mValues(std::move(values)) {
+        mDefault = defaultVal;
         mFlags = CLAP_PARAM_IS_AUTOMATABLE | CLAP_PARAM_IS_STEPPED;
     }
 

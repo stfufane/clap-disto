@@ -13,10 +13,16 @@ enum param_ids : clap_id {
     eDriveType,
     eInGain,
     eOutGain,
-    ePreFilterFreq,
     ePreFilterOn,
-    ePostFilterFreq,
+    ePreFilterType,
+    ePreFilterFreq,
+    ePreFilterQ,
+    ePreFilterGain,
     ePostFilterOn,
+    ePostFilterType,
+    ePostFilterFreq,
+    ePostFilterQ,
+    ePostFilterGain,
     eAsymmetry,
     eMix,
 };
@@ -25,6 +31,7 @@ class Parameters {
 public:
     Parameters() = default;
 
+    void setup();
     void addParameter(clap_id id, const std::string& name, std::unique_ptr<ParamValueType> value_type);
 
     [[nodiscard]] size_t count() const noexcept { return mParameters.size(); }

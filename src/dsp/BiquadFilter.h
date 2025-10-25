@@ -2,6 +2,7 @@
 
 #include "utils/Utils.h"
 #include <array>
+#include <vector>
 
 namespace stfefane::dsp {
 
@@ -26,6 +27,12 @@ public:
         LowShelf,
         HighShelf
     };
+
+    static constexpr std::vector<std::string> types() {
+        return {
+            "LowPass", "HighPass", "BandPass", "Notch", "Peak", "AllPass", "LowShelf", "HighShelf"
+        };
+    }
 
     BiquadFilter() = default;
 
