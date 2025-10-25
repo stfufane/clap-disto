@@ -73,7 +73,7 @@ protected:
     void guiDestroy() noexcept override;
     bool guiSetParent(const clap_window* window) noexcept override;
     bool guiSetScale(double scale) noexcept override { return false; }
-    [[nodiscard]] bool guiCanResize() const noexcept override { return true; }
+    [[nodiscard]] bool guiCanResize() const noexcept override { return false; }
     bool guiGetResizeHints(clap_gui_resize_hints_t* hints) noexcept override;
     bool guiAdjustSize(uint32_t* width, uint32_t* height) noexcept override;
     bool guiSetSize(uint32_t width, uint32_t height) noexcept override;

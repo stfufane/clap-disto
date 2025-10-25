@@ -75,7 +75,13 @@ set(SOURCE_FILES
 )
 
 file(GLOB_RECURSE FONT_TTF_FILES fonts/*.ttf)
+file(GLOB_RECURSE IMG_FILES img/*.png img/*.svg)
 add_embedded_resources(font_resources "disto_fonts.h" "resources::fonts" "${FONT_TTF_FILES}")
+add_embedded_resources(img_resources "disto_images.h" "resources::images" "${IMG_FILES}")
+
+file(GLOB_RECURSE SHADER_FILES shaders/[vf]s_*.sc)
+add_compile_definitions(SHADERS_FOLDER=\"${CMAKE_CURRENT_SOURCE_DIR}/shaders\")
+visage_embed_shaders(shader_resources "disto_shaders.h" "resources::shaders" "${SHADER_FILES}")
 
 # TODO: check https://github.com/baconpaul/six-sines/blob/main/CMakeLists.txt for standalone
 
@@ -88,6 +94,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         readerwriterqueue
         nlohmann_json
         font_resources
+        img_resources
+        shader_resources
         debug spdlog::spdlog)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         PROJECT_VERSION="${PROJECT_VERSION}"

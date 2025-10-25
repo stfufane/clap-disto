@@ -48,8 +48,8 @@ void IParamControl::resetParam() {
     endChangeGesture();
 }
 
-std::string IParamControl::getValueString() const noexcept {
-    return mParam->getValueType().toText(mCurrentValue.load(std::memory_order_relaxed));
+std::string IParamControl::getValueString(bool display_unit) const noexcept {
+    return mParam->getValueType().toText(mCurrentValue.load(std::memory_order_relaxed), display_unit);
 }
 
 void IParamControl::beginChangeGesture() { mDisstortion.beginParameterChange(mParamId); }

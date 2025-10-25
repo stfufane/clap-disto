@@ -23,7 +23,7 @@ protected:
     [[nodiscard]] double getNormalizedCurrentValue() const noexcept;
     [[nodiscard]] bool isStepped() const noexcept;
     [[nodiscard]] size_t nbSteps() const noexcept;
-    [[nodiscard]] std::string getValueString() const noexcept;
+    [[nodiscard]] std::string getValueString(bool display_unit = true) const noexcept;
 
     // To be called by the UI element on mouse gestures
     void beginChangeGesture();

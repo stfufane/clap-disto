@@ -19,6 +19,10 @@ public:
     void mouseDrag(const visage::MouseEvent& e) override;
     bool mouseWheel(const visage::MouseEvent& e) override;
 
+    void setFontSize(const float size) { mFont = mFont.withSize(size); }
+    void setDisplayValue(bool display) { mDisplayValue = display; }
+    void setDisplayUnit(int unit) { mDisplayUnit = unit; }
+
 private:
     void handleMouseDelta();
 
@@ -29,6 +33,8 @@ private:
 
     double mSensitivity;
 
+    bool mDisplayValue = true;
+    bool mDisplayUnit = true;
     visage::Font mFont;
 };
 

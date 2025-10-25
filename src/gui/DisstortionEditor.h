@@ -12,7 +12,7 @@ namespace stfefane::gui {
 
 class DisstortionEditor : public visage::ApplicationWindow {
 public:
-    explicit DisstortionEditor(Disstortion& disstortion);
+    explicit DisstortionEditor(Disstortion& d);
     DisstortionEditor() = delete;
 
     void draw(visage::Canvas& canvas) override;
@@ -22,30 +22,27 @@ public:
     [[nodiscard]] int pluginHeight() const;
     void setPluginDimensions(int width, int height);
 
+    static constexpr auto kWidth = 600.f;
+    static constexpr auto kHeight = 650.f;
 private:
-    void setupElement(visage::Frame& element);
-
     // Reference to the plugin
     Disstortion& mDisstortion;
 
-    visage::ScrollableFrame mScrollable;
-
-    RotaryKnob mDrive;
-    RotaryKnob mDriveType;
-    RotaryKnob mMix;
-    RotaryKnob mAsymmetry;
     RotaryKnob mInputGain;
     RotaryKnob mOutputGain;
-    RotaryKnob mPreFilter;
-    RotaryKnob mPostFilter;
-    ToggleButton mPreFilterOn;
-    ToggleButton mPostFilterOn;
+    RotaryKnob mDrive;
+    RotaryKnob mAsymmetry;
+    RotaryKnob mMix;
 
+    RotaryKnob mPreFreq;
+    RotaryKnob mPreRes;
+    RotaryKnob mPreGain;
 
-    static constexpr int kMinHeight = 120;
-    static constexpr int kMaxHeight = 800;
-    static constexpr int kMinWidth = 120;
-    static constexpr int kMaxWidth = 800;
+    RotaryKnob mPostFreq;
+    RotaryKnob mPostRes;
+    RotaryKnob mPostGain;
+
+    std::unique_ptr<visage::ShaderPostEffect> mGlitchShader;
 };
 
 } // namespace gui::stfefane

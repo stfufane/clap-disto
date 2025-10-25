@@ -22,9 +22,12 @@ struct ParamValueType {
     std::string mUnit;
     uint32_t mFlags = CLAP_PARAM_IS_AUTOMATABLE;
 
-    [[nodiscard]] virtual std::string toText(double value) const {
+    [[nodiscard]] virtual std::string toText(double value, bool unit = true) const {
         std::ostringstream os;
-        os << std::fixed << std::setprecision(2) << denormalizedValue(value) << mUnit;
+        os << std::fixed << std::setprecision(2) << denormalizedValue(value);
+        if (unit) {
+            os << mUnit;
+        }
         return os.str();
     }
 
@@ -49,7 +52,7 @@ struct SteppedValueType : public ParamValueType {
         mFlags = CLAP_PARAM_IS_AUTOMATABLE | CLAP_PARAM_IS_STEPPED;
     }
 
-    [[nodiscard]] std::string toText(double value) const override {
+    [[nodiscard]] std::string toText(double value, bool unit) const override {
         const auto index = static_cast<size_t>(value);
         if (index >= mValues.size()) {
             return "INVALID INDEX";
