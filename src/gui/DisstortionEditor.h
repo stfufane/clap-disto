@@ -43,6 +43,8 @@ private:
     RotaryKnob mPostGain;
 
     std::unique_ptr<visage::ShaderPostEffect> mGlitchShader;
+
+    std::unique_ptr<params::ParameterAttachment> mDriveAttachment;
 };
 
 } // namespace gui::stfefane

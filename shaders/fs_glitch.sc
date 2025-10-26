@@ -8,6 +8,7 @@ uniform vec4 u_time;
 uniform vec4 u_atlas_scale;
 uniform vec4 u_dimensions;
 uniform vec4 u_color_mult;
+uniform vec4 u_glitch_amount; // x component controls strength (0=no glitch, 1=current, >1 more)
 
 float random(vec2 uv) {
   return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
@@ -44,7 +45,15 @@ vec3 glitch2(vec2 value, float time) {
 }
 
 void main() {
-  vec3 g = glitch1(vec2(v_texture_uv.y, u_time.x + 150.9)) + glitch2(v_texture_uv, u_time.x);
+  float amount = u_glitch_amount.x; // 0 = no effect, 1 = baseline, >1 = stronger
+  // Keep backward-compatible default if uniform isn't set
+  amount = (amount <= 0.0) ? 1.0 : amount;
+  // Increase stripe density a bit with amount as well
+  float freq = 1.0 + (amount - 1.0) * 0.75; // 1.0 at baseline, up to ~1.75x at amount=2
+
+  vec3 g = (glitch1(vec2(v_texture_uv.y * freq, u_time.x + 150.9))
+          + glitch2(vec2(v_texture_uv.x, v_texture_uv.y * freq), u_time.x)) * amount;
+
   float a = texture2D(s_texture, v_texture_uv).a;
   gl_FragColor.r = texture2D(s_texture, v_texture_uv + vec2(g.r, 0.0)).r;
   gl_FragColor.g = texture2D(s_texture, v_texture_uv + vec2(g.b, 0.0)).g;

@@ -54,6 +54,16 @@ DisstortionEditor::DisstortionEditor(Disstortion& d)
     mGlitchShader = std::make_unique<visage::ShaderPostEffect>(resources::shaders::vs_custom,
                                                                resources::shaders::fs_glitch);
     mDrive.setPostEffect(mGlitchShader.get());
+
+    // Add a listener on the drive value to make the glitch effect react to the level of drive.
+    mDriveAttachment = std::make_unique<params::ParameterAttachment>(d.getParameter(params::eDrive), [&](params::Parameter* param, double new_val) {
+        const auto linear_gain = utils::dbToLinear(param->getValueType().denormalizedValue(new_val));
+        if (utils::almostEqual(linear_gain, 1.)) {
+            mGlitchShader->setUniformValue("u_glitch_amount", 0.f);
+        } else {
+            mGlitchShader->setUniformValue("u_glitch_amount", linear_gain / 15.f);
+        }
+    });
 }
 
 void DisstortionEditor::draw(visage::Canvas& canvas) {
