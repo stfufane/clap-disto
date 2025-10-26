@@ -7,11 +7,11 @@ namespace stfefane::params {
 void Parameters::setup() {
     addParameter(eMix, "Mix", std::make_unique<ParamValueType>(0., 100., 50., " %"));
     addParameter(eDriveType, "Drive Type", std::make_unique<SteppedValueType>(dsp::MultiDisto::types(), 0.));
-    addParameter(eDrive, "Drive", std::make_unique<ParamValueType>(0., dsp::kMaxDriveDb, 6., " dB"));
+    addParameter(eDrive, "Drive", std::make_unique<ParamValueType>(0., dsp::kMaxDriveDb, 6., " dB", MappingType::Logarithmic));
     addParameter(eAsymmetry, "Asymmetry",
              std::make_unique<ParamValueType>(-0.5, 0.5, 0., std::string(), MappingType::BipolarSCurve));
-    addParameter(eInGain, "Input Gain", std::make_unique<ParamValueType>(-12., 24., 0., " dB"));
-    addParameter(eOutGain, "Output Gain", std::make_unique<ParamValueType>(-24., 6., 0., " dB"));
+    addParameter(eInGain, "Input Gain", std::make_unique<ParamValueType>(-12., 24., 0., " dB", MappingType::Logarithmic));
+    addParameter(eOutGain, "Output Gain", std::make_unique<ParamValueType>(-24., 6., 0., " dB", MappingType::Logarithmic));
 
     addParameter(ePreFilterOn, "Pre Filter On", std::make_unique<BooleanValueType>(true));
     addParameter(ePreFilterType, "Pre Filter Type", std::make_unique<SteppedValueType>(dsp::BiquadFilter::types(), 0.));
