@@ -1,8 +1,11 @@
 #pragma once
 
-#include <visage/app.h>
+#include "DriveSelector.h"
+#include "FilterPanel.h"
 #include "RotaryKnob.h"
 #include "ToggleButton.h"
+
+#include <visage/app.h>
 
 namespace stfefane {
 class Disstortion;
@@ -34,13 +37,10 @@ private:
     RotaryKnob mAsymmetry;
     RotaryKnob mMix;
 
-    RotaryKnob mPreFreq;
-    RotaryKnob mPreRes;
-    RotaryKnob mPreGain;
+    DriveSelector mDriveSelector;
 
-    RotaryKnob mPostFreq;
-    RotaryKnob mPostRes;
-    RotaryKnob mPostGain;
+    FilterPanel mPreFilter;
+    FilterPanel mPostFilter;
 
     std::unique_ptr<visage::ShaderPostEffect> mGlitchShader;
 

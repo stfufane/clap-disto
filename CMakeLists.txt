@@ -47,6 +47,12 @@ set(GUI_FILES
         src/gui/ToggleButton.h
         src/gui/IParamControl.cpp
         src/gui/IParamControl.h
+        src/gui/FilterPanel.cpp
+        src/gui/FilterPanel.h
+        src/gui/DriveSelector.cpp
+        src/gui/DriveSelector.h
+        src/gui/FilterSelector.cpp
+        src/gui/FilterSelector.h
 )
 
 set(PARAM_FILES

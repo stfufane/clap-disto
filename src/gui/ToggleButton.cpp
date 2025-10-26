@@ -1,50 +1,36 @@
 #include "ToggleButton.h"
 
-#include "embedded/disto_fonts.h"
+#include "embedded/disto_images.h"
 #include "params/Parameter.h"
 
 namespace stfefane::gui {
 
 ToggleButton::ToggleButton(Disstortion& disstortion, clap_id param_id)
-    : IParamControl(disstortion, param_id),
-      mFont(12.f, resources::fonts::DroidSansMono_ttf),
-      mButton(name() + " ToggleButton", mFont) {
-    mButton.setToggled(mParam->getValue() > .5);
-    mButton.onToggle() = [this]([[maybe_unused]] visage::Button* button, bool toggled) {
-        beginChangeGesture();
-        performChange(toggled);
-        endChangeGesture();
-        mButton.setText(toggled ? "On" : "Off");
-    };
-    addChild(mButton);
+    : IParamControl(disstortion, param_id) {
+}
+
+void ToggleButton::mouseDown(const visage::MouseEvent& e) {
+    const auto toggled = mCurrentValue.load(std::memory_order_relaxed) > .5;
+    beginChangeGesture();
+    performChange(!toggled);
+    endChangeGesture();
+}
+
+void ToggleButton::mouseEnter(const visage::MouseEvent& e) {
+    // TODO change mouse cursor
+    IParamControl::mouseEnter(e);
+    // visage::MouseCursor::
+}
+
+void ToggleButton::mouseExit(const visage::MouseEvent& e) {
+    IParamControl::mouseExit(e);
 }
 
 void ToggleButton::draw(visage::Canvas& canvas) {
-    const auto button_height = height() * .8f;
-    const auto w = width() * 0.9f;
-    const auto margin_x = (width() - w) * .5f;
-
-    canvas.setColor(0xff325232);
-    canvas.roundedRectangleBorder(margin_x, button_height, w, height() - button_height, 8.f, 1.f);
-
-    canvas.setColor(0xff111111);
-    canvas.text(mTitle, mFont.withSize(10.f), visage::Font::kCenter, margin_x, button_height, w, height() - button_height);
-
-    mButton.setToggled(mCurrentValue > .5);
-    mButton.setText(mCurrentValue > .5 ? "On" : "Off");
-}
-
-void ToggleButton::resized() {
-    IParamControl::resized();
-    const auto button_height = height() * .8f;
-    const auto smaller_size = std::min(width(), button_height);
-    const auto w = smaller_size * .6f;
-
-    // Center the button
-    const auto margin_x = (width() - w) * .5f;
-    const auto margin_y = (button_height - w) * .5f;
-
-    mButton.setBounds(margin_x, margin_y, w, button_height * .5f);
+    if (mCurrentValue.load(std::memory_order_relaxed) > .5) {
+        canvas.setColor(0xffffffff);
+    }
+    canvas.svg(resources::images::on_off_svg.data, resources::images::on_off_svg.size, 0.f, 0.f, width(), height());
 }
 
 } // namespace stfefane::gui

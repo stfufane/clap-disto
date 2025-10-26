@@ -52,6 +52,11 @@ void RotaryKnob::draw(visage::Canvas& canvas) {
         canvas.setColor(0xff003d5b);
         canvas.text(getValueString(mDisplayUnit), mFont, visage::Font::kCenter, 0, 0, w, h);
     }
+
+    // Force redraw if there's an active post effect
+    if (postEffect()) {
+        redraw();
+    }
 }
 
 void RotaryKnob::mouseDown(const visage::MouseEvent& e) {

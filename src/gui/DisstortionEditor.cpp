@@ -1,5 +1,6 @@
 #include "DisstortionEditor.h"
 
+#include "disstortion.h"
 #include "embedded/disto_images.h"
 #include "embedded/disto_shaders.h"
 #include "params/Parameters.h"
@@ -16,12 +17,10 @@ DisstortionEditor::DisstortionEditor(Disstortion& d)
 , mDrive(d, params::eDrive)
 , mAsymmetry(d, params::eAsymmetry)
 , mMix(d, params::eMix)
-, mPreFreq(d, params::ePreFilterFreq)
-, mPreRes(d, params::ePreFilterQ)
-, mPreGain(d, params::ePreFilterGain)
-, mPostFreq(d, params::ePostFilterFreq)
-, mPostRes(d, params::ePostFilterQ)
-, mPostGain(d, params::ePostFilterGain){
+, mDriveSelector(d, params::eDriveType)
+, mPreFilter(d, "Pre Filter", params::ePreFilterOn, params::ePreFilterFreq, params::ePreFilterQ, params::ePreFilterGain, params::ePreFilterType)
+, mPostFilter(d, "Post Filter", params::ePostFilterOn, params::ePostFilterFreq, params::ePostFilterQ, params::ePostFilterGain, params::ePostFilterType)
+{
     LOG_INFO("ui", "[DisstortionEditor::createUI]");
 
     addChild(mInputGain);
@@ -29,27 +28,12 @@ DisstortionEditor::DisstortionEditor(Disstortion& d)
     addChild(mDrive);
     addChild(mAsymmetry);
     addChild(mMix);
+    addChild(mDriveSelector);
 
-    addChild(mPreFreq);
-    addChild(mPreRes);
-    addChild(mPreGain);
-
-    addChild(mPostFreq);
-    addChild(mPostRes);
-    addChild(mPostGain);
+    addChild(mPreFilter);
+    addChild(mPostFilter);
 
     mDrive.setFontSize(42.f);
-
-    mPreFreq.setFontSize(10.f);
-    mPreRes.setFontSize(10.f);
-    mPreGain.setFontSize(10.f);
-
-    mPostFreq.setFontSize(10.f);
-    mPostRes.setFontSize(10.f);
-    mPostGain.setFontSize(10.f);
-
-    mPreGain.setDisplayUnit(false);
-    mPostGain.setDisplayUnit(false);
 
     mGlitchShader = std::make_unique<visage::ShaderPostEffect>(resources::shaders::vs_custom,
                                                                resources::shaders::fs_glitch);
@@ -80,15 +64,10 @@ void DisstortionEditor::resized() {
     mDrive.setBounds(194.f, 80.f, 212.f, 212.f);
     mAsymmetry.setBounds(270.f, 440.f, 60.f, 60.f);
     mMix.setBounds(270.f, 545.f, 60.f, 60.f);
+    mDriveSelector.setBounds(0.f, 345.7f, width(), 64.f);
 
-    // TODO: put in a specific panel
-    mPreFreq.setBounds(22.f, 530.f, 75.f, 75.f);
-    mPreRes.setBounds(110.f, 550.f, 34.f, 34.f);
-    mPreGain.setBounds(160.f, 550.f, 34.f, 34.f);
-
-    mPostFreq.setBounds(404.f, 530.f, 75.f, 75.f);
-    mPostRes.setBounds(490.f, 550.f, 34.f, 34.f);
-    mPostGain.setBounds(540.f, 550.f, 34.f, 34.f);
+    mPreFilter.setBounds(2.8f, 409.6f, 214.9f, 228.5f);
+    mPostFilter.setBounds(383.2f, 409.6f, 214.9f, 228.5f);
 }
 
 int DisstortionEditor::pluginWidth() const {
