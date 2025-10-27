@@ -13,13 +13,8 @@ DriveSelector::DriveSelector(Disstortion& d, clap_id param_id)
     addChild(mPrevButton);
     addChild(mNextButton);
 
-    mPrevButton.onMouseDown() = [&](const visage::MouseEvent&) {
-        updateValue(-1.);
-    };
-
-    mNextButton.onMouseDown() = [&](const visage::MouseEvent&) {
-        updateValue(1.);
-    };
+    mPrevButton.onMouseDown() = [&](const visage::MouseEvent&) { updateValue(-1.); };
+    mNextButton.onMouseDown() = [&](const visage::MouseEvent&) { updateValue(1.); };
 }
 
 void DriveSelector::draw(visage::Canvas& canvas) {

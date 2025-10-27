@@ -23,6 +23,14 @@ DisstortionEditor::DisstortionEditor(Disstortion& d)
 {
     LOG_INFO("ui", "[DisstortionEditor::createUI]");
 
+    mPalette.initWithDefaults();
+    setPalette(&mPalette);
+
+    mPalette.setColor(visage::ToggleButton::ToggleButtonOn, 0xffedae49);
+    mPalette.setColor(visage::ToggleButton::ToggleButtonOnHover, 0xffedae49);
+    mPalette.setColor(visage::ToggleButton::ToggleButtonOff, 0xffa55555);
+    mPalette.setColor(visage::ToggleButton::ToggleButtonOffHover, 0xffedae49);
+
     addChild(mInputGain);
     addChild(mOutputGain);
     addChild(mDrive);

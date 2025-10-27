@@ -3,7 +3,6 @@
 #include "DriveSelector.h"
 #include "FilterPanel.h"
 #include "RotaryKnob.h"
-#include "ToggleButton.h"
 
 #include <visage/app.h>
 
@@ -30,6 +29,8 @@ public:
 private:
     // Reference to the plugin
     Disstortion& mDisstortion;
+
+    visage::Palette mPalette;
 
     RotaryKnob mInputGain;
     RotaryKnob mOutputGain;

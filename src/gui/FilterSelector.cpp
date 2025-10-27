@@ -12,15 +12,9 @@ FilterSelector::FilterSelector(Disstortion& d, clap_id param_id)
 , mBandPassButton("bandpass_selector", resources::images::bandpass_svg.data, resources::images::bandpass_svg.size) {
 
     // To ensure there's always one toggled button, we don't "untoggle" them when they're clicked, it will be updated by the param update
-    mLowPassButton.onToggle() = [&](visage::Button*, bool) {
-        setNewValue(0.);
-    };
-    mHiPassButton.onToggle() = [&](visage::Button*, bool)  {
-        setNewValue(1.);
-    };
-    mBandPassButton.onToggle() = [&](visage::Button*, bool) {
-        setNewValue(2.);
-    };
+    mLowPassButton.onToggle() = [&](visage::Button*, bool) { setNewValue(0.); };
+    mHiPassButton.onToggle() = [&](visage::Button*, bool)  { setNewValue(1.); };
+    mBandPassButton.onToggle() = [&](visage::Button*, bool) { setNewValue(2.); };
 
     addChild(mLowPassButton);
     addChild(mHiPassButton);
