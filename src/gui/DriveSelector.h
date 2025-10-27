@@ -16,7 +16,7 @@ public:
     void draw(visage::Canvas& canvas) override;
     void resized() override;
 private:
-    void sendNewValue(double new_val);
+    void updateValue(double increment);
 
     visage::Font mFont;
 

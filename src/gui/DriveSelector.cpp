@@ -14,15 +14,11 @@ DriveSelector::DriveSelector(Disstortion& d, clap_id param_id)
     addChild(mNextButton);
 
     mPrevButton.onMouseDown() = [&](const visage::MouseEvent&) {
-        const auto current_type = mCurrentValue.load(std::memory_order_relaxed);
-        auto new_val = static_cast<size_t>(current_type - 1.0) % nbSteps();
-        sendNewValue(static_cast<double>(new_val));
+        updateValue(-1.);
     };
 
     mNextButton.onMouseDown() = [&](const visage::MouseEvent&) {
-        const auto current_type = mCurrentValue.load(std::memory_order_relaxed);
-        auto new_val = static_cast<size_t>(current_type + 1.0) % nbSteps();
-        sendNewValue(static_cast<double>(new_val));
+        updateValue(1.);
     };
 }
 
@@ -44,9 +40,11 @@ void DriveSelector::resized() {
     mPrevButton.setBounds(half_w - button_margin - button_width, half_h, button_width, button_height);
     mNextButton.setBounds(half_w + button_margin, half_h, button_width, button_height);
 }
-void DriveSelector::sendNewValue(double new_val) {
+void DriveSelector::updateValue(double increment) {
+    const auto current_type = mCurrentValue.load(std::memory_order_relaxed);
+    auto new_val = static_cast<size_t>(current_type + increment) % nbSteps();
     beginChangeGesture();
-    performChange(new_val);
+    performChange(static_cast<double>(new_val));
     endChangeGesture();
 }
 
