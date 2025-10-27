@@ -50,7 +50,7 @@ void FilterPanel::resized() {
     mFreq.setBounds(19.1f, 120.4f, 75.f, 75.f);
     mRes.setBounds(107.1f, 140.4f, 34.f, 34.f);
     mGain.setBounds(157.1f, 140.4f, 34.f, 34.f);
-    mType.setBounds(21.7f, 81.2f, 169.1f, 15.7f);
+    mType.setBounds(21.7f, 74.2f, 169.1f, 42.f);
 }
 
 } // namespace stfefane::gui

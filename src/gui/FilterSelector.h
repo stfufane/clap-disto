@@ -1,4 +1,5 @@
 #pragma once
+#include "visage_widgets/button.h"
 #include "IParamControl.h"
 
 namespace stfefane::gui {
@@ -7,16 +8,15 @@ class FilterSelector : public IParamControl {
 public:
     FilterSelector(Disstortion& d, clap_id param_id);
 
-    enum class Type {
-        eHiPass,
-        eLowPass,
-        eBandPass
-    };
-
     void draw(visage::Canvas& canvas) override;
+    void resized() override;
 
 private:
-    Type mActive = Type::eHiPass;
+    void setNewValue(double new_val);
+
+    visage::ToggleIconButton mLowPassButton;
+    visage::ToggleIconButton mHiPassButton;
+    visage::ToggleIconButton mBandPassButton;
 };
 
 }

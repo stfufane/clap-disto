@@ -17,13 +17,11 @@ void ToggleButton::mouseDown(const visage::MouseEvent& e) {
 }
 
 void ToggleButton::mouseEnter(const visage::MouseEvent& e) {
-    // TODO change mouse cursor
-    IParamControl::mouseEnter(e);
-    // visage::MouseCursor::
+    setCursorStyle(visage::MouseCursor::Pointing);
 }
 
 void ToggleButton::mouseExit(const visage::MouseEvent& e) {
-    IParamControl::mouseExit(e);
+    setCursorStyle(visage::MouseCursor::Arrow);
 }
 
 void ToggleButton::draw(visage::Canvas& canvas) {
