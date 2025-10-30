@@ -10,6 +10,10 @@
 
 namespace stfefane {
 
+namespace presets {
+class PresetManager;
+}
+
 using ClapPluginBase =
     clap::helpers::Plugin<clap::helpers::MisbehaviourHandler::Terminate, clap::helpers::CheckingLevel::Maximal>;
 
@@ -113,6 +117,7 @@ private:
     void handleEventsFromUIQueue(const clap_output_events_t *);
 
     params::Parameters mParameters;
+    std::unique_ptr<presets::PresetManager> mPresetManager;
 
     std::unique_ptr<gui::DisstortionEditor> mEditor;
 

@@ -1,6 +1,7 @@
 #include "disstortion.h"
 
 #include "utils/Logger.h"
+#include "presets/PresetManager.h"
 
 #include <clap/helpers/host-proxy.hh>
 #include <clap/helpers/plugin.hh>
@@ -22,7 +23,9 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,
                                                   "Disstortion Plugin",
                                                   kClapFeatures};
 
-Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
+Disstortion::Disstortion(const clap_host* host)
+: ClapPluginBase(&descriptor, host)
+, mPresetManager(std::make_unique<presets::PresetManager>(*this)) {
     LOG_INFO("dsp", "[Disstortion::constructor]");
 
     // register the parameter listeners on the engine and init the values.
@@ -211,85 +214,17 @@ bool Disstortion::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_i
 }
 
 bool Disstortion::stateSave(const clap_ostream* stream) noexcept {
-    if (!stream || !stream->write) {
-        return false;
-    }
-
-    nlohmann::json j;
-
-    // Store all parameters in the JSON object
-    j["state_version"] = PROJECT_VERSION;
-    for (const auto& param: mParameters.getParams()) {
-        j[param->getInfo().name] = param->getValue();
-    }
-
-    const auto jsonStr = j.dump();
+    const auto j = mPresetManager->getCurrentState();
     LOG_DEBUG("param", "[stateSave] -> {}", j.dump(4));
-
-    // CLAP streams may have size limitations, so we need to write in chunks
-    const auto* buffer = jsonStr.data();
-
-    auto remaining = jsonStr.size();
-    while (remaining > 0) {
-        // Try to write remaining bytes
-        const auto written = stream->write(stream, buffer + (jsonStr.size() - remaining), remaining);
-
-        if (written < 0) {
-            return false; // Write error occurred
-        }
-
-        remaining -= written;
-    }
-
-    return true;
+    return utils::writeToClapStream(j.dump(), stream);
 }
 
 bool Disstortion::stateLoad(const clap_istream* stream) noexcept {
-    if (!stream || !stream->read) {
+    const auto buffer = utils::readFromClapStream(stream);
+    if (!buffer) {
         return false;
     }
-
-    // Read the JSON string from the stream in chunks
-    constexpr auto chunkSize = 4096;
-    std::vector<char> buffer;
-    char chunk[chunkSize];
-
-    while (true) {
-        int64_t bytesRead = stream->read(stream, chunk, chunkSize);
-        if (bytesRead < 0) {
-            return false; // Read error
-        }
-        if (bytesRead == 0) {
-            break; // End of stream
-        }
-        buffer.insert(buffer.end(), chunk, chunk + bytesRead);
-    }
-
-    // No state to load but I guess that's ok
-    if (buffer.empty()) {
-        return false;
-    }
-
-    buffer.push_back('\0'); // Ensure buffer is null-terminated
-
-    try {
-        nlohmann::json j = nlohmann::json::parse(buffer.data());
-        LOG_DEBUG("param", "[stateLoad] -> {}", j.dump(4));
-
-        const auto state_version = j["state_version"].get<std::string>();
-        if (state_version == PROJECT_VERSION) {
-            for (const auto& param: mParameters.getParams()) {
-                param->setValue(j[param->getInfo().name].get<double>());
-            }
-        } else {
-            // TODO: handle changes between versions.
-        }
-
-        return true;
-    } catch (std::exception& e) {
-        std::cerr << "Disstortion: Failed to load state: " << e.what() << std::endl;
-        return false;
-    }
+    return mPresetManager->loadStateFromBuffer(buffer->data());
 }
 
 #ifdef __linux__

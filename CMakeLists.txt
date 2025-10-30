@@ -64,6 +64,11 @@ set(PARAM_FILES
         src/params/ValueMapping.h
 )
 
+set(PRESET_FILES
+        src/presets/PresetManager.cpp
+        src/presets/PresetManager.h
+)
+
 set(UTILS_FILES
         src/utils/Logger.h
         src/utils/Utils.h
@@ -78,6 +83,7 @@ set(SOURCE_FILES
         ${DSP_FILES}
         ${GUI_FILES}
         ${PARAM_FILES}
+        ${PRESET_FILES}
         ${UTILS_FILES}
 )
 
