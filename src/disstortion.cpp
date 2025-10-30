@@ -25,8 +25,7 @@ clap_plugin_descriptor Disstortion::descriptor = {CLAP_VERSION,
 Disstortion::Disstortion(const clap_host* host) : ClapPluginBase(&descriptor, host) {
     LOG_INFO("dsp", "[Disstortion::constructor]");
 
-    // Setup all the parameters, register their listeners on the engine and init the values.
-    mParameters.setup();
+    // register the parameter listeners on the engine and init the values.
     std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.initParameterAttachments(*this); });
     for (const auto& param: mParameters.getParams()) {
         param->notifyAllListeners();

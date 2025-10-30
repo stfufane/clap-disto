@@ -29,9 +29,8 @@ enum param_ids : clap_id {
 
 class Parameters {
 public:
-    Parameters() = default;
+    Parameters();
 
-    void setup();
     void addParameter(clap_id id, const std::string& name, std::unique_ptr<ParamValueType> value_type);
 
     [[nodiscard]] size_t count() const noexcept { return mParameters.size(); }

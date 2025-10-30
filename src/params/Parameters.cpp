@@ -4,7 +4,7 @@
 
 namespace stfefane::params {
 
-void Parameters::setup() {
+Parameters::Parameters() {
     addParameter(eMix, "Mix", std::make_unique<ParamValueType>(0., 100., 50., " %"));
     addParameter(eDriveType, "Drive Type", std::make_unique<SteppedValueType>(dsp::MultiDisto::types(), 0.));
     addParameter(eDrive, "Drive", std::make_unique<ParamValueType>(0., dsp::kMaxDriveDb, 6., " dB", MappingType::Logarithmic));
