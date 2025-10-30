@@ -20,10 +20,10 @@ static const clap_plugin *createPlugin(const clap_plugin_factory *factory, const
         return nullptr;
     }
 
-    utils::folders::setupDataFolder();
 #if DEBUG
     utils::initLoggers();
 #endif
+    utils::folders::setupPluginFolder();
 
     auto *p = new Disstortion(host);
     return p->clapPlugin();

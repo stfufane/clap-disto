@@ -68,6 +68,7 @@ set(UTILS_FILES
         src/utils/Logger.h
         src/utils/Utils.h
         src/utils/Folders.h
+        src/utils/Folders.cpp
 )
 
 set(SOURCE_FILES

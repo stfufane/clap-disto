@@ -1,123 +1,23 @@
 #pragma once
 
-#if WIN32
-#define NOMINMAX
-#include <shlobj.h>
-#elif __APPLE__
-#include <glob.h>
-#include <sysdir.h>
-#else
-#include <unistd.h>
-#include <pwd.h>
-#endif
-
 #include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <string_view>
 
 namespace stfefane::utils::folders {
 
+extern const std::filesystem::path PLUGIN_DIR;
+extern const std::filesystem::path LOG_SETTINGS_FILE;
+extern const std::filesystem::path PRESETS_DIR;
+
 #if __APPLE__
-inline std::string expandTilde(const char* str) {
-    if (!str) {
-        return {};
-    }
-
-    glob_t globbuf;
-    if (glob(str, GLOB_TILDE, nullptr, &globbuf) == 0) {
-        std::string result(globbuf.gl_pathv[0]);
-        globfree(&globbuf);
-        return result;
-    }
-    return {};
-}
+std::string expandTilde(const char* str);
 #endif
 
-inline const auto SETTINGS_DIR = []() -> std::filesystem::path {
-#if WIN32
-    PWSTR path_tmp;
+void setupPluginFolder();
+bool createDirectory(const std::filesystem::path& dir);
 
-    /* Attempt to get user's AppData folder
-     *
-     * Microsoft Docs:
-     * https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shgetknownfolderpath
-     * https://learn.microsoft.com/en-us/windows/win32/shell/knownfolderid
-     */
-    auto get_folder_path_ret = SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &path_tmp);
+bool writeFileContent(const std::filesystem::path& path, std::string_view content);
 
-    /* Error check */
-    if (get_folder_path_ret != S_OK) {
-        CoTaskMemFree(path_tmp);
-        std::cout << "Could not find app data folder\n";
-        return {};
-    }
+std::string readFileContent(const std::filesystem::path& path);
 
-    /* Convert the Windows path type to a C++ path */
-    std::filesystem::path settings_path = std::filesystem::path(path_tmp) / USERDATA_DIR;
-
-    CoTaskMemFree(path_tmp);
-
-    return settings_path;
-#elif __APPLE__
-    // On macOS, use the sysdir API to retrieve the user Application Support folder.
-    char path[PATH_MAX];
-    auto state = sysdir_start_search_path_enumeration(SYSDIR_DIRECTORY_APPLICATION_SUPPORT,
-                                                      SYSDIR_DOMAIN_MASK_USER);
-    if ((state = sysdir_get_next_search_path_enumeration(state, path))) {
-        return std::filesystem::path(expandTilde(path)) / USERDATA_DIR;
-    }
-    return {};
-#else
-    const char* home_dir = getpwuid(getuid())->pw_dir;
-    return std::filesystem::path(home_dir) / ".config" / USERDATA_DIR;
-#endif
-}();
-
-inline const auto LOG_SETTINGS_FILE = SETTINGS_DIR / "log.settings";
-
-inline void setupDataFolder() {
-    std::cout << "Create data folder at " << std::filesystem::absolute(SETTINGS_DIR) << "\n";
-    if (!std::filesystem::exists(SETTINGS_DIR)) {
-        try {
-            std::filesystem::create_directories(SETTINGS_DIR);
-        } catch (const std::exception& e) {
-            std::cout << "Impossible to create the settings folder\n";
-            throw;
-        }
-    }
-}
-
-inline bool writeFileContent(const std::filesystem::path& path, std::string_view content) {
-    try {
-        std::ofstream file(path.generic_string());
-        file << content;
-        file.close();
-    } catch (const std::exception& e) {
-        std::cout << "Impossible to write to file " << path.generic_string() << " -> " << e.what() << "\n";
-        return false;
-    }
-    return true;
-}
-
-inline std::string readFileContent(const std::filesystem::path& path) {
-    if (!std::filesystem::exists(path)) {
-        return {};
-    }
-
-    try {
-        std::ifstream file(path.generic_string(), std::ifstream::binary);
-        if (file.is_open()) {
-            std::string content;
-            file >> content;
-            return content;
-        }
-    } catch (const std::exception& e) {
-        std::cout << "Impossible to read file " << path.generic_string() << " -> " << e.what() << "\n";
-        return {};
-    }
-
-    return {};
-}
-
-}
+} // namespace stfefane::utils::folders
