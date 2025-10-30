@@ -14,13 +14,12 @@ class ToggleButton final : public IParamControl {
 public:
     explicit ToggleButton(Disstortion& disstortion, clap_id param_id);
 
+    void mouseDown(const visage::MouseEvent& e) override;
+    void mouseEnter(const visage::MouseEvent& e) override;
+    void mouseExit(const visage::MouseEvent& e) override;
+
 protected:
     void draw(visage::Canvas& canvas) override;
-    void resized() override;
-
-private:
-    visage::Font mFont;
-    visage::ToggleTextButton mButton;
 };
 
 }
