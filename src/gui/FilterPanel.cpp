@@ -34,9 +34,7 @@ FilterPanel::FilterPanel(Disstortion& d, const std::string& name, clap_id on_off
 
 void FilterPanel::draw(visage::Canvas& canvas) {
     // TODO: draw text manually to handle color fade
-    if (mIsOn) {
-        canvas.setColor(0xffffffff);
-    }
+    canvas.setColor(mIsOn ? 0xffffffff : 0xffa55555);
     if (mIsPre) {
         canvas.svg(resources::images::pre_filter_frame_svg.data, resources::images::pre_filter_frame_svg.size, 0.f, 0.f, width(), height());
     } else {
