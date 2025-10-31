@@ -60,7 +60,7 @@ const std::filesystem::path LOG_SETTINGS_FILE = PLUGIN_DIR / "log.settings";
 const std::filesystem::path PRESETS_DIR = PLUGIN_DIR / "Presets";
 
 #if __APPLE__
-std::string folders::expandTilde(const char* str) {
+std::string expandTilde(const char* str) {
     if (!str) {
         return {};
     }
