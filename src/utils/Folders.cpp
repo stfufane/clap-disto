@@ -99,6 +99,15 @@ bool createDirectory(const std::filesystem::path& dir) {
     return true;
 }
 
+std::vector<std::string> listDirectory(const std::filesystem::path& dir) {
+    std::vector<std::string> files;
+    files.reserve(10);
+    for (const auto& dir_entry : std::filesystem::recursive_directory_iterator{dir}) {
+        files.push_back(dir_entry.path().filename().generic_string());
+    }
+    return files;
+}
+
 bool writeFileContent(const std::filesystem::path& path, std::string_view content) {
     try {
         std::ofstream file(path.generic_string());

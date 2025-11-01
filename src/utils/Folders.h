@@ -16,8 +16,9 @@ std::string expandTilde(const char* str);
 void setupPluginFolder();
 bool createDirectory(const std::filesystem::path& dir);
 
-bool writeFileContent(const std::filesystem::path& path, std::string_view content);
+std::vector<std::string> listDirectory(const std::filesystem::path& dir);
 
+bool writeFileContent(const std::filesystem::path& path, std::string_view content);
 std::string readFileContent(const std::filesystem::path& path);
 
 } // namespace stfefane::utils::folders
