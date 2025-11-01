@@ -5,13 +5,13 @@
         <g transform="matrix(1,0,0,0.99329,-1.42109e-14,4.44244)">
             <g id="save">
                 <g transform="matrix(0.868771,0,0,0.691891,-51.6046,2.89256)">
-                    <rect x="589.624" y="31.702" width="11.881" height="8.787" style="fill:none;stroke:rgb(0,61,91);stroke-width:4.99px;"/>
+                    <rect x="589.624" y="31.702" width="11.881" height="8.787" style="fill:none;stroke:white;stroke-width:4.99px;"/>
                 </g>
                 <g transform="matrix(0.829056,0,0,0.783133,-28.7119,1.32555)">
-                    <rect x="590.256" y="47.639" width="16.731" height="11.269" style="fill:none;stroke:rgb(0,61,91);stroke-width:4.87px;"/>
+                    <rect x="590.256" y="47.639" width="16.731" height="11.269" style="fill:none;stroke:white;stroke-width:4.87px;"/>
                 </g>
                 <g transform="matrix(0.78125,0,0,0.783133,0,0)">
-                    <path d="M608.23,30.314L614.084,37.521L614.129,57.568C614.129,59.242 612.77,60.601 611.096,60.601L585.48,60.601C583.806,60.601 582.448,59.242 582.448,57.568L582.448,33.306C582.448,31.632 583.806,30.273 585.48,30.273L608.23,30.314Z" style="fill:none;stroke:rgb(0,61,91);stroke-width:5.02px;"/>
+                    <path d="M608.23,30.314L614.084,37.521L614.129,57.568C614.129,59.242 612.77,60.601 611.096,60.601L585.48,60.601C583.806,60.601 582.448,59.242 582.448,57.568L582.448,33.306C582.448,31.632 583.806,30.273 585.48,30.273L608.23,30.314Z" style="fill:none;stroke:white;stroke-width:5.02px;"/>
                 </g>
             </g>
         </g>

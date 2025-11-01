@@ -53,6 +53,8 @@ set(GUI_FILES
         src/gui/DriveSelector.h
         src/gui/FilterSelector.cpp
         src/gui/FilterSelector.h
+        src/gui/PresetsPanel.cpp
+        src/gui/PresetsPanel.h
 )
 
 set(PARAM_FILES

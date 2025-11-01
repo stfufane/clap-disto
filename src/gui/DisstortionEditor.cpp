@@ -12,6 +12,7 @@ using namespace visage::dimension;
 
 DisstortionEditor::DisstortionEditor(Disstortion& d)
 : mDisstortion(d)
+, mPresetsPanel(d)
 , mInputGain(d, params::eInGain)
 , mOutputGain(d, params::eOutGain)
 , mDrive(d, params::eDrive)
@@ -23,14 +24,7 @@ DisstortionEditor::DisstortionEditor(Disstortion& d)
 {
     LOG_INFO("ui", "[DisstortionEditor::createUI]");
 
-    mPalette.initWithDefaults();
-    setPalette(&mPalette);
-
-    mPalette.setColor(visage::ToggleButton::ToggleButtonOn, 0xffedae49);
-    mPalette.setColor(visage::ToggleButton::ToggleButtonOnHover, 0xffedae49);
-    mPalette.setColor(visage::ToggleButton::ToggleButtonOff, 0xffa55555);
-    mPalette.setColor(visage::ToggleButton::ToggleButtonOffHover, 0xffedae49);
-
+    addChild(mPresetsPanel);
     addChild(mInputGain);
     addChild(mOutputGain);
     addChild(mDrive);
@@ -40,6 +34,24 @@ DisstortionEditor::DisstortionEditor(Disstortion& d)
 
     addChild(mPreFilter);
     addChild(mPostFilter);
+
+    mPalette.initWithDefaults();
+    setPalette(&mPalette);
+
+    mPalette.setColor(visage::ToggleButton::ToggleButtonOn, 0xffedae49);
+    mPalette.setColor(visage::ToggleButton::ToggleButtonOnHover, 0xffedae49);
+    mPalette.setColor(visage::ToggleButton::ToggleButtonOff, 0xffa55555);
+    mPalette.setColor(visage::ToggleButton::ToggleButtonOffHover, 0xffedae49);
+
+    mPalette.setColor(visage::UiButton::UiButtonBackground, 0xffedae49);
+    mPalette.setColor(visage::UiButton::UiButtonBackgroundHover, 0xdfedae49);
+    mPalette.setColor(visage::UiButton::UiButtonText, 0xff003d5b);
+    mPalette.setColor(visage::UiButton::UiButtonTextHover, 0xff00798c);
+
+    mPalette.setColor(mPresetsPanelPalette, visage::ToggleButton::ToggleButtonOn, 0xff003d5b);
+    mPalette.setColor(mPresetsPanelPalette, visage::ToggleButton::ToggleButtonOnHover, 0xff00798c);
+    mPalette.setColor(mPresetsPanelPalette, visage::ToggleButton::ToggleButtonOff, 0xff00798c);
+    mPalette.setColor(mPresetsPanelPalette, visage::ToggleButton::ToggleButtonOffHover, 0xff00798c);
 
     mDrive.setFontSize(42.f);
 
@@ -53,7 +65,7 @@ DisstortionEditor::DisstortionEditor(Disstortion& d)
         if (utils::almostEqual(linear_gain, 1.)) {
             mGlitchShader->setUniformValue("u_glitch_amount", 0.f);
         } else {
-            mGlitchShader->setUniformValue("u_glitch_amount", linear_gain / 15.f);
+            mGlitchShader->setUniformValue("u_glitch_amount", static_cast<float>(linear_gain) / 15.f);
         }
     });
 }
@@ -66,6 +78,8 @@ void DisstortionEditor::draw(visage::Canvas& canvas) {
 
 void DisstortionEditor::resized() {
     ApplicationWindow::resized();
+
+    mPresetsPanel.setBounds(80.f, 16.f, 440.f, 48.f);
 
     mInputGain.setBounds(40.f, 80.f, 78.f, 78.f);
     mOutputGain.setBounds(472.f, 80.f, 78.f, 78.f);

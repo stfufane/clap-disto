@@ -2,6 +2,7 @@
 
 #include "DriveSelector.h"
 #include "FilterPanel.h"
+#include "PresetsPanel.h"
 #include "RotaryKnob.h"
 
 #include <visage/app.h>
@@ -31,6 +32,9 @@ private:
     Disstortion& mDisstortion;
 
     visage::Palette mPalette;
+    visage::theme::OverrideId mPresetsPanelPalette { 1 };
+
+    PresetsPanel mPresetsPanel;
 
     RotaryKnob mInputGain;
     RotaryKnob mOutputGain;

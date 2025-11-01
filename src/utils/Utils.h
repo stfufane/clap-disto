@@ -7,6 +7,7 @@
 #include <cmath>
 #include <numbers>
 #include <optional>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -25,7 +26,6 @@ template<typename FLOATING_TYPE>
     constexpr auto kEpsilon = static_cast<FLOATING_TYPE>(1e-12);
     return std::fabs(a - b) < kEpsilon;
 }
-
 
 [[nodiscard]] inline double stringToDouble(const std::string& str) {
 #ifdef __APPLE__
@@ -51,6 +51,26 @@ template<typename FLOATING_TYPE>
 
 [[nodiscard]] inline double linearToDB(double linear) {
     return 20.0 * std::log10(std::max(linear, 1e-10));
+}
+
+// Define a concept to check if a type is a range
+template <typename T>
+concept Range = requires(T t) {
+    std::ranges::begin(t);
+    std::ranges::end(t);
+};
+
+template <Range R>
+std::string rangeValues(const R& r, const std::string_view sep = ", ") {
+    std::stringstream ss;
+    ss << "[";
+    std::ranges::for_each(r, [&](const auto& v) {
+        ss << v << sep;
+    });
+    // Remove the last separator
+    ss.seekp(- static_cast<std::stringstream::off_type>(sep.size()), std::stringstream::end);
+    ss << "]";
+    return ss.str();
 }
 
 inline bool writeToClapStream(const std::string& str, const clap_ostream* stream) {
