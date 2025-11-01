@@ -24,6 +24,8 @@ public:
     explicit Disstortion(const clap_host* host);
     ~Disstortion() override = default;
 
+    presets::PresetManager& getPresetManager() const;
+
 #ifdef __linux__
     bool implementsPosixFdSupport() const noexcept override { return true; }
     void onPosixFd(int fd, clap_posix_fd_flags_t flags) noexcept override;

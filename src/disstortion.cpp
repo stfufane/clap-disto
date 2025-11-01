@@ -35,6 +35,10 @@ Disstortion::Disstortion(const clap_host* host)
     }
 }
 
+presets::PresetManager& Disstortion::getPresetManager() const {
+    return *mPresetManager;
+}
+
 bool Disstortion::activate(double sampleRate, uint32_t, uint32_t) noexcept {
     LOG_INFO("dsp", "[Disstortion::activate]");
     std::ranges::for_each(mDistoProcessors, [&](auto& proc) { proc.setSampleRate(sampleRate); });
