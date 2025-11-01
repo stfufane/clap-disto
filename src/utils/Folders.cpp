@@ -76,10 +76,11 @@ std::string expandTilde(const char* str) {
 #endif
 
 void setupPluginFolder() {
-    LOG_INFO("fs", "Create plugin folder at {}", std::filesystem::absolute(PLUGIN_DIR).generic_string());
-    if (!createDirectory(PLUGIN_DIR)) {
+    LOG_INFO("fs", "Create plugin folder at {}", std::filesystem::absolute(PRESETS_DIR).generic_string());
+    if (!createDirectory(PRESETS_DIR)) {
         throw;
     }
+
 
 #if DEBUG
     // Overwrite the log levels with the ones from the settings file.
