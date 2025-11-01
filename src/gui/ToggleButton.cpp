@@ -25,9 +25,7 @@ void ToggleButton::mouseExit(const visage::MouseEvent& e) {
 }
 
 void ToggleButton::draw(visage::Canvas& canvas) {
-    if (mCurrentValue.load(std::memory_order_relaxed) > .5) {
-        canvas.setColor(0xffffffff);
-    }
+    canvas.setColor(mCurrentValue.load(std::memory_order_relaxed) > .5 ? 0xffffffff : 0xffa55555);
     canvas.svg(resources::images::on_off_svg.data, resources::images::on_off_svg.size, 0.f, 0.f, width(), height());
 }
 
