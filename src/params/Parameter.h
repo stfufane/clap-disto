@@ -21,6 +21,8 @@ public:
     [[nodiscard]] double getValue() const noexcept { return mValue.load(std::memory_order_relaxed); }
     void setValue(double value);
 
+    void reset();
+
     void notifyAllListeners() const noexcept;
 
     [[nodiscard]] const clap_param_info& getInfo() const noexcept { return mInfo; }

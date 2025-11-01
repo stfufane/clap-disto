@@ -36,6 +36,10 @@ void Parameter::setValue(double value) {
     notifyAllListeners();
 }
 
+void Parameter::reset() {
+    setValue(mValueType->mDefault);
+}
+
 void Parameter::notifyAllListeners() const noexcept {
     for (auto* listener : mListeners) {
         listener->onParameterUpdated(getValue());
