@@ -1,5 +1,6 @@
 #pragma once
-#include "visage_widgets/button.h"
+
+#include <visage/widgets.h>
 #include "IParamControl.h"
 
 namespace stfefane::gui {

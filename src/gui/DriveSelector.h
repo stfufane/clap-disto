@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IParamControl.h"
-#include "visage_widgets/button.h"
+#include <visage/widgets.h>
 
 namespace stfefane {
 class Disstortion;

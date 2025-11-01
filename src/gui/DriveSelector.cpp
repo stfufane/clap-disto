@@ -37,7 +37,7 @@ void DriveSelector::resized() {
 }
 void DriveSelector::updateValue(double increment) {
     const auto current_type = mCurrentValue.load(std::memory_order_relaxed);
-    auto new_val = static_cast<size_t>(current_type + increment) % nbSteps();
+    const auto new_val = static_cast<int>(current_type + increment) % nbSteps();
     beginChangeGesture();
     performChange(static_cast<double>(new_val));
     endChangeGesture();
