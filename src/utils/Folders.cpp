@@ -117,8 +117,7 @@ std::string readFileContent(const std::filesystem::path& path) {
 
     try {
         if (std::ifstream file(path.generic_string(), std::ifstream::binary); file.is_open()) {
-            std::string content;
-            file >> content;
+            std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             return content;
         }
     } catch (const std::exception& e) {
